@@ -1,0 +1,32 @@
+name: BlockDisplayCreator
+author: General_Breddok
+version: '1.5.0.0'
+main: me.general_breddok.blockdisplaycreator.BlockDisplayCreator
+api-version: 1.19
+description: Plugin for creating and fully customizing custom blocks
+
+softdepend: [ PlaceholderAPI, WorldGuard ]
+
+
+permissions:
+  blockdisplaycreator.blocks-destruction:
+    default: op
+
+  blockdisplaycreator.blocks-placement:
+    default: op
+
+  blockdisplaycreator.blocks-interaction:
+    default: op
+
+  bdc.bypass.wg:
+    default: op
+
+  bdc.command.custom-block:
+    default: op
+
+  bdc.command.reload:
+    default: op
+
+  bdc.command.killcbentities:
+    default: op
+

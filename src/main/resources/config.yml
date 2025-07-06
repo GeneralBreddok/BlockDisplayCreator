@@ -1,0 +1,12 @@
+#If set to false, players without blockdisplaycreator.blocks-destruction permission are prohibited from destroying custom blocks.   By def true
+blocks-destruction: true
+#If set to false, players without blockdisplaycreator.blocks-placement permission are prohibited from placing custom blocks.   By def true
+blocks-placement: true
+#If set to false, players without blockdisplaycreator.blocks-interaction permission are prohibited from interacting with custom blocks.   By def true
+blocks-interaction: true
+
+#If the number of entities in the chunk where the custom block is placed is greater than the specified amount, the block will not be placed.
+#This parameter is made to avoid entities disappearing on some server core.
+#If a negative number is specified, the check will not be performed.   By def -1
+max-entities-per-chunk: -1
+
