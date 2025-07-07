@@ -294,8 +294,6 @@ public class BDCCustomBlockService implements CustomBlockService {
             display.addScoreboardTag("custom-block");
             display.addScoreboardTag("custom-block-name:" + abstractCustomBlock.getName());
             display.addScoreboardTag("custom-block-display");
-            display.addScoreboardTag("custom-block-rotation-direction:" + rotation.getDirection());
-            display.addScoreboardTag("custom-block-rotation-attached:" + rotation.getAttachedFace());
             display.addScoreboardTag("custom-block-location:" + location.toVector());
             return true;
         });
@@ -334,8 +332,6 @@ public class BDCCustomBlockService implements CustomBlockService {
             interaction.addScoreboardTag("custom-block-name:" + abstractCustomBlock.getName());
             interaction.addScoreboardTag("custom-block-interaction");
             interaction.addScoreboardTag("custom-block-interaction-id:" + configuredInteractionIdentifier);
-            interaction.addScoreboardTag("custom-block-rotation-direction:" + rotation.getDirection());
-            interaction.addScoreboardTag("custom-block-rotation-attached:" + rotation.getAttachedFace());
             interaction.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return interaction;
@@ -365,8 +361,6 @@ public class BDCCustomBlockService implements CustomBlockService {
             collision.addScoreboardTag("custom-block-name:" + abstractCustomBlock.getName());
             collision.addScoreboardTag("custom-block-collision");
             collision.addScoreboardTag("custom-block-collision-id:" + configuredCollisionIdentifier);
-            collision.addScoreboardTag("custom-block-rotation-direction:" + rotation.getDirection());
-            collision.addScoreboardTag("custom-block-rotation-attached:" + rotation.getAttachedFace());
             collision.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return collision;
