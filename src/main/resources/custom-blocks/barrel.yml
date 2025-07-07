@@ -1,3 +1,4 @@
+
 #To create a custom block you only need to have the display.spawn-command and item.material parameters filled in
 
 #Display Entities of a given block.
@@ -62,7 +63,7 @@ item:
   skullmeta: 
     url: http://textures.minecraft.net/texture/c67d5d37cd64ce3fb57377d25d6152aa4ac2e37954248d5d91f88fbd791f4766
 
-#Interactions Entity of a given block.   The field may be missing, then all parameters are given by default
+#Interaction Entities of a given block.   The field may be missing, then all parameters are given by default
 interactions:
   #Interactions name
   interaction:
@@ -86,4 +87,17 @@ interactions:
       #Temporary permissions that are granted before executing commands and are removed after executing (those that were missing)
       granted-command-permission:
         - minecraft.command.playsound
+
+
+#Collision entities. Describes the collision entity parameters for this block.
+collisions:
+    #Collision name
+    main:
+        #Size of the collision entity. Works on 1.20.5+ only.
+        size: 0.8
+        #Offset of this collision entity relative to the central location of the custom block. Supports rotation-dependent offset changes
+        offset:
+          x: 0
+          y: 0.01
+          z: 0
 

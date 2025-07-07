@@ -44,12 +44,18 @@ public class BDCCustomBlockService implements CustomBlockService {
         this.storage = storage;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @NotNull
     public CustomBlockStorage getStorage() {
         return storage;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isCustomBlockOnLocation(@NotNull Location location, Object... data) {
         CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), BlockDisplayCreator.getInstance());
@@ -57,6 +63,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         return customBlockData.has(CustomBlockKey.NAME) && customBlockData.has(CustomBlockKey.BLOCK_ROTATION) && customBlockData.has(CustomBlockKey.DISPLAY_UUID) && customBlockData.has(CustomBlockKey.CUSTOM_BLOCK_UUID);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Nullable
     public CustomBlock getCustomBlock(@NotNull Location location, Object... data) {
@@ -147,6 +156,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         return new BDCCustomBlock(abstractCustomBlock, location, rotation, displays, interactions, collisions, uuid);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Nullable
     public CustomBlock getCustomBlock(@NotNull Interaction interaction, Object... data) {
@@ -162,6 +174,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         return customBlock;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Nullable
     public CustomBlock getCustomBlock(@NotNull Display display, Object... data) {
@@ -175,6 +190,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         return getCustomBlock(blockLocation);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     @Nullable
     public CustomBlock getCustomBlock(@NotNull Shulker collision, Object... data) {
@@ -189,6 +207,9 @@ public class BDCCustomBlockService implements CustomBlockService {
     }
 
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public CustomBlock placeBlock(@NotNull AbstractCustomBlock abstractCustomBlock, @NotNull Location location, @NotNull CustomBlockRotation rotation, @Nullable Player player, CustomBlockOption... options) {
         Material centralMaterial = abstractCustomBlock.getCentralMaterial();
@@ -377,6 +398,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         return rawCustomBlock;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) {
         Location location = customBlock.getLocation();
