@@ -34,7 +34,7 @@ import java.util.*;
 /**
  * @deprecated
  */
-@Deprecated(forRemoval = true, since = "1.5.0.0")
+@Deprecated
 public class BlockDisplayCreatorCMD implements TabExecutor {
 
     private final BlockDisplayCreator instance;
