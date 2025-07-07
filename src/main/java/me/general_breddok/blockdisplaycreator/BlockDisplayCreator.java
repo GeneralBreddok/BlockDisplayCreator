@@ -55,20 +55,20 @@ public final class BlockDisplayCreator extends JavaPlugin {
     YamlConfigFile yamlConfiguration;
     YamlConfigFile messagesFile;
 
-    /*BlockDisplayCreatorCommand bdcCommand;
-    CustomBlockGiveCommand cbGiveCommand;*/
+    BlockDisplayCreatorCommand bdcCommand;
+    CustomBlockGiveCommand cbGiveCommand;
 
 
 
     @Override
     public void onLoad() {
-        /*CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
+        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
 
         this.bdcCommand = new BlockDisplayCreatorCommand(this);
         this.bdcCommand.register();
 
         this.cbGiveCommand = new CustomBlockGiveCommand(this);
-        this.cbGiveCommand.register();*/
+        this.cbGiveCommand.register();
 
         worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
         placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
@@ -170,6 +170,6 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        //CommandAPI.onDisable();
+        CommandAPI.onDisable();
     }
 }

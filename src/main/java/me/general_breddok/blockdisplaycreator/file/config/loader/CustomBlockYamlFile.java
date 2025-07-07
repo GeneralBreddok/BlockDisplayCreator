@@ -296,7 +296,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
 
         if (spawnCommandFormat == SpawnCommandFormat.SUMMON_COMMAND || spawnCommandFormat == SpawnCommandFormat.MODEL_ID) {
-            List<SummonDisplayCommandLine> summonDisplayCommandLines = this.setDisplayParameters(displaySummonCommands.stream().map(SummonDisplayCommandLine.class::cast).toList());
+            List<SummonDisplayCommandLine> summonDisplayCommandLines = this.setDisplayParameters(displaySummonCommands.stream().map(SummonDisplayCommandLine.class::cast).collect(OperationUtil.toArrayList()));
             displaySummonCommands.clear();
             displaySummonCommands.addAll(summonDisplayCommandLines);
         }
@@ -379,7 +379,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         for (SummonDisplayCommandLine displaySummonCommand : displaySummonCommands) {
             NbtCommandArgument nbtArg = displaySummonCommand.getNbtArg();
             NbtDisplay nbtDisplay = new NbtDisplayObject(nbtArg.getContainer().asCompound());
-            List<NbtDisplayObject> nbtPassengers = nbtDisplay.getNbtPassengers().stream().map(passenger -> new NbtDisplayObject(passenger.asCompound())).toList();
+            List<NbtDisplayObject> nbtPassengers = nbtDisplay.getNbtPassengers().stream().map(passenger -> new NbtDisplayObject(passenger.asCompound())).collect(OperationUtil.toArrayList());
             boolean changed = false;
 
             if (glowing) {

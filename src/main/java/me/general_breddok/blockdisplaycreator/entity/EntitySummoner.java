@@ -173,7 +173,7 @@ public class EntitySummoner<E extends Entity> implements Summoner<E>, SpigotEnti
 
         cloned.passengers = this.passengers.stream()
                 .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .collect(OperationUtil.toArrayList());
 
         cloned.fallDistance = this.fallDistance;
         cloned.ticksLived = this.ticksLived;

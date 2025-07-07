@@ -19,6 +19,7 @@ import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockPlac
 import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -98,7 +99,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             }
 
             Display display = (Display) displayEntity;
-            displays.addAll(display.getPassengers().stream().map(Display.class::cast).toList());
+            displays.addAll(display.getPassengers().stream().map(Display.class::cast).collect(OperationUtil.toArrayList()));
             displays.add(display);
         }
 
@@ -135,7 +136,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
             if (displaySummoner instanceof AutomaticCommandDisplaySummoner automaticCommandDisplaySummoner) {
                 if (customBlockData.has(CustomBlockKey.DISPLAY_SPAWN_COMMAND)) {
-                    List<CommandLine> commandLines = Arrays.stream(customBlockData.get(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY)).toList();
+                    List<CommandLine> commandLines = Arrays.stream(customBlockData.get(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY)).collect(OperationUtil.toArrayList());
                     automaticCommandDisplaySummoner.setCommands(commandLines);
                 }
             }
@@ -155,6 +156,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         return new BDCCustomBlock(abstractCustomBlock, location, rotation, displays, interactions, collisions, uuid);
     }
+
 
     /**
      * {@inheritDoc}
@@ -335,7 +337,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             interaction.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return interaction;
-        }).toList();
+        }).collect(OperationUtil.toArrayList());
 
 
 
@@ -364,7 +366,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             collision.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return collision;
-        }).toList();
+        }).collect(OperationUtil.toArrayList());
 
 
 

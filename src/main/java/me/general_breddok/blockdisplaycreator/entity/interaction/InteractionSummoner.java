@@ -83,7 +83,7 @@ public class InteractionSummoner extends EntitySummoner<Interaction> implements 
 
         cloned.passengers = this.passengers.stream()
                 .map(entry -> Map.entry(entry.getKey(), entry.getValue()))
-                .collect(Collectors.toList());
+                .collect(OperationUtil.toArrayList());
 
         cloned.fallDistance = this.fallDistance;
         cloned.ticksLived = this.ticksLived;

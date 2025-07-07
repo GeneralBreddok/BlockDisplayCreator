@@ -15,6 +15,7 @@ import me.general_breddok.blockdisplaycreator.entity.display.TranslationVectorAd
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.LocationUtil;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import org.bukkit.GameRule;
 import org.bukkit.Location;
@@ -88,7 +89,7 @@ public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>
                 })
                 .stream()
                 .map(entity -> (Display) entity)
-                .toList();
+                .collect(OperationUtil.toArrayList());
     }
 
     private void prepareDisplayCommands(Location location, List<CommandLine> displayCommand) {

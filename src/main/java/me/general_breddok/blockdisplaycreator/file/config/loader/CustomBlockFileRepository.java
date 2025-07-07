@@ -6,6 +6,7 @@ import lombok.Getter;
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
 import me.general_breddok.blockdisplaycreator.file.exception.InvalidFileFormatException;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,14 +53,14 @@ public class CustomBlockFileRepository implements CustomBlockRepository {
                         return file;
                     })
                     .filter(Objects::nonNull)
-                    .toList());
+                    .collect(OperationUtil.toArrayList()));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     public List<AbstractCustomBlock> getAbstractCustomBlocks() {
-        return files.stream().map(CustomBlockConfigurationFile::getAbstractCustomBlock).toList();
+        return files.stream().map(CustomBlockConfigurationFile::getAbstractCustomBlock).collect(OperationUtil.toArrayList());
     }
 
 

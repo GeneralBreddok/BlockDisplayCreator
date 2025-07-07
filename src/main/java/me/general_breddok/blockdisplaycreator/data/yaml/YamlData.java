@@ -9,6 +9,7 @@ import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeSto
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.NumberUtil;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -59,7 +60,7 @@ public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
         persistentDataTypeManager.register(TypeTokens.STRING_SET, PersistentDataTypeStore.newPersistentDataType(
                 List.class,
                 ParameterizedClasses.STRING_SET,
-                (complex, context) -> complex.stream().toList(),
+                (complex, context) -> complex.stream().collect(OperationUtil.toArrayList()),
                 (primitive, context) -> {
                     Set<String> result = new HashSet<>();
                     for (Object o : primitive) {

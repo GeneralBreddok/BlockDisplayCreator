@@ -10,6 +10,7 @@ import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.commandparser.SummonDisplayCommandLine;
 import me.general_breddok.blockdisplaycreator.nbt.entity.NbtEntity;
 import me.general_breddok.blockdisplaycreator.nbt.entity.NbtEntityObject;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.web.exception.BDEngineModelNotFoundException;
 import me.general_breddok.blockdisplaycreator.web.exception.InvalidResponseException;
 
@@ -94,7 +95,7 @@ public class NetworkBDEngineModel implements BDEngineModel {
                 .map(jsonCommand ->
                         new SummonDisplayCommandLine(jsonCommand.getAsString())
                 )
-                .toList();
+                .collect(OperationUtil.toArrayList());
     }
 
     private JsonObject jsonArrayToJsonObject(JsonArray jsonArray) {
@@ -117,6 +118,7 @@ public class NetworkBDEngineModel implements BDEngineModel {
                                 return null;
                             }
                         }
-                ).toList();
+                )
+                .collect(OperationUtil.toArrayList());
     }
 }
