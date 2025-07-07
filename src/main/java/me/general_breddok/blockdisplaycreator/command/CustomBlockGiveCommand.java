@@ -1,39 +1,11 @@
 package me.general_breddok.blockdisplaycreator.command;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.arguments.EntitySelectorArgument;
-import dev.jorel.commandapi.arguments.IntegerArgument;
-import dev.jorel.commandapi.arguments.StringArgument;
-import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
-import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
-import me.general_breddok.blockdisplaycreator.custom.AutomaticCommandDisplaySummoner;
-import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockStorage;
-import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
-import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.util.ItemUtil;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CustomBlockGiveCommand {
-    final BlockDisplayCreator plugin;
+    /*final BlockDisplayCreator plugin;
     List<AbstractCustomBlockTooltip> abstractCustomBlockTooltips = new ArrayList<>();
 
     public CustomBlockGiveCommand(BlockDisplayCreator plugin) {
@@ -174,5 +146,5 @@ public class CustomBlockGiveCommand {
 
             item.setItemMeta(itemMeta);
         }
-    }
+    }*/
 }

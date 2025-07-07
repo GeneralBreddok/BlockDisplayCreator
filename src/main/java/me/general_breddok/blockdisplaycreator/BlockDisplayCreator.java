@@ -1,14 +1,13 @@
 package me.general_breddok.blockdisplaycreator;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkit;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorCMD;
 import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorCommand;
-import me.general_breddok.blockdisplaycreator.command.CustomBlockGiveCommand;
-import me.general_breddok.blockdisplaycreator.custom.block.*;
+import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockConfigStorage;
+import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockService;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeManager;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
@@ -59,7 +58,6 @@ public final class BlockDisplayCreator extends JavaPlugin {
     CustomBlockGiveCommand cbGiveCommand;*/
 
 
-
     @Override
     public void onLoad() {
         /*CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
@@ -101,13 +99,15 @@ public final class BlockDisplayCreator extends JavaPlugin {
                 this.getResource("messages.yml")
         );
         new YamlConfigFile(
-           Path.of(getDataFolder().getPath(), "custom-blocks", "barrel.yml"),
-           true,
-           this.getResource("custom-blocks/barrel.yml")
+                Path.of(getDataFolder().getPath(), "custom-blocks", "barrel.yml"),
+                true,
+                this.getResource("custom-blocks/barrel.yml")
         );
 
         reloadConfig();
         registerEvents();
+
+        getCommand("blockdisplaycreator").setExecutor(new BlockDisplayCreatorCMD(this, customBlockService));
     }
 
     private void registerEvents() {

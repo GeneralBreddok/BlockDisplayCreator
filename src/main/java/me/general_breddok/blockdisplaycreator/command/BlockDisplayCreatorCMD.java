@@ -2,12 +2,20 @@ package me.general_breddok.blockdisplaycreator.command;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
+import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
+import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.argument.TargetSelectorType;
+import me.general_breddok.blockdisplaycreator.custom.AutomaticCommandDisplaySummoner;
+import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
+import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
+import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
+import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFileRepository;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockRepository;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
@@ -24,6 +32,8 @@ import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.StringUtil;
 
@@ -81,6 +91,11 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
         switch (arg1) {
             case "custom-block" -> {
 
+                if (!sender.hasPermission("bdc.command.custom-block")) {
+                    ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
+                    return true;
+                }
+
                 if (arg2 == null) {
                     return false;
                 }
@@ -98,7 +113,8 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                             return true;
                         }
 
-                        ItemStack customBlockItem = service.getStorage().getAbstractCustomBlock(arg3).getItem();
+                        AbstractCustomBlock abstractCustomBlock = service.getStorage().getAbstractCustomBlock(arg3);
+                        ItemStack customBlockItem = abstractCustomBlock.getItem();
 
                         byte amount = 1;
 
@@ -131,6 +147,8 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                             switch (arg4) {
                                 case "@a" -> {
                                     for (Player recipient : Bukkit.getOnlinePlayers()) {
+                                        applyPlaceholdersForItem(customBlockItem, recipient);
+                                        applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
                                         ItemUtil.distributeItem(recipient, customBlockItem);
                                     }
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to all players", arg3, amount);
@@ -142,6 +160,8 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                         return true;
                                     }
 
+                                    applyPlaceholdersForItem(customBlockItem, player);
+                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, player);
                                     ItemUtil.distributeItem(player, customBlockItem);
                                     ChatUtil.sendMessage(sender, "&bYou have received the &l%s&ox%s&r&b block", arg3, amount);
                                     return true;
@@ -154,6 +174,8 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                         return true;
                                     }
 
+                                    applyPlaceholdersForItem(customBlockItem, randomPlayer);
+                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, randomPlayer);
                                     ItemUtil.distributeItem(randomPlayer, customBlockItem);
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to random player %s", arg3, amount, randomPlayer.getName());
                                     return true;
@@ -165,6 +187,9 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                     }
 
                                     Player nearestPlayer = TargetSelectorType.getNearestPlayer(player.getLocation(), player);
+                                    applyPlaceholdersForItem(customBlockItem, nearestPlayer);
+                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, nearestPlayer);
+
                                     ItemUtil.distributeItem(nearestPlayer, customBlockItem);
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to nearest player %s", arg3, amount, nearestPlayer.getName());
                                     return true;
@@ -177,6 +202,8 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                         return true;
                                     }
 
+                                    applyPlaceholdersForItem(customBlockItem, recipient);
+                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
                                     ItemUtil.distributeItem(recipient, customBlockItem);
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to player %s", arg3, amount, recipient.getName());
                                     return true;
@@ -184,7 +211,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                             }
                         }
                     }
-                    case "set" -> {
+                    /*case "set" -> {
 
                         if (arg3 == null) {
                             ChatUtil.sendMessage(sender, "&cYou didn't specify a block!");
@@ -330,7 +357,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                     }
                                 }
                             }
-                            /*case "interaction" -> {
+                            *//*case "interaction" -> {
 
                                 if (arg5 == null) {
                                     return false;
@@ -371,7 +398,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                         setCustomBlockParameter(List.of(arg1, arg3, arg4, arg5), arg6, sender);
                                     }
                                 }
-                            }*/
+                            }*//*
                             case "sound" -> {
                                 if (arg5 == null) {
                                     return false;
@@ -413,13 +440,18 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                                 return false;
                             }
                         }
-                    }
+                    }*/
                     default -> {
                         return false;
                     }
                 }
             }
-            case "killdisplay&interaction" -> {
+            case "killcbentities" -> {
+
+                if (!sender.hasPermission("bdc.command.killcbentities")) {
+                    ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
+                    return true;
+                }
 
                 if (player == null) {
                     ChatUtil.sendMessage(sender, "&cThe command can only be applied by the player!");
@@ -449,6 +481,12 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                 }
             }
             case "reload" -> {
+
+                if (!sender.hasPermission("bdc.command.reload")) {
+                    ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
+                    return true;
+                }
+
                 if (arg2 == null) {
                     instance.reloadConfig();
                     ChatUtil.sendMessage(sender, "&aConfig has been reloaded!");
@@ -469,11 +507,11 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         List<String> result = new ArrayList<>();
-        Material[] materials = Material.values();
+        /*Material[] materials = Material.values();
         List<Material> blockMaterials = Arrays.stream(materials).filter(Material::isBlock).toList();
         List<Enchantment> enchantments = List.of(Enchantment.values());
         List<ItemFlag> itemFlags = List.of(ItemFlag.values());
-        Sound[] sounds = Sound.values();
+        Sound[] sounds = Sound.values();*/
 
         List<String> blocksNames = service.getStorage().getNames();
 
@@ -501,14 +539,15 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
             player = (Player) sender;
         }
 
+        String killcbentities = "killcbentities";
         if (args.length == 1) {
             StringUtil.copyPartialMatches(arg1, List.of(
                     "custom-block",
-                    "killdisplay&interaction",
+                    killcbentities,
                     "reload"
             ), result);
         } else if (args.length == 2) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
                 if (player != null) {
                     int x = player.getLocation().getBlockX();
                     int y = player.getLocation().getBlockY();
@@ -518,14 +557,14 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                 }
             } else if (arg1.equals("custom-block")) {
                 StringUtil.copyPartialMatches(arg2, List.of(
-                        "give",
-                        "set"
+                        "give"/*,
+                        "set"*/
                 ), result);
             } else if (arg1.equals("reload")) {
                 StringUtil.copyPartialMatches(arg2, blocksNames, result);
             }
         } else if (args.length == 3) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
 
                 if (player != null) {
                     int y = player.getLocation().getBlockY();
@@ -533,27 +572,27 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
 
                     StringUtil.copyPartialMatches(arg3, Collections.singletonList(y + " " + z), result);
                 }
-            } else if (arg2.equals("give") || arg2.equals("set")) {
+            } else if (arg2.equals("give")/* || arg2.equals("set")*/) {
                 StringUtil.copyPartialMatches(arg3, blocksNames, result);
             }
         } else if (args.length == 4) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
                 if (player != null) {
                     int z = player.getLocation().getBlockZ();
 
                     StringUtil.copyPartialMatches(arg4, Collections.singletonList("" + z), result);
                 }
-            } else if (arg2.equals("set")) {
+            } /*else if (arg2.equals("set")) {
 
                 StringUtil.copyPartialMatches(arg4, List.of(
                         "central-material",
                         "item",
-                        /*"interactions",*/
+                        *//*"interactions",*//*
                         "sound",
                         "display",
                         "sides-count"
                 ), result);
-            } else if (arg2.equals("give")) {
+            }*/ else if (arg2.equals("give")) {
 
                 List<String> tabComplete = new ArrayList<>();
 
@@ -569,7 +608,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                 StringUtil.copyPartialMatches(arg4, tabComplete, result);
             }
         } else if (args.length == 5) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
                 if (player != null) {
                     int x = player.getLocation().getBlockX();
                     int y = player.getLocation().getBlockY();
@@ -577,7 +616,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
 
                     StringUtil.copyPartialMatches(arg5, Collections.singletonList(x + " " + y + " " + z), result);
                 }
-            } else if (arg4.equals("central-material")) {
+            } /*else if (arg4.equals("central-material")) {
                 StringUtil.copyPartialMatches(arg5, blockMaterials.stream().map(Object::toString).toList(), result);
             } else if (arg4.equals("item")) {
                 StringUtil.copyPartialMatches(arg5, List.of(
@@ -588,14 +627,14 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                         "lore",
                         "skullmeta"
                 ), result);
-            } /*else if (arg4.equals("interactions")) {
+            } *//*else if (arg4.equals("interactions")) {
                 StringUtil.copyPartialMatches(arg5, List.of(
                         "width",
                         "height",
                         "command",
                         "command-source"
                 ), result);
-            }*/ else if (arg4.equals("display")) {
+            }*//* else if (arg4.equals("display")) {
                 StringUtil.copyPartialMatches(arg5, List.of(
                         "glowing",
                         "glow-color-override"
@@ -605,9 +644,9 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                         "break",
                         "place"
                 ), result);
-            }
+            }*/
         } else if (args.length == 6) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
                 if (player != null) {
                     int y = player.getLocation().getBlockY();
                     int z = player.getLocation().getBlockZ();
@@ -615,7 +654,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                     StringUtil.copyPartialMatches(arg6, Collections.singletonList(y + " " + z), result);
                 }
 
-            } else if (arg5.equals("material")) {
+            } /*else if (arg5.equals("material")) {
                 StringUtil.copyPartialMatches(arg6, Arrays.stream(materials).map(Object::toString).toList(), result);
             } else if (arg5.equals("enchantments")) {
                 StringUtil.copyPartialMatches(arg6, enchantments.stream().map(enchantment -> enchantment.getKey().getKey().toUpperCase()).toList(), result);
@@ -629,17 +668,17 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
                 StringUtil.copyPartialMatches(arg6, List.of("true", "false"), result);
             } else if (arg5.equals("break") || arg5.equals("place")) {
                 StringUtil.copyPartialMatches(arg6, List.of("sound-type", "volume", "pitch"), result);
-            }
+            }*/
         } else if (args.length == 7) {
-            if (arg1.equals("killdisplay&interaction")) {
+            if (arg1.equals(killcbentities)) {
                 if (player != null) {
                     int z = player.getLocation().getBlockZ();
 
                     StringUtil.copyPartialMatches(arg7, Collections.singletonList("" + z), result);
                 }
-            } else if (arg6.equals("sound-type")) {
+            } /*else if (arg6.equals("sound-type")) {
                 StringUtil.copyPartialMatches(arg7, Arrays.stream(sounds).map(Enum::name).toList(), result);
-            }
+            }*/
         }
 
 
@@ -647,14 +686,71 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
     }
 
 
+    public void applyPlaceholdersForItem(ItemStack item, Player player) {
+        ItemMeta itemMeta = item.getItemMeta();
+        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+
+        if (placeholderApi == null) {
+            return;
+        }
+
+        itemMeta.setDisplayName(ChatUtil.setPlaceholders(player, itemMeta.getDisplayName(), placeholderApi));
+        List<String> itemMetaLore = itemMeta.getLore();
+        if (itemMetaLore != null) {
+            List<String> lore = new ArrayList<>();
+            itemMetaLore.forEach(line -> lore.add(ChatUtil.setPlaceholders(player, line, placeholderApi)));
+            itemMeta.setLore(lore);
+        }
+
+
+        item.setItemMeta(itemMeta);
+    }
+
+    public void applyPlaceholdersForCommand(AbstractCustomBlock abstractCustomBlock, ItemStack item, Player player) {
+        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+        if (placeholderApi == null) {
+            return;
+        }
+
+        GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
+
+        if (displaySummoner instanceof AutomaticCommandDisplaySummoner displayCommandSummoner) {
+            if (!displayCommandSummoner.isUsePlaceholder()) {
+                return;
+            }
+
+
+            CommandLine[] parsed = displayCommandSummoner.getCommands()
+                    .stream()
+                    .map(commandLine ->
+                            {
+                                String lineString = commandLine.toString();
+                                String base64Formatted = new PlayerSkinBase64Placeholder(player).applyPlaceholders(lineString);
+
+                                return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
+                                        player,
+                                        base64Formatted,
+                                        placeholderApi));
+                            }
+                    ).toArray(CommandLine[]::new);
+
+            ItemMeta itemMeta = item.getItemMeta();
+            PersistentData<CommandLine[]> commandListPD = new PersistentData<>(itemMeta, TypeTokens.COMMAND_ARRAY);
+
+            commandListPD.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, parsed);
+
+            item.setItemMeta(itemMeta);
+        }
+    }
+
     private void killBlockEntities(BoundingBox boundingBox, Player sender) {
         Collection<Entity> displayEntities = sender.getWorld().getNearbyEntities(
                 boundingBox,
-                entity -> entity instanceof Display);
+                Display.class::isInstance);
 
         Collection<Entity> interactions = sender.getWorld().getNearbyEntities(
                 boundingBox,
-                entity -> entity instanceof Interaction);
+                Interaction.class::isInstance);
 
 
         WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
@@ -666,31 +762,14 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
 
                     if (customBlockData.has(CustomBlockKey.NAME)) {
                         customBlockData.remove(CustomBlockKey.NAME);
-                        blocksCount[0]++;
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.SERVICE_CLASS)) {
                         customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.LOCATION)) {
                         customBlockData.remove(CustomBlockKey.LOCATION);
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.CUSTOM_BLOCK_UUID)) {
                         customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.DISPLAY_UUID)) {
                         customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.INTERACTION_UUID)) {
                         customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
-                    }
-
-                    if (customBlockData.has(CustomBlockKey.BLOCK_ROTATION)) {
+                        customBlockData.remove(CustomBlockKey.COLLISION_UUID);
                         customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
+                        blocksCount[0]++;
                     }
                 }
         );
@@ -702,6 +781,7 @@ public class BlockDisplayCreatorCMD implements TabExecutor {
         displayEntities.forEach(Entity::remove);
         interactions.forEach(Entity::remove);
     }
+
 
     private void setCustomBlockParameter(String blockName, List<String> pathSections, Object value, CommandSender sender) {
         String path = String.join(".", pathSections);

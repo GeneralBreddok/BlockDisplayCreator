@@ -1,48 +1,11 @@
 package me.general_breddok.blockdisplaycreator.command;
 
-import com.jeff_media.customblockdata.CustomBlockData;
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPICommand;
-import dev.jorel.commandapi.CommandTree;
-import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
-import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
-import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
-import me.general_breddok.blockdisplaycreator.custom.AutomaticCommandDisplaySummoner;
-import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockStorage;
-import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
-import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
-import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
-import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.util.ItemUtil;
-import me.general_breddok.blockdisplaycreator.world.WorldSelection;
-import org.bukkit.Location;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.util.BoundingBox;
-
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlockDisplayCreatorCommand {
-    final BlockDisplayCreator plugin;
+/*    final BlockDisplayCreator plugin;
     List<AbstractCustomBlockTooltip> abstractCustomBlockTooltips = new ArrayList<>();
 
     public BlockDisplayCreatorCommand(BlockDisplayCreator plugin) {
@@ -162,7 +125,7 @@ public class BlockDisplayCreatorCommand {
                                                             }
                                                         }
                                                     }
-                                                })/*,
+                                                })*//*,
                                         new CommandAPICommand("set")
                                                 .withArguments(
                                                         new StringArgument("block")
@@ -268,11 +231,11 @@ public class BlockDisplayCreatorCommand {
                                                                                         new CommandAPICommand("granted-command-permissions")
                                                                                 )
                                                                 )
-                                                )*/
+                                                )*//*
                                 )
                 ).register();
 
-        /*
+        *//*
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
                 .then(
@@ -319,7 +282,7 @@ public class BlockDisplayCreatorCommand {
                                     killBlockEntities(BoundingBox.of(position1, position2), sender);
                                 })
                 )
-                .register()*/;
+                .register()*//*;
     }
 
 
@@ -438,4 +401,5 @@ public class BlockDisplayCreatorCommand {
         displayEntities.forEach(Entity::remove);
         interactions.forEach(Entity::remove);
     }
+*/
 }

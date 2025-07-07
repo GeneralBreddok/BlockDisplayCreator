@@ -44,8 +44,8 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
             }
         }
 
-        BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
-        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();
+        /*BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
+        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();*/
         ChatUtil.log("&6[BlockDisplayCreator] &eInitialization complete, %d blocks initialized", abstractCustomBlocks.size());
     }
 
@@ -75,8 +75,8 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
             ChatUtil.log("&c" + e.getMessage());
         }
 
-        BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
-        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();
+        /*BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
+        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();*/
     }
 
     @Override

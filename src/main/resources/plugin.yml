@@ -7,6 +7,13 @@ description: Plugin for creating and fully customizing custom blocks
 
 softdepend: [ PlaceholderAPI, WorldGuard ]
 
+commands:
+  blockdisplaycreator:
+    description: Main command for BlockDisplayCreator
+    usage: /bdc <custom-block|reload|killcbentities>
+    aliases: [bdc]
+
+
 
 permissions:
   blockdisplaycreator.blocks-destruction:
@@ -20,13 +27,17 @@ permissions:
 
   bdc.bypass.wg:
     default: op
+    description: Allows bypassing WorldGuard region checks
 
   bdc.command.custom-block:
     default: op
+    description: Allows giving a custom block to a player
 
   bdc.command.reload:
     default: op
+    description: Allows reloading the plugin configuration
 
   bdc.command.killcbentities:
     default: op
+    description: Allows killing all custom block entities
 
