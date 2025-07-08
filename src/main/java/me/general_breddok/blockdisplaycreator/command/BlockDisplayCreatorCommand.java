@@ -5,12 +5,12 @@ import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.arguments.*;
-import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
+import me.general_breddok.blockdisplaycreator.common.ColorConverter;
 import me.general_breddok.blockdisplaycreator.custom.AutomaticCommandDisplaySummoner;
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
@@ -25,6 +25,7 @@ import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
@@ -37,6 +38,7 @@ import org.bukkit.util.BoundingBox;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -54,7 +56,7 @@ public class BlockDisplayCreatorCommand {
                 .withAliases("bdc")
                 .withSubcommands(
                         new CommandAPICommand("reload")
-                                .withPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
+                                .withPermission(DefaultPermissions.BDC.Command.RELOAD)
                                 .withOptionalArguments(
                                         new StringArgument("block")
                                                 .replaceSuggestions((info, builder) -> {
@@ -87,7 +89,7 @@ public class BlockDisplayCreatorCommand {
                                     }
                                 }),
                         new CommandAPICommand("killcbentities")
-                                .withPermission("bdc.command.killcbentities")
+                                .withPermission(DefaultPermissions.BDC.Command.KILL_CB_ENTITIES)
                                 .withArguments(
                                         new LocationArgument("position1"),
                                         new LocationArgument("position2")
@@ -99,7 +101,7 @@ public class BlockDisplayCreatorCommand {
                                     killBlockEntities(BoundingBox.of(position1, position2), sender);
                                 }),
                         new CommandAPICommand("custom-block")
-                                .withPermission("bdc.command.custom-block")
+                                .withPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
                                 .withSubcommands(
                                         new CommandAPICommand("give")
                                                 .withArguments(
@@ -162,7 +164,7 @@ public class BlockDisplayCreatorCommand {
                                                             }
                                                         }
                                                     }
-                                                })/*,
+                                                }),
                                         new CommandAPICommand("set")
                                                 .withArguments(
                                                         new StringArgument("block")
@@ -182,144 +184,248 @@ public class BlockDisplayCreatorCommand {
                                                                             }
                                                                             return builder.buildFuture();
                                                                         }
+                                                                ).then(
+                                                                        new LiteralArgument("central-material")
+                                                                                .then(
+                                                                                        new StringArgument("material")
+                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                Arrays.stream(Material.values())
+                                                                                                                        .filter(Material::isBlock)
+                                                                                                                        .map(Material::toString)
+                                                                                                                        .toList()
+                                                                                                        )
+                                                                                                ).executes((sender, args) -> {
+                                                                                                    String block = (String) args.get("block");
+                                                                                                    String material = (String) args.get("material");
+
+                                                                                                    setCustomBlockValue(block, "central-material", material, sender);
+                                                                                                })
+                                                                                ).then(
+                                                                                        new LiteralArgument("sides-count")
+                                                                                                .then(
+                                                                                                        new IntegerArgument("count", 1, 360)
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    int sidesCount = (int) args.get("count");
+
+                                                                                                                    setCustomBlockValue(block, "sides-count", sidesCount, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("display")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("spawn-command")
+                                                                                                                .then(
+                                                                                                                        new GreedyStringArgument("command")
+
+                                                                                                                ).executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    String commandLine = (String) args.get("command");
+
+                                                                                                                    setCustomBlockValue(block, "display.spawn-command", commandLine, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("glowing")
+                                                                                                .then(
+                                                                                                        new BooleanArgument("glowing")
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    boolean glowing = (boolean) args.get("glowing");
+
+                                                                                                                    setCustomBlockValue(block, "display.glowing", glowing, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("glow-color-override")
+                                                                                                .then(
+                                                                                                        new StringArgument("color")
+                                                                                                                .replaceSuggestions(((info, builder) -> {
+                                                                                                                    String remaining = builder.getRemainingLowerCase();
+
+                                                                                                                    for (String colorName : ColorConverter.NAMED_COLORS.keySet()) {
+                                                                                                                        if (colorName.toLowerCase().startsWith(remaining)) {
+                                                                                                                            builder.suggest(colorName);
+                                                                                                                        }
+                                                                                                                    }
+
+                                                                                                                    return builder.buildFuture();
+                                                                                                                })).executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    String color = (String) args.get("color");
+
+                                                                                                                    setCustomBlockValue(block, "display.glow-color-override", color, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("billboard")
+                                                                                                .then(
+                                                                                                        new StringArgument("billboard-type")
+                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                        "fixed",
+                                                                                                                        "horizontal",
+                                                                                                                        "vertical",
+                                                                                                                        "center"
+                                                                                                                )).executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    String billboardType = (String) args.get("billboard-type");
+
+                                                                                                                    setCustomBlockValue(block, "display.billboard", billboardType, sender);
+                                                                                                                })
+
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("shadow-radius")
+                                                                                                .then(
+                                                                                                        new FloatArgument("radius")
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    float radius = (float) args.get("radius");
+
+                                                                                                                    setCustomBlockValue(block, "display.shadow-radius", radius, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("shadow-strength")
+                                                                                                .then(
+                                                                                                        new FloatArgument("strength")
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    float strength = (float) args.get("strength");
+
+                                                                                                                    setCustomBlockValue(block, "display.shadow-strength", strength, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("view-range")
+                                                                                                .then(
+                                                                                                        new FloatArgument("range")
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    float range = (float) args.get("range");
+
+                                                                                                                    setCustomBlockValue(block, "display.view-range", range, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("brightness")
+                                                                                                .then(
+                                                                                                        new MultiLiteralArgument("type", "sky", "block")
+                                                                                                                .then(
+                                                                                                                        new FloatArgument("level")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String type = (String) args.get("type");
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    float level = (float) args.get("level");
+
+                                                                                                                                    setCustomBlockValue(block, "display.brightness." + type, level, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                )
+                                                                                )
+                                                                ).then(
+                                                                        new LiteralArgument("item")
+                                                                                .then(
+                                                                                        new LiteralArgument("material")
+                                                                                                .then(
+                                                                                                        new StringArgument("item-material")
+                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                        Arrays.stream(Material.values())
+                                                                                                                                .filter(Material::isItem)
+                                                                                                                                .map(Material::toString)
+                                                                                                                                .toList()
+                                                                                                                )).executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    String material = (String) args.get("item-material");
+
+                                                                                                                    setCustomBlockValue(block, "item.material", material, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("name")
+                                                                                ).then(
+                                                                                        new LiteralArgument("item-flags")
+                                                                                ).then(
+                                                                                        new LiteralArgument("enchantments")
+                                                                                ).then(
+                                                                                        new LiteralArgument("lore")
+                                                                                ).then(
+                                                                                        new LiteralArgument("skullmeta")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("url")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("name")
+                                                                                                )
+                                                                                )
+                                                                ).then(
+                                                                        new LiteralArgument("interactions")
+                                                                                .then(
+                                                                                        new LiteralArgument("width")
+                                                                                ).then(
+                                                                                        new LiteralArgument("height")
+                                                                                ).then(
+                                                                                        new LiteralArgument("command")
+                                                                                ).then(
+                                                                                        new LiteralArgument("command-source")
+                                                                                ).then(
+                                                                                        new LiteralArgument("granted-command-permissions")
+                                                                                ).then(
+                                                                                        new LiteralArgument("offset")
+                                                                                )
+                                                                ).then(
+                                                                        new LiteralArgument("collisions")
+                                                                                .then(
+                                                                                        new LiteralArgument("size")
+                                                                                ).then(
+                                                                                        new LiteralArgument("offset")
+                                                                                )
+                                                                ).then(
+                                                                        new LiteralArgument("sound")
+                                                                                .then(
+                                                                                        new LiteralArgument("place")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("sound-type")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("volume")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("pitch")
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("break")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("sound-type")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("volume")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("pitch")
+                                                                                                )
+                                                                                )
+                                                                ).then(
+                                                                        new LiteralArgument("stage-settings")
+                                                                                .then(
+                                                                                        new LiteralArgument("place")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("command")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("command-source")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("granted-command-permissions")
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("break")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("command")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("command-source")
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("granted-command-permissions")
+                                                                                                )
+                                                                                )
                                                                 )
-                                                ).withSubcommands(
-                                                        new CommandAPICommand("central-material")
-                                                                .withArguments(
-                                                                        new StringArgument("material").replaceSuggestions(ArgumentSuggestions.strings(Arrays.stream(Material.values()).filter(Material::isBlock).map(Material::toString).toList()))
-                                                                ).executes((sender, args) -> {
-                                                                    String block = (String) args.get("block");
-                                                                    String material = (String) args.get("material");
-                                                                    setCustomBlockValue(block, "central-material", material, sender);
-                                                                }),
-                                                        new CommandAPICommand("sides-count")
-                                                                .withArguments(
-                                                                        new IntegerArgument("sides-count", 1, 360)
-                                                                ),
-                                                        new CommandAPICommand("display")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("spawn-command"),
-                                                                        new CommandAPICommand("glowing"),
-                                                                        new CommandAPICommand("glow-color-override"),
-                                                                        new CommandAPICommand("billboard"),
-                                                                        new CommandAPICommand("shadow-radius"),
-                                                                        new CommandAPICommand("shadow-strength"),
-                                                                        new CommandAPICommand("view-range"),
-                                                                        new CommandAPICommand("brightness")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("sky"),
-                                                                                        new CommandAPICommand("block")
-                                                                                )
-                                                                ),
-                                                        new CommandAPICommand("item")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("material"),
-                                                                        new CommandAPICommand("name"),
-                                                                        new CommandAPICommand("item-flags"),
-                                                                        new CommandAPICommand("enchantments"),
-                                                                        new CommandAPICommand("lore"),
-                                                                        new CommandAPICommand("skullmeta")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("url"),
-                                                                                        new CommandAPICommand("name")
-                                                                                )
-                                                                ),
-                                                        new CommandAPICommand("interactions")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("width"),
-                                                                        new CommandAPICommand("height"),
-                                                                        new CommandAPICommand("command"),
-                                                                        new CommandAPICommand("command-source"),
-                                                                        new CommandAPICommand("granted-command-permissions"),
-                                                                        new CommandAPICommand("offset")
-                                                                ),
-                                                        new CommandAPICommand("collisions")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("size"),
-                                                                        new CommandAPICommand("offset")
-                                                                ),
-                                                        new CommandAPICommand("sound")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("place")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("sound-type"),
-                                                                                        new CommandAPICommand("volume"),
-                                                                                        new CommandAPICommand("pitch")
-                                                                                ),
-                                                                        new CommandAPICommand("break")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("sound-type"),
-                                                                                        new CommandAPICommand("volume"),
-                                                                                        new CommandAPICommand("pitch")
-                                                                                )
-                                                                ),
-                                                        new CommandAPICommand("stage-settings")
-                                                                .withSubcommands(
-                                                                        new CommandAPICommand("place")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("command"),
-                                                                                        new CommandAPICommand("command-source"),
-                                                                                        new CommandAPICommand("granted-command-permissions")
-                                                                                ),
-                                                                        new CommandAPICommand("break")
-                                                                                .withSubcommands(
-                                                                                        new CommandAPICommand("command"),
-                                                                                        new CommandAPICommand("command-source"),
-                                                                                        new CommandAPICommand("granted-command-permissions")
-                                                                                )
-                                                                )
-                                                )*/
+                                                )
                                 )
                 ).register();
 
-        /*
-        new CommandTree("blockdisplaycreator")
-                .withAliases("bdc")
-                .then(
-                        new LiteralArgument("reload")
-                                .then(new StringArgument("block")
-                                        .setOptional(true)
-                                        .replaceSuggestions((info, builder) -> {
-                                                    String remaining = builder.getRemainingLowerCase();
-                                                    this.abstractCustomBlockTooltips.forEach(tooltip -> {
-                                                        String name = tooltip.getAbstractCustomBlock().getName();
-
-                                                        if (name.toLowerCase().startsWith(remaining)) {
-                                                            builder.suggest(tooltip.getSuggestion(), tooltip.getTooltip());
-                                                        }
-                                                    });
-                                                    return builder.buildFuture();
-                                                }
-                                        )
-                                ).executes((sender, args) -> {
-                                    String block = (String) args.get("block");
-
-                                    if (block != null) {
-                                        CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
-                                        if (storage.getNames().contains(block)) {
-                                            storage.reload(block);
-                                            ChatUtil.sendMessage(sender, "&a%s block has been reloaded!", block);
-                                        } else {
-                                            ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
-                                        }
-                                    } else {
-                                        this.plugin.reloadConfig();
-                                        ChatUtil.sendMessage(sender, "&aConfig has been reloaded!");
-                                    }
-                                })
-                ).then(
-                        new LiteralArgument("killcbentities")
-                                .thenNested(
-                                        new LocationArgument("position1"),
-                                        new LocationArgument("position2")
-                                ).executesPlayer((sender, args) -> {
-                                    Location position1 = (Location) args.get("position1");
-                                    Location position2 = (Location) args.get("position2");
-
-                                    killBlockEntities(BoundingBox.of(position1, position2), sender);
-                                })
-                )
-                .register()*/;
     }
 
 

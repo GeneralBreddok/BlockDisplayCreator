@@ -13,6 +13,8 @@ public interface DefaultPermissions {
 
         interface Command {
             String CUSTOM_BLOCK = "bdc.command.custom-block";
+            String KILL_CB_ENTITIES = "bdc.command.killcbentities";
+            String RELOAD = "bdc.command.reload";
         }
     }
 

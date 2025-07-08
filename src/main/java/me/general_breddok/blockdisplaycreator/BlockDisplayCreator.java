@@ -82,7 +82,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        //CommandAPI.onEnable();
+        CommandAPI.onEnable();
 
         this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage());
         this.servicesManager = new CustomBlockServiceManager();
