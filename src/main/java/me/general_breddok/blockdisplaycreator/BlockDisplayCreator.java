@@ -106,8 +106,6 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
         reloadConfig();
         registerEvents();
-
-        getCommand("blockdisplaycreator").setExecutor(new BlockDisplayCreatorCMD(this, customBlockService));
     }
 
     private void registerEvents() {
