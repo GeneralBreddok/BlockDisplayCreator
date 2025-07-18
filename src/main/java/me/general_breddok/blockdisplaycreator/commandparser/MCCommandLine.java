@@ -100,8 +100,12 @@ public class  MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine>
      * @return The argument at the specified index.
      * @throws IndexOutOfBoundsException If the index is out of range.
      */
-    public CommandArgument getArgument(int index) throws IndexOutOfBoundsException {
-        return arguments.get(index);
+    public CommandArgument getArgument(int index) {
+        try {
+            return arguments.get(index);
+        } catch (IndexOutOfBoundsException e) {
+            return null;
+        }
     }
 
     public CommandLine setPlaceholders(Player player, PlaceholderAPIPlugin papi) {

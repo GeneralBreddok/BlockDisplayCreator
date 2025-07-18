@@ -101,3 +101,16 @@ collisions:
       y: 0.01
       z: 0
 
+
+#Collision entities. Describes the collision entity parameters for this block.
+collisions:
+    #Collision name
+    main:
+        #Size of the collision entity. Works on 1.20.5+ only.
+        size: 0.8
+        #Offset of this collision entity relative to the central location of the custom block. Supports rotation-dependent offset changes
+        offset:
+          x: 0
+          y: 0.01
+          z: 0
+

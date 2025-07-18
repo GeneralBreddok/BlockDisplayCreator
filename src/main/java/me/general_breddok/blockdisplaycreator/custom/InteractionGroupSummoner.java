@@ -8,6 +8,7 @@ import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.entity.RecursiveSummoner;
 import me.general_breddok.blockdisplaycreator.entity.Summoner;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.bukkit.Location;
 import org.bukkit.entity.Interaction;
 import org.bukkit.util.Vector;
@@ -33,7 +34,7 @@ public class InteractionGroupSummoner implements RecursiveSummoner<Interaction>,
 
     @SafeVarargs
     public InteractionGroupSummoner(Summoner<Interaction>... summoners) {
-        this.summoners = Arrays.stream(summoners).toList();
+        this.summoners = Arrays.stream(summoners).collect(OperationUtil.toArrayList());
     }
 
     @Override
@@ -45,7 +46,7 @@ public class InteractionGroupSummoner implements RecursiveSummoner<Interaction>,
         return summoners.stream()
                 .map(summoner -> summoner.summon(location))
                 .filter(interaction -> filter == null || filter.test(interaction))
-                .toList();
+                .collect(OperationUtil.toArrayList());
     }
 
     @Override

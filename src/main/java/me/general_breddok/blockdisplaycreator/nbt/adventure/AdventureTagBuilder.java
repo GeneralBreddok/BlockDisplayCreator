@@ -1,6 +1,7 @@
 package me.general_breddok.blockdisplaycreator.nbt.adventure;
 
 import lombok.experimental.UtilityClass;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import net.kyori.adventure.nbt.*;
 
 import java.util.Arrays;
@@ -18,7 +19,7 @@ public class AdventureTagBuilder {
     public ListBinaryTag.Builder<LongBinaryTag> longList(Long... tags) {
         return list(
                 BinaryTagTypes.LONG,
-                Arrays.stream(tags).map(LongBinaryTag::longBinaryTag).toList()
+                Arrays.stream(tags).map(LongBinaryTag::longBinaryTag).collect(OperationUtil.toArrayList())
         );
     }
 

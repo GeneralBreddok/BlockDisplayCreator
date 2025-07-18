@@ -1,4 +1,4 @@
-package me.general_breddok.blockdisplaycreator.command;
+package me.general_breddok.blockdisplaycreator.command.capi.tooltip;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;

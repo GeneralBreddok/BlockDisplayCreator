@@ -323,7 +323,7 @@ public interface PersistentDataTypes {
             ParameterizedClasses.ENCHANT_MAP,
             (complex, context) -> {
                 YamlConfiguration serialized = new YamlConfiguration();
-                complex.forEach((e, l) -> serialized.set(e.toString(), l));
+                complex.forEach((e, l) -> serialized.set(e.getKey().getKey(), l));
                 return serialized;
             },
             (primitive, context) -> {

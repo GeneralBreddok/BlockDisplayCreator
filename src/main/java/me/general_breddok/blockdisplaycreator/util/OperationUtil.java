@@ -4,16 +4,19 @@ import lombok.experimental.UtilityClass;
 import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @UtilityClass
 public class OperationUtil {
+
+    public static <T> Collector<T, ?, ArrayList<T>> toArrayList() {
+        return Collectors.toCollection(ArrayList::new);
+    }
+
     public <T> void doIfNotNull(T object, Consumer<T> action) {
         doIf(object, Objects::nonNull, action);
     }
@@ -62,17 +65,6 @@ public class OperationUtil {
         return null;
     }
 
-    public static <T> Collector<T, ?, ArrayList<T>> toArrayList() {
-        return Collector.of(
-                ArrayList::new,
-                ArrayList::add,
-                (left, right) -> {
-                    left.addAll(right);
-                    return left;
-                },
-                Collector.Characteristics.IDENTITY_FINISH
-        );
-    }
 
     public <T> List<T> toArray(T[] array) {
         return Arrays.stream(array).toList();

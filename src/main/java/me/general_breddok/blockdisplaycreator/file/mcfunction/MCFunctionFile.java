@@ -8,6 +8,7 @@ import me.general_breddok.blockdisplaycreator.file.CachedFile;
 import me.general_breddok.blockdisplaycreator.file.exception.FileLoadException;
 import me.general_breddok.blockdisplaycreator.file.exception.InvalidFileFormatException;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.UniversalPlaceholder;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 
@@ -59,7 +60,7 @@ public class MCFunctionFile extends CachedFile implements MCFunction {
     @Override
     public void save() {
         try {
-            Files.write(this.path, this.commands.stream().map(CommandLine::toString).toList());
+            Files.write(this.path, this.commands.stream().map(CommandLine::toString).collect(OperationUtil.toArrayList()));
         } catch (IOException e) {
             throw new UncheckedIOException("Failed to save MCFunction file", e);
         }

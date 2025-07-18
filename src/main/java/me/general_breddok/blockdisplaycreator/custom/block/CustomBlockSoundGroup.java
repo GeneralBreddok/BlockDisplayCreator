@@ -9,9 +9,11 @@ import org.jetbrains.annotations.Nullable;
 public interface CustomBlockSoundGroup {
     @Nullable
     PlayableSound getPlaceSound();
-    void setPlaceSound(PlayableSound sound);
-    @Nullable
 
+    void setPlaceSound(PlayableSound sound);
+
+    @Nullable
     PlayableSound getBreakSound();
+
     void setBreakSound(PlayableSound sound);
 }
