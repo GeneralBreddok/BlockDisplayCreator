@@ -32,10 +32,10 @@
                             <pattern>com.jeff_media.customblockdata</pattern>
                             <shadedPattern>me.general_breddok.customblockdata</shadedPattern>
                         </relocation>
-                        <!--<relocation>
+                        <relocation>
                             <pattern>dev.jorel.commandapi</pattern>
                             <shadedPattern>me.general_breddok.commandapi</shadedPattern>
-                        </relocation>-->
+                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -130,7 +130,7 @@
             <version>7.0.9</version>
             <scope>provided</scope>
         </dependency>
-        <!--<dependency>
+        <dependency>
             <groupId>dev.jorel</groupId>
             <artifactId>commandapi-bukkit-shade</artifactId>
             <version>10.0.0</version>
@@ -139,6 +139,6 @@
             <groupId>com.mojang</groupId>
             <artifactId>brigadier</artifactId>
             <version>1.0.18</version>
-        </dependency>-->
+        </dependency>
     </dependencies>
 </project>
