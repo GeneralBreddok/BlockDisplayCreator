@@ -1,4 +1,4 @@
-package me.general_breddok.blockdisplaycreator.command;
+package me.general_breddok.blockdisplaycreator.command.capi;
 
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPICommand;

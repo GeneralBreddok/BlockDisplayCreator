@@ -35,12 +35,12 @@ import java.util.*;
  * @deprecated
  */
 @Deprecated
-public class BlockDisplayCreatorSpigotCMD implements TabExecutor {
+public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
     private final BlockDisplayCreator instance;
     private final CustomBlockService service;
 
-    public BlockDisplayCreatorSpigotCMD(BlockDisplayCreator instance, CustomBlockService service) {
+    public BlockDisplayCreatorSpigotCommand(BlockDisplayCreator instance, CustomBlockService service) {
         this.instance = instance;
         this.service = service;
     }

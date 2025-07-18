@@ -10,23 +10,30 @@ softdepend: [ PlaceholderAPI, WorldGuard ]
 
 permissions:
   blockdisplaycreator.blocks-destruction:
+    description: Allows players to destroy custom blocks even if blocks-destruction is set to false
     default: op
 
   blockdisplaycreator.blocks-placement:
+    description: Allows players to place custom blocks even if blocks-placement is set to false
     default: op
 
   blockdisplaycreator.blocks-interaction:
+    description: Allows players to interact with custom blocks even if blocks-interaction is set to false
     default: op
 
   bdc.bypass.wg:
+    description: Allows players to bypass WorldGuard region checks for custom blocks
     default: op
 
   bdc.command.custom-block:
+    description: Allows players to use the custom-block command
     default: op
 
   bdc.command.reload:
+    description: Allows players to reload the plugin configuration
     default: op
 
   bdc.command.killcbentities:
+    description: Allows players to use the killcbentities command to remove custom block entities
     default: op
 

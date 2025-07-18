@@ -13,7 +13,6 @@ import java.util.UUID;
 
 public interface CustomBlockKey {
     NamespacedKey SERVICE_CLASS = new NamespacedKey(BlockDisplayCreator.getInstance(), "custom-block-service-class");
-
     NamespacedKey NAME = new NamespacedKey(BlockDisplayCreator.getInstance(), "custom-block-material");
 
     NamespacedKey LOCATION = new NamespacedKey(BlockDisplayCreator.getInstance(), "custom-block-location");

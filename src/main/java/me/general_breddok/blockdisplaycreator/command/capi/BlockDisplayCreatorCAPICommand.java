@@ -1,4 +1,4 @@
-package me.general_breddok.blockdisplaycreator.command;
+package me.general_breddok.blockdisplaycreator.command.capi;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import dev.jorel.commandapi.*;
@@ -8,8 +8,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.command.tooltip.AbstractCustomBlockTooltip;
-import me.general_breddok.blockdisplaycreator.command.tooltip.StringTooltip;
+import me.general_breddok.blockdisplaycreator.command.capi.tooltip.AbstractCustomBlockTooltip;
+import me.general_breddok.blockdisplaycreator.command.capi.tooltip.StringTooltipDta;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.common.ColorConverter;
@@ -45,6 +45,7 @@ import org.bukkit.util.BoundingBox;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlockDisplayCreatorCAPICommand {
@@ -398,7 +399,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                 .withKeyMapper(enchantment -> Registry.ENCHANTMENT.get(NamespacedKey.minecraft(enchantment.toLowerCase())))
                                                                                                                 .withValueMapper(Integer::parseInt)
                                                                                                                 .withKeyList(List.of(Enchantment.values()).stream().map(enchantment -> enchantment.getKey().getKey()).toList())
-                                                                                                                .withValueList(List.of("1", "2", "3", "4", "5"))
+                                                                                                                .withValueList(IntStream.rangeClosed(1, 256).sorted().mapToObj(String::valueOf).toList(), true)
                                                                                                                 .build()
                                                                                                                 .executes((sender, args) -> {
                                                                                                                             String block = (String) args.get("block");
@@ -478,8 +479,6 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         new FloatArgument("value")
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                     String block = (String) args.get("block");
-
-                                                                                                                                    //Incorrect values
                                                                                                                                     String interactionName = (String) args.get("interaction-name");
                                                                                                                                     String measurement = (String) args.get("measurement");
                                                                                                                                     float value = (float) args.get("value");
@@ -512,7 +511,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String commandSource = (String) args.get("command-source");
 
                                                                                                                                     try {
-                                                                                                                                        CommandBundle.CommandSource.valueOf(commandSource);
+                                                                                                                                        CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
                                                                                                                                     } catch (
                                                                                                                                             IllegalArgumentException e) {
                                                                                                                                         throw CommandAPI.failWithString("Invalid command source: " + commandSource);
@@ -527,7 +526,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         new ListArgumentBuilder<Permission>("granted-command-permission-list")
                                                                                                                                 .allowDuplicates(false)
                                                                                                                                 .withList(Bukkit.getPluginManager().getPermissions().stream().toList())
-                                                                                                                                .withMapper(PermissionTooltip::new)
+                                                                                                                                .withMapper(Permission::getName)
                                                                                                                                 .buildGreedy()
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                     String block = (String) args.get("block");
@@ -654,7 +653,6 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                         new MultiLiteralArgument("stage", "place", "break")
                                                                                                 .then(
                                                                                                         new LiteralArgument("sound-type")
-                                                                                                                .replaceSuggestions(ArgumentSuggestions.stringsWithTooltips(new StringTooltip("sound-type", Tooltip.messageFromString("Sound type for the custom block"))))
                                                                                                                 .then(
                                                                                                                         new StringArgument("sound-value")
                                                                                                                                 .replaceSuggestions(ArgumentSuggestions.strings(
@@ -675,19 +673,19 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             setCBConfigValue(block, "sound." + args.get("stage") + ".sound-type", sound, sender);
                                                                                                                                         }
                                                                                                                                 )
-                                                                                                                ).then(
-                                                                                                                        new MultiLiteralArgument("sound-parameter", "volume", "pitch")
-                                                                                                                                .then(
-                                                                                                                                        new FloatArgument("value")
-                                                                                                                                                .executes((sender, args) -> {
-                                                                                                                                                    String block = (String) args.get("block");
-                                                                                                                                                    String stage = (String) args.get("stage");
-                                                                                                                                                    String parameter = (String) args.get("sound-parameter");
-                                                                                                                                                    float value = (float) args.get("value");
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new MultiLiteralArgument("sound-parameter", "volume", "pitch")
+                                                                                                                .then(
+                                                                                                                        new FloatArgument("value")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String stage = (String) args.get("stage");
+                                                                                                                                    String parameter = (String) args.get("sound-parameter");
+                                                                                                                                    float value = (float) args.get("value");
 
-                                                                                                                                                    setCBConfigValue(block, "sound." + stage + "." + parameter, value, sender);
-                                                                                                                                                })
-                                                                                                                                )
+                                                                                                                                    setCBConfigValue(block, "sound." + stage + "." + parameter, value, sender);
+                                                                                                                                })
                                                                                                                 )
                                                                                                 )
                                                                                 )

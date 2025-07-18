@@ -639,6 +639,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         this.file.save();
     }
 
+    @Override
     public void reload() {
         this.file.reload();
     }

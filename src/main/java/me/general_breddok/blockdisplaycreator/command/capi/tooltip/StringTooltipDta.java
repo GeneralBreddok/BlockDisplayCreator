@@ -1,4 +1,4 @@
-package me.general_breddok.blockdisplaycreator.command.tooltip;
+package me.general_breddok.blockdisplaycreator.command.capi.tooltip;
 
 import com.mojang.brigadier.Message;
 import dev.jorel.commandapi.IStringTooltip;
@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class StringTooltip implements IStringTooltip {
+public class StringTooltipDta implements IStringTooltip {
     String suggestion;
     Message tooltip;
 }

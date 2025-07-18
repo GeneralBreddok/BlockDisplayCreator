@@ -11,4 +11,5 @@ public interface CustomBlockConfigurationFile {
     Object get(String key);
     String getName();
     String getPath();
+    void reload();
 }
