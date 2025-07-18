@@ -29,6 +29,11 @@ public class CustomBlockGiveCAPICommand {
         new CommandAPICommand("custom-block")
                 .withPermission("bdc.command.custom-block")
                 .withAliases("cb")
+                .withShortDescription("Gives a custom block to a player")
+                .withFullDescription("Gives a custom block to a player. You can specify the receiver and the amount of blocks to give. ")
+                .withUsage(
+                        "/cb <block> [receiver] [amount]"
+                )
                 .withArguments(
                         new StringArgument("block")
                                 .replaceSuggestions(this.plugin.getBdcCommand().getCustomBlockSuggestions())

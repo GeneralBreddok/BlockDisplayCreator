@@ -53,7 +53,6 @@ public class BlockDisplayCreatorCAPICommand {
     @Getter
     List<AbstractCustomBlockTooltip> abstractCustomBlockTooltips = new ArrayList<>();
     Map<String, List<String>> interactionSuggestions = new HashMap<>();
-    @Getter
     Map<String, List<String>> collisionSuggestions = new HashMap<>();
 
     public BlockDisplayCreatorCAPICommand(BlockDisplayCreator plugin) {
@@ -63,6 +62,13 @@ public class BlockDisplayCreatorCAPICommand {
     public void register() {
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
+                .withShortDescription("Basic BlockDisplayCreator commands")
+                .withFullDescription("BlockDisplayCreator commands for managing custom blocks and their configurations.")
+                .withUsage(
+                        "/bdc custom-block {give|editfile} <block> ...",
+                        "/bdc reload [block]",
+                        "/bdc killcbentities <position1> <position2>"
+                )
                 .then(
                         new LiteralArgument("reload")
                                 .withPermission(DefaultPermissions.BDC.Command.RELOAD)
