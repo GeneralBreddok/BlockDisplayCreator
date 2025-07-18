@@ -1,4 +1,4 @@
-package me.general_breddok.blockdisplaycreator.command;
+package me.general_breddok.blockdisplaycreator.command.capi.tooltip;
 
 import com.mojang.brigadier.Message;
 import dev.jorel.commandapi.IStringTooltip;

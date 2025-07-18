@@ -1,5 +1,6 @@
 package me.general_breddok.blockdisplaycreator.custom.block;
 
+import lombok.Getter;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.data.exception.ElementNotFoundException;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
@@ -21,6 +22,8 @@ import java.util.NoSuchElementException;
 
 public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     private List<AbstractCustomBlock> abstractCustomBlocks = new ArrayList<>();
+    @Getter
+    private CustomBlockRepository customBlockRepository;
 
     @Override
     public void reloadAll() {
@@ -30,7 +33,7 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
         BlockDisplayCreator plugin = BlockDisplayCreator.getInstance();
 
 
-        CustomBlockRepository customBlockRepository = new CustomBlockFileRepository(plugin);
+        customBlockRepository = new CustomBlockFileRepository(plugin);
 
         CustomBlockLoader configLoader = new CustomBlockLoader(plugin.getYamlConfiguration(), plugin);
         configLoader.moveBlocksToFiles(customBlockRepository);
@@ -45,7 +48,6 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
         }
 
         BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
-        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();
         ChatUtil.log("&6[BlockDisplayCreator] &eInitialization complete, %d blocks initialized", abstractCustomBlocks.size());
     }
 
@@ -55,28 +57,28 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
             throw new NoSuchElementException("Block \"" + name + "\" is not in storage");
         }
 
-        AbstractCustomBlock block = abstractCustomBlocks.stream().filter(acb -> acb.getName().equals(name)).findFirst().get();
-        abstractCustomBlocks.remove(block);
-
-
-        BlockDisplayCreator plugin = BlockDisplayCreator.getInstance();
-        Path dataFolder = plugin.getDataFolder().toPath();
-
-        Path path = dataFolder.resolve("custom-blocks").resolve(name + ".yml");
+        final AbstractCustomBlock[] block = new AbstractCustomBlock[1];
+        abstractCustomBlocks.removeIf(abstractCustomBlock -> {
+            if (abstractCustomBlock.getName().equals(name)) {
+                block[0] = abstractCustomBlock;
+                return true;
+            }
+            return false;
+        });
 
         try {
-            CustomBlockYamlFile file = new CustomBlockYamlFile(new YamlConfigFile(path, false));
+            CustomBlockConfigurationFile file = this.customBlockRepository.getFile(name);
+            file.reload();
 
             abstractCustomBlocks.add(file.getAbstractCustomBlock());
         } catch (CustomBlockLoadException | IllegalArgumentException e) {
-            if (block != null) {
-                abstractCustomBlocks.add(block);
+            if (block[0] != null) {
+                abstractCustomBlocks.add(block[0]);
             }
             ChatUtil.log("&c" + e.getMessage());
         }
 
         BlockDisplayCreator.getInstance().getBdcCommand().reloadSuggestions();
-        BlockDisplayCreator.getInstance().getCbGiveCommand().reloadSuggestions();
     }
 
     @Override

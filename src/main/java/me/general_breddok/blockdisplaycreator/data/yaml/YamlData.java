@@ -10,6 +10,8 @@ import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.NumberUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
@@ -33,6 +35,7 @@ import java.util.*;
  */
 public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
 
+    private static final Logger log = LogManager.getLogger(YamlData.class);
     /**
      * The persistent data type manager instance.
      */
@@ -211,7 +214,9 @@ public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
         }
 
         if (!(result instanceof ArrayList<?>) && primitiveType.equals(ArrayList.class)) {
-            result = new ArrayList<>(Collections.singleton(result));
+            List<Object> list = new ArrayList<>();
+            list.add(result);
+            result = list;
         }
 
         if (!primitiveType.isAssignableFrom(result.getClass())) {

@@ -46,4 +46,18 @@ public class NumberUtil {
     public boolean isDigitString(String str) {
         return str.chars().allMatch(Character::isDigit);
     }
+
+    public static Number parseNumber(String input) throws NumberFormatException {
+        input = input.trim();
+
+        try {
+            return Integer.parseInt(input);
+        } catch (NumberFormatException e1) {
+            try {
+                return Long.parseLong(input);
+            } catch (NumberFormatException e2) {
+                return Double.parseDouble(input);
+            }
+        }
+    }
 }

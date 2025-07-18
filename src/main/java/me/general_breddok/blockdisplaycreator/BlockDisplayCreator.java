@@ -1,13 +1,12 @@
 package me.general_breddok.blockdisplaycreator;
 
 import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
-import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorCommand;
-import me.general_breddok.blockdisplaycreator.command.CustomBlockGiveCommand;
+import me.general_breddok.blockdisplaycreator.command.capi.BlockDisplayCreatorCAPICommand;
+import me.general_breddok.blockdisplaycreator.command.capi.CustomBlockGiveCAPICommand;
 import me.general_breddok.blockdisplaycreator.custom.block.*;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeManager;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
@@ -55,8 +54,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
     YamlConfigFile yamlConfiguration;
     YamlConfigFile messagesFile;
 
-    BlockDisplayCreatorCommand bdcCommand;
-    CustomBlockGiveCommand cbGiveCommand;
+    BlockDisplayCreatorCAPICommand bdcCommand;
+    CustomBlockGiveCAPICommand cbGiveCommand;
 
 
 
@@ -64,10 +63,10 @@ public final class BlockDisplayCreator extends JavaPlugin {
     public void onLoad() {
         CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
 
-        this.bdcCommand = new BlockDisplayCreatorCommand(this);
+        this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
         this.bdcCommand.register();
 
-        this.cbGiveCommand = new CustomBlockGiveCommand(this);
+        this.cbGiveCommand = new CustomBlockGiveCAPICommand(this);
         this.cbGiveCommand.register();
 
         worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
@@ -82,7 +81,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
     @Override
     public void onEnable() {
         instance = this;
-        //CommandAPI.onEnable();
+        CommandAPI.onEnable();
 
         this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage());
         this.servicesManager = new CustomBlockServiceManager();
