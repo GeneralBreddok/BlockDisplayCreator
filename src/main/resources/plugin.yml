@@ -31,20 +31,17 @@ permissions:
   bdc.bypass.wg:
     description: Allows players to bypass WorldGuard region checks for custom blocks
     default: op
-    description: Allows bypassing WorldGuard region checks
 
   bdc.command.custom-block:
     description: Allows players to use the custom-block command
     default: op
-    description: Allows giving a custom block to a player
 
   bdc.command.reload:
     description: Allows players to reload the plugin configuration
     default: op
-    description: Allows reloading the plugin configuration
 
   bdc.command.killcbentities:
     description: Allows players to use the killcbentities command to remove custom block entities
     default: op
-    description: Allows killing all custom block entities
+
 
