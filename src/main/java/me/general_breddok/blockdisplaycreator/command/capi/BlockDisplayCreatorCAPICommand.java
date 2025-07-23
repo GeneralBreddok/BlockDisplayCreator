@@ -1,7 +1,9 @@
 package me.general_breddok.blockdisplaycreator.command.capi;
 
 import com.jeff_media.customblockdata.CustomBlockData;
-import dev.jorel.commandapi.*;
+import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandTree;
+import dev.jorel.commandapi.Tooltip;
 import dev.jorel.commandapi.arguments.*;
 import dev.jorel.commandapi.executors.CommandArguments;
 import lombok.AccessLevel;
@@ -9,7 +11,6 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.command.capi.tooltip.AbstractCustomBlockTooltip;
-import me.general_breddok.blockdisplaycreator.command.capi.tooltip.StringTooltipDta;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.common.ColorConverter;
@@ -28,14 +29,12 @@ import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBa
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.util.NumberUtil;
+import me.general_breddok.blockdisplaycreator.version.VersionCompat;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.*;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -660,23 +659,18 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                 .then(
                                                                                                         new LiteralArgument("sound-type")
                                                                                                                 .then(
-                                                                                                                        new StringArgument("sound-value")
+                                                                                                                        new StringArgument("sound-name")
                                                                                                                                 .replaceSuggestions(ArgumentSuggestions.strings(
-                                                                                                                                        Arrays.stream(Sound.values())
-                                                                                                                                                .map(Sound::toString)
-                                                                                                                                                .toList()
+                                                                                                                                        VersionCompat.getSoundNames()
                                                                                                                                 )).executes((sender, args) -> {
                                                                                                                                             String block = (String) args.get("block");
-                                                                                                                                            String sound = (String) args.get("sound-value");
+                                                                                                                                            String soundName = (String) args.get("sound-name");
 
-                                                                                                                                            try {
-                                                                                                                                                Sound.valueOf(sound.toUpperCase());
-                                                                                                                                            } catch (
-                                                                                                                                                    IllegalArgumentException e) {
-                                                                                                                                                throw CommandAPI.failWithString("Invalid sound type: " + sound);
+                                                                                                                                            if (!VersionCompat.getSoundNames().contains(soundName.toUpperCase())) {
+                                                                                                                                                throw CommandAPI.failWithString("Invalid sound type: " + soundName);
                                                                                                                                             }
 
-                                                                                                                                            setCBConfigValue(block, "sound." + args.get("stage") + ".sound-type", sound, sender);
+                                                                                                                                            setCBConfigValue(block, "sound." + args.get("stage") + ".sound-type", soundName, sender);
                                                                                                                                         }
                                                                                                                                 )
                                                                                                                 )
@@ -894,16 +888,26 @@ public class BlockDisplayCreatorCAPICommand {
     }
 
     private void killBlockEntities(BoundingBox boundingBox, Player sender) {
-        Collection<Entity> displayEntities = sender.getWorld().getNearbyEntities(
-                boundingBox,
-                Display.class::isInstance);
-
-        Collection<Entity> interactions = sender.getWorld().getNearbyEntities(
-                boundingBox,
-                Interaction.class::isInstance);
-
-
         WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
+
+        List<Entity> displayEntities = new ArrayList<>();
+        List<Entity> interactions = new ArrayList<>();
+        List<Entity> collisions = new ArrayList<>();
+
+
+        sender.getWorld().getNearbyEntities(
+                boundingBox,
+                entity -> entity instanceof Display || entity instanceof Interaction || entity instanceof Shulker
+        ).forEach(entity -> {
+            if (entity instanceof Display) {
+                displayEntities.add(entity);
+            } else if (entity instanceof Interaction) {
+                interactions.add(entity);
+            } else if (entity instanceof Shulker) {
+                collisions.add(entity);
+            }
+        });
+
 
         final int[] blocksCount = {0};
 
@@ -928,12 +932,14 @@ public class BlockDisplayCreatorCAPICommand {
                 }
         );
 
-        ChatUtil.sendMessage(sender, "&6Killed %d display entities", displayEntities.size());
-        ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
-        ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
-
         displayEntities.forEach(Entity::remove);
         interactions.forEach(Entity::remove);
+        collisions.forEach(Entity::remove);
+
+        ChatUtil.sendMessage(sender, "&6Killed %d display entities", displayEntities.size());
+        ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
+        ChatUtil.sendMessage(sender, "&6Killed %d collision entities", collisions.size());
+        ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
     }
 
     public static List<String> parseQuotedStrings(String input) {

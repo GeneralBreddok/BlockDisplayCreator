@@ -15,6 +15,7 @@ import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFileRepository;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockRepository;
+import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
@@ -44,7 +45,7 @@ import java.util.*;
 /**
  * @deprecated
  */
-@Deprecated
+@Deprecated(since = "1.19.4")
 public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
     private final BlockDisplayCreator instance;
@@ -211,7 +212,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                             }
                         }
                     }
-                    /*case "set" -> {
+                    /*case "editfile" -> {
 
                         if (arg3 == null) {
                             ChatUtil.sendMessage(sender, "&cYou didn't specify a block!");
@@ -448,7 +449,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
             }
             case "killcbentities" -> {
 
-                if (!sender.hasPermission("bdc.command.killcbentities")) {
+                if (!sender.hasPermission(DefaultPermissions.BDC.Command.KILL_CB_ENTITIES)) {
                     ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
                     return true;
                 }

@@ -8,6 +8,9 @@ import me.general_breddok.blockdisplaycreator.rotation.snapper.YawSnapper;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EntityUtil;
 import me.general_breddok.blockdisplaycreator.util.MathUtil;
+import me.general_breddok.blockdisplaycreator.version.MinecraftVersion;
+import me.general_breddok.blockdisplaycreator.version.VersionCompat;
+import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import org.apache.logging.log4j.util.TriConsumer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -142,7 +145,7 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
             halfWidth = interaction.getInteractionWidth() / 2;
             halfHeight = interaction.getInteractionHeight() / 2;
         } else {
-            Attribute scaleAttribute = getScaleAttribute();
+            Attribute scaleAttribute = VersionCompat.getScaleAttribute();
             if (scaleAttribute != null && entity instanceof Attributable attributable) {
                 AttributeInstance attributeInstance = attributable.getAttribute(scaleAttribute);
 
@@ -184,32 +187,5 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
         };
 
         action.accept(x, y, z);
-    }
-
-    private static boolean isEarlier1_20_5(String version) {
-        return switch (version) {
-            case "1.19.4", "1.20", "1.20.1", "1.20.2", "1.20.3", "1.20.4" -> true;
-            default -> false;
-        };
-    }
-
-    private static boolean isEarlier1_21_3(String version) {
-        return switch (version) {
-            case "1.20.5", "1.20.6", "1.21", "1.21.1", "1.21.2" -> true;
-            default -> false;
-        };
-    }
-
-    private Attribute getScaleAttribute() {
-        String rawVersion = Bukkit.getBukkitVersion();
-        String cleanVersion = rawVersion.split("-")[0];
-
-        if (isEarlier1_20_5(cleanVersion)) {
-            return null;
-        } else if (isEarlier1_21_3(cleanVersion)) {
-            return Attribute.valueOf("GENERIC_SCALE");
-        } else {
-            return Registry.ATTRIBUTE.get(NamespacedKey.minecraft("scale"));
-        }
     }
 }

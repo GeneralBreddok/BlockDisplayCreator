@@ -1,5 +1,6 @@
 package me.general_breddok.blockdisplaycreator.data.manager;
 
+import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
@@ -7,10 +8,13 @@ import me.general_breddok.blockdisplaycreator.custom.CommandBundleDta;
 import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.data.exception.IllegalEnumNameException;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
 import me.general_breddok.blockdisplaycreator.sound.SimplePlayableSound;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
+import me.general_breddok.blockdisplaycreator.version.VersionCompat;
+import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.MemorySection;
@@ -44,6 +48,28 @@ public interface PersistentDataTypes {
                 } catch (IllegalArgumentException e) {
                     throw new IllegalEnumNameException(primitive + " is not a Sound enum constant", null, primitive);
                 }
+            }
+    );
+
+    PersistentDataType<MemorySection, DirectedVector> DIRECTED_VECTOR = PersistentDataTypeStore.newPersistentDataType(
+            MemorySection.class,
+            DirectedVector.class,
+            (complex, context) -> {
+                YamlConfiguration serialized = new YamlConfiguration();
+                serialized.set("x", complex.getX());
+                serialized.set("y", complex.getY());
+                serialized.set("z", complex.getZ());
+                serialized.set("yaw", complex.getYaw());
+                serialized.set("pitch", complex.getPitch());
+                return serialized;
+            },
+            (primitive, context) -> {
+                double x = primitive.getDouble("x", 0);
+                double y = primitive.getDouble("y", 0);
+                double z = primitive.getDouble("z", 0);
+                float yaw = (float) primitive.getDouble("yaw", 0);
+                float pitch = (float) primitive.getDouble("pitch", 0);
+                return new DirectedVector(x, y, z, yaw, pitch);
             }
     );
 

@@ -4,6 +4,7 @@ import com.google.common.reflect.TypeToken;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
 import org.bukkit.*;
 import org.bukkit.attribute.AttributeModifier;
@@ -73,6 +74,7 @@ public interface TypeTokens {
     TypeToken<Display.Billboard> BILLBOARD = TypeToken.of(Display.Billboard.class);
     TypeToken<Display.Brightness> BRIGHTNESS = TypeToken.of(Display.Brightness.class);
     TypeToken<Vector> VECTOR = TypeToken.of(Vector.class);
+    TypeToken<DirectedVector> DIRECTED_VECTOR = TypeToken.of(DirectedVector.class);
     TypeToken<BlockVector> BLOCK_VECTOR = TypeToken.of(BlockVector.class);
     TypeToken<ItemStack> ITEM_STACK = TypeToken.of(ItemStack.class);
     TypeToken<Color> COLOR = TypeToken.of(Color.class);

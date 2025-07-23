@@ -79,7 +79,7 @@ public interface CustomBlockService {
      * @param abstractCustomBlock the abstract custom block to place.
      * @param location the location to place the block.
      * @param rotation the rotation of the block.
-     * @param player the player placing the block (nullable).
+     * @param player the player placing the block (optional).
      * @param options additional placement options.
      * @return the placed {@link CustomBlock} if successful, otherwise null.
      */

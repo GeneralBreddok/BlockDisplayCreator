@@ -2,6 +2,7 @@ package me.general_breddok.blockdisplaycreator.file.config.loader;
 
 import lombok.Getter;
 import lombok.experimental.UtilityClass;
+import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCFunctionCommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.SummonDisplayCommandLine;
@@ -24,9 +25,12 @@ import me.general_breddok.blockdisplaycreator.entity.living.ShulkerSummoner;
 import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadException;
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplay;
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplayObject;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
+import me.general_breddok.blockdisplaycreator.version.MinecraftVersion;
+import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import me.general_breddok.blockdisplaycreator.web.bdengine.BDEngineModel;
 import me.general_breddok.blockdisplaycreator.web.bdengine.NetworkBDEngineModel;
 import me.general_breddok.blockdisplaycreator.web.exception.InvalidResponseException;
@@ -143,9 +147,9 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             }
 
             try {
-                offset = vectorYamlData.get(interactionPath + ".offset", new Vector(0, 0, 0));
+                offset = vectorYamlData.get(interactionPath + ".offset", null);
             } catch (ConfigurationDataTypeMismatchException e) {
-                offset = new Vector(0, 0, 0);
+                offset = null;
             }
 
 
@@ -161,8 +165,8 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             configuredInteractions.add(
                     new ConfiguredInteractionDta(
                             interactionSummoner,
-                            offset,
                             interactionIdentifier,
+                            offset,
                             interactionDispatcher
                     )
             );
@@ -197,6 +201,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             Vector offset;
             boolean invisible;
             DyeColor color;
+            boolean disableBelow1_20_5;
 
             try {
                 size = doubleYamlData.get(collisionPath + ".size", 0d);
@@ -205,9 +210,9 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             }
 
             try {
-                offset = vectorYamlData.get(collisionPath + ".offset", new Vector(0, 0, 0));
+                offset = vectorYamlData.get(collisionPath + ".offset", null);
             } catch (ConfigurationDataTypeMismatchException e) {
-                offset = new Vector(0, 0, 0);
+                offset = null;
             }
 
             try {
@@ -222,10 +227,17 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
                 color = null;
             }
 
+
+            try {
+                disableBelow1_20_5 = booleanYamlData.get(collisionPath + ".disable-below-1_20_5", false);
+            } catch (ConfigurationDataTypeMismatchException e) {
+                disableBelow1_20_5 = false;
+            }
+
             ShulkerSummoner summoner = new ShulkerSummoner();
             summoner.setInvisible(invisible);
             summoner.setColor(color);
-            configuredCollisions.add(new ConfiguredCollisionDta(summoner, offset, collisionIdentifier, size));
+            configuredCollisions.add(new ConfiguredCollisionDta(summoner, collisionIdentifier, offset, size, disableBelow1_20_5));
         }
 
         return configuredCollisions;
@@ -265,33 +277,53 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
     }
 
 
+    private String getVersionSpecificSpawnCommandPath() {
+        VersionManager versionManager = BlockDisplayCreator.getInstance().getVersionManager();
+
+        if (versionManager.isVersion1_19_4()) {
+            return ParameterLocators.Display.SPAWN_COMMAND_1_19_4_PATH;
+        } else if (versionManager.getCurrentVersion().isInRange(MinecraftVersion.V1_20, MinecraftVersion.V1_20_4)) {
+            return ParameterLocators.Display.SPAWN_COMMAND_1_20_1_20_4_PATH;
+        }
+        return null;
+    }
 
 
     public GroupSummoner<Display> getDisplaySummoner() {
         List<CommandLine> displaySummonCommands = new ArrayList<>();
+        String valueName = ParameterLocators.Display.SPAWN_COMMAND_PATH;
 
         Object displayCommandsLink = file.get(ParameterLocators.Display.SPAWN_COMMAND_PATH);
 
         if (displayCommandsLink == null) {
-            throw new CustomBlockLoadException(String.format("&cUnable to load block &6%s&r&c, parameter display.spawn-command is not set", getName()));
+            throw new CustomBlockLoadException(String.format("&cUnable to load block &6%s&r&c, parameter %s is not set", getName(), valueName));
+        }
+
+        String versionSpecificSpawnCommandPath = getVersionSpecificSpawnCommandPath();
+        if (versionSpecificSpawnCommandPath != null) {
+            Object versionSpecificDisplayCommandsLink = file.get(versionSpecificSpawnCommandPath);
+            if (versionSpecificDisplayCommandsLink != null) {
+                displayCommandsLink = versionSpecificDisplayCommandsLink;
+                valueName = versionSpecificSpawnCommandPath;
+            }
         }
 
         SpawnCommandFormat spawnCommandFormat = null;
 
         if (displayCommandsLink instanceof List<?> list) {
             for (Object o : list) {
-                SpawnCommandFormat nextSpawnCommandFormat = processCommand(o, displaySummonCommands);
+                SpawnCommandFormat nextSpawnCommandFormat = processCommand(o, displaySummonCommands, valueName);
                 if (spawnCommandFormat != null && spawnCommandFormat != nextSpawnCommandFormat) {
                     break;
                 }
                 spawnCommandFormat = nextSpawnCommandFormat;
             }
         } else {
-            spawnCommandFormat = processCommand(displayCommandsLink, displaySummonCommands);
+            spawnCommandFormat = processCommand(displayCommandsLink, displaySummonCommands, valueName);
         }
 
         if (spawnCommandFormat == SpawnCommandFormat.UNKNOWN) {
-            throw new CustomBlockLoadException(String.format("&cUnable to load block &6%s&r&c, parameter display.spawn-command has an unknown format", getName()));
+            throw new CustomBlockLoadException(String.format("&cUnable to load block &6%s&r&c, parameter %s has an unknown format", getName(), valueName));
         }
 
 
@@ -301,20 +333,17 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             displaySummonCommands.addAll(summonDisplayCommandLines);
         }
 
+        DirectedVector translation = file.get(ParameterLocators.Display.TRANSLATION, null);
 
-        AutomaticCommandDisplaySummoner displaySummoner = new AutomaticCommandDisplaySummoner(displaySummonCommands);
+        AutomaticCommandDisplaySummoner displaySummoner = new AutomaticCommandDisplaySummoner(displaySummonCommands, translation);
 
-        Vector translation = file.get(ParameterLocators.Display.TRANSLATION, new Vector(0, 0, 0));
-
-        displaySummoner.setTranslation(translation);
         displaySummoner.setUsePlaceholder(file.get(ParameterLocators.Display.USE_PLACEHOLDER, false));
-
 
         return displaySummoner;
     }
 
 
-    private SpawnCommandFormat processCommand(Object command, List<CommandLine> displaySummonCommands) {
+    private SpawnCommandFormat processCommand(Object command, List<CommandLine> displaySummonCommands, String valueName) {
         if (command instanceof String s) {
             if (s.trim().contains("function")) {
                 MCFunctionCommandLine mcFunctionCommandLine = new MCFunctionCommandLine(s);
@@ -324,8 +353,9 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
                 } catch (CommandParseException e) {
                     throw new CustomBlockLoadException(e,
-                            "&cUnable to load block &6%s&r&c, parameter display.summon-command: &4%s&r&c is not a &7command!",
+                            "&cUnable to load block &6%s&r&c, parameter %s: &4%s&r&c is not a &7command!",
                             getName(),
+                            valueName,
                             e.getCommandLine());
                 }
 
@@ -337,8 +367,9 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
                 } catch (CommandParseException e) {
                     throw new CustomBlockLoadException(e,
-                            "&cUnable to load block &6%s&r&c, parameter display.summon-command: &4%s&r&c is not a &7command!",
+                            "&cUnable to load block &6%s&r&c, parameter %s: &4%s&r&c is not a &7command!",
                             getName(),
+                            valueName,
                             e.getCommandLine());
                 }
                 return SpawnCommandFormat.SUMMON_COMMAND;
@@ -354,7 +385,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
                         getName()
                 );
             } catch (InvalidCommandNameException e) {
-                throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&r&c, parameter display.summon-command: " + e.getMessage());
+                throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&r&c, parameter %s: " + e.getMessage(), getName(), valueName);
             }
         }
         return SpawnCommandFormat.UNKNOWN;
@@ -690,10 +721,12 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         class Display {
             String DISPLAY_PATH = "display";
             String SPAWN_COMMAND_PATH = DISPLAY_PATH + ".spawn-command";
+            String SPAWN_COMMAND_1_19_4_PATH = DISPLAY_PATH + ".spawn-command-1_19_4";
+            String SPAWN_COMMAND_1_20_1_20_4_PATH = DISPLAY_PATH + ".spawn-command-1_20-1_20_4";
             ConfigLocator<Boolean> USE_PLACEHOLDER = new ConfigLocator<>(DISPLAY_PATH + ".use-placeholder", TypeTokens.BOOLEAN);
             ConfigLocator<Boolean> GLOWING = new ConfigLocator<>(DISPLAY_PATH + ".glowing", TypeTokens.BOOLEAN);
             ConfigLocator<Float> VIEW_RANGE = new ConfigLocator<>(DISPLAY_PATH + ".view-range", TypeTokens.FLOAT);
-            ConfigLocator<Vector> TRANSLATION = new ConfigLocator<>(DISPLAY_PATH + ".translation", TypeTokens.VECTOR);
+            ConfigLocator<DirectedVector> TRANSLATION = new ConfigLocator<>(DISPLAY_PATH + ".translation", TypeTokens.DIRECTED_VECTOR);
             ConfigLocator<org.bukkit.entity.Display.Billboard> BILLBOARD = new ConfigLocator<>(DISPLAY_PATH + ".billboard", TypeTokens.BILLBOARD);
             ConfigLocator<org.bukkit.entity.Display.Brightness> BRIGHTNESS = new ConfigLocator<>(DISPLAY_PATH + ".brightness", TypeTokens.BRIGHTNESS);
             ConfigLocator<Float> SHADOW_RADIUS = new ConfigLocator<>(DISPLAY_PATH + ".shadow-radius", TypeTokens.FLOAT);

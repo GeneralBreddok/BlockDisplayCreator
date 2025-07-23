@@ -6,6 +6,7 @@ import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -63,15 +64,6 @@ public class OperationUtil {
             }
         }
         return null;
-    }
-
-
-    public <T> List<T> toArray(T[] array) {
-        return Arrays.stream(array).toList();
-    }
-
-    public boolean nullSafeEquals(Object obj1, Object obj2) {
-        return Objects.equals(obj1, obj2);
     }
 
     @SafeVarargs

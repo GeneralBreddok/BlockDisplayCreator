@@ -17,14 +17,29 @@ import org.jetbrains.annotations.Nullable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ConfiguredInteractionDta implements ConfiguredInteraction {
     Summoner<Interaction> summoner;
-    Vector offset;
     String identifier;
+    @Nullable
+    Vector offset;
     @Nullable
     InteractionHandler interactionHandler;
 
+    public ConfiguredInteractionDta(Summoner<Interaction> summoner, String identifier, @Nullable Vector offset) {
+        this(summoner, identifier, offset, null);
+    }
+
+    public ConfiguredInteractionDta(Summoner<Interaction> summoner, String identifier) {
+        this(summoner, identifier, null, null);
+    }
+
     @Override
     public Interaction summon(@NotNull Location location) {
-        Interaction interaction = summoner.summon(location.clone().add(offset));
+        Location summonLocation = location.clone();
+
+        if (this.offset != null) {
+            summonLocation.add(this.offset);
+        }
+
+        Interaction interaction = summoner.summon(summonLocation);
 
         interaction.setPersistent(true);
         interaction.setInvulnerable(true);
@@ -35,6 +50,12 @@ public class ConfiguredInteractionDta implements ConfiguredInteraction {
     @Override
     public ConfiguredInteraction clone() {
         Summoner<Interaction> clonedSummoner = DeepCloneable.tryClone(this.summoner);
-        return new ConfiguredInteractionDta(clonedSummoner, this.offset.clone(), this.identifier, this.interactionHandler);
+
+        Vector clonedOffset = null;
+
+        if (this.offset != null) {
+            clonedOffset = this.offset.clone();
+        }
+        return new ConfiguredInteractionDta(clonedSummoner, this.identifier, clonedOffset, this.interactionHandler);
     }
 }

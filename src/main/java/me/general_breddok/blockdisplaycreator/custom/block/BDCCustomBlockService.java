@@ -14,12 +14,16 @@ import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
+import me.general_breddok.blockdisplaycreator.entity.display.TranslationVectorAdjustable;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockBreakEvent;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockPlaceEvent;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
+import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
+import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -32,10 +36,7 @@ import org.bukkit.persistence.PersistentDataType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Getter
 public class BDCCustomBlockService implements CustomBlockService {
@@ -280,18 +281,16 @@ public class BDCCustomBlockService implements CustomBlockService {
                 displayVehicleUuids.add(display.getUniqueId());
             }
 
-
             display.setPersistent(true);
             display.setInvulnerable(true);
 
-
             rotation.adjustDisplayRotation(display, abstractCustomBlock.getSidesCount());
+            applyRotationTranslation(abstractCustomBlock, display);
 
             CustomBlockKey.holder(display)
                     .setServiceClass(BDCCustomBlockService.class.getName())
                     .setName(abstractCustomBlock.getName())
                     .setLocation(location);
-
 
             display.addScoreboardTag("custom-block");
             display.addScoreboardTag("custom-block-name:" + abstractCustomBlock.getName());
@@ -314,10 +313,15 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         List<Interaction> interactions = abstractCustomBlock.getConfiguredInteractions().stream().map(configuredInteraction -> {
             Interaction interaction = configuredInteraction.summon(location);
+
+            if (interaction == null) {
+                return null;
+            }
+
             String configuredInteractionIdentifier = configuredInteraction.getIdentifier();
 
-
             rotation.adjustInteractionRotation(interaction, configuredInteraction.getOffset(), abstractCustomBlock.getSidesCount());
+
 
             CustomBlockKey.DataHolder dataHolder = CustomBlockKey.holder(interaction);
 
@@ -337,12 +341,17 @@ public class BDCCustomBlockService implements CustomBlockService {
             interaction.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return interaction;
-        }).collect(OperationUtil.toArrayList());
+        }).filter(Objects::nonNull).collect(OperationUtil.toArrayList());
 
 
 
         List<Shulker> collisions = abstractCustomBlock.getConfiguredCollisions().stream().map(configuredCollision -> {
             Shulker collision = configuredCollision.summon(location);
+
+            if (collision == null) {
+                return null;
+            }
+
             String configuredCollisionIdentifier = configuredCollision.getIdentifier();
 
             rotation.adjustCollisionRotation(collision, configuredCollision.getOffset(), abstractCustomBlock.getSidesCount());
@@ -366,7 +375,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             collision.addScoreboardTag("custom-block-location:" + location.toVector());
 
             return collision;
-        }).collect(OperationUtil.toArrayList());
+        }).filter(Objects::nonNull).collect(OperationUtil.toArrayList());
 
 
 
@@ -392,6 +401,17 @@ public class BDCCustomBlockService implements CustomBlockService {
         }
 
         return rawCustomBlock;
+    }
+
+    private static void applyRotationTranslation(@NotNull AbstractCustomBlock abstractCustomBlock, Display display) {
+        if (abstractCustomBlock.getDisplaySummoner() instanceof TranslationVectorAdjustable translationVectorAdjustable) {
+            DirectedVector translation = translationVectorAdjustable.getTranslation();
+            if (translation != null) {
+                EntityRotation displayRotation = new EntityRotation(display);
+                displayRotation.addRotation(translation.getYaw(), translation.getPitch());
+                displayRotation.applyToEntity(display);
+            }
+        }
     }
 
     /**

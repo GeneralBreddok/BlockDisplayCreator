@@ -1,9 +1,9 @@
 package me.general_breddok.blockdisplaycreator.entity.display;
 
-import org.bukkit.util.Vector;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 
 public interface TranslationVectorAdjustable {
-    Vector getTranslation();
+    DirectedVector getTranslation();
 
-    void setTranslation(Vector translation);
+    void setTranslation(DirectedVector translation);
 }

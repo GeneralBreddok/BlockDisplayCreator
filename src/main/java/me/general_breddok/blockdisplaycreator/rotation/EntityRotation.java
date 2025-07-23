@@ -40,6 +40,19 @@ public class EntityRotation implements Serializable {
         this.pitch = getOppositePitch();
     }
 
+    public void addYaw(float yaw) {
+        this.yaw = Location.normalizeYaw(this.yaw + yaw);
+    }
+
+    public void addPitch(float pitch) {
+        this.pitch = Location.normalizePitch(this.pitch + pitch);
+    }
+
+    public void addRotation(float yaw, float pitch) {
+        this.yaw = Location.normalizeYaw(this.yaw + yaw);
+        this.pitch = Location.normalizePitch(this.pitch + pitch);
+    }
+
     public EntityRotation getOppositeRotation() {
         return new EntityRotation(getOppositeYaw(), getOppositePitch());
     }

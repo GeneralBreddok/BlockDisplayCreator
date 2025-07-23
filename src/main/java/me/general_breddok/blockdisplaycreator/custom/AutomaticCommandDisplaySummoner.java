@@ -13,7 +13,7 @@ import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import me.general_breddok.blockdisplaycreator.entity.CommandSummoner;
 import me.general_breddok.blockdisplaycreator.entity.display.TranslationVectorAdjustable;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.util.LocationUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
@@ -22,7 +22,6 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Entity;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,12 +35,17 @@ import java.util.function.Predicate;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>, TranslationVectorAdjustable, DeepCloneable<AutomaticCommandDisplaySummoner> {
     List<CommandLine> commands;
-    Vector translation;
+    DirectedVector translation;
     boolean usePlaceholder;
 
 
     public AutomaticCommandDisplaySummoner(List<CommandLine> commands) {
         this.commands = commands;
+    }
+
+    public AutomaticCommandDisplaySummoner(List<CommandLine> commands, DirectedVector translation) {
+        this.commands = commands;
+        this.translation = translation;
     }
 
     @Override
@@ -122,7 +126,9 @@ public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>
     @Override
     public AutomaticCommandDisplaySummoner clone() {
         AutomaticCommandDisplaySummoner cloned = new AutomaticCommandDisplaySummoner(DeepCloneable.tryCloneList(this.commands));
-        cloned.setTranslation(this.translation.clone());
+        if (translation != null) {
+            cloned.setTranslation(this.translation.clone());
+        }
         cloned.setUsePlaceholder(this.usePlaceholder);
         return cloned;
     }

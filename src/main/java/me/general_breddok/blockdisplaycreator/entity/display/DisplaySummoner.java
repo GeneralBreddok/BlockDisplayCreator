@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.entity.EntitySummoner;
+import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import org.bukkit.Color;
@@ -13,7 +14,6 @@ import org.bukkit.Location;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.EntityType;
 import org.bukkit.util.Transformation;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
 
@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class DisplaySummoner<E extends Display> extends EntitySummoner<E> implements TranslationVectorAdjustable, DisplayCharacteristics {
-    Vector translation;
+    DirectedVector translation;
 
     Display.Billboard billboard;
     Display.Brightness brightness;

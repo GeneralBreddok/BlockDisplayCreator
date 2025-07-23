@@ -70,14 +70,12 @@ interactions:
     #Interaction Entity height.  By def 0
     height: 1.1
     #Interaction Entity width.  By def 0
-
     width: 1.001
     #Offset of this interaction entity relative to the central location of the custom block. Supports rotation-dependent offset changes
     offset:
       x: 0
       y: 0
       z: 0
-
 
     #Command or commands that are called when the player interacts (right-clicks) with the Interaction Entity of this block.   By def absent
     command:
@@ -93,24 +91,14 @@ interactions:
 collisions:
   #Collision name
   main:
-    #Size of the collision entity. Works on 1.20.5+ only.
+    #Size of the collision entity. **Works only on Minecraft 1.20.5 and above**, since the scale attribute used to set collision size was introduced in 1.20.5.
     size: 0.8
-    #Offset of this collision entity relative to the central location of the custom block. Supports rotation-dependent offset changes
+    #Offset of this collision entity relative to the central location of the custom block. Supports rotation-dependent offset changes.
     offset:
       x: 0
       y: 0.01
       z: 0
 
-
-#Collision entities. Describes the collision entity parameters for this block.
-collisions:
-    #Collision name
-    main:
-        #Size of the collision entity. Works on 1.20.5+ only.
-        size: 0.8
-        #Offset of this collision entity relative to the central location of the custom block. Supports rotation-dependent offset changes
-        offset:
-          x: 0
-          y: 0.01
-          z: 0
+    #If true, the collision entity will not be spawned on versions below 1.20.5 (before the scale attribute for collision size was added).   By def false.
+    disable-below-1_20_5: true
 

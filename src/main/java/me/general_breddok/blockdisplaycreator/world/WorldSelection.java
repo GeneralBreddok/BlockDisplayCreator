@@ -2,7 +2,8 @@ package me.general_breddok.blockdisplaycreator.world;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.bukkit.Bukkit;
+import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
+import me.general_breddok.blockdisplaycreator.version.MinecraftVersion;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -93,20 +94,12 @@ public class WorldSelection extends BoundingBox {
 
 
     private static Material getShortGrass() {
-        String rawVersion = Bukkit.getBukkitVersion();
-        String cleanVersion = rawVersion.split("-")[0];
-        if (isEarlier1_20_3(cleanVersion)) {
+        MinecraftVersion version = BlockDisplayCreator.getInstance().getVersionManager().getCurrentVersion();
+        if (version.isBelow(MinecraftVersion.V1_20_3)) {
             return Material.valueOf("GRASS");
         } else {
             return Material.valueOf("SHORT_GRASS");
         }
-    }
-
-    private static boolean isEarlier1_20_3(String version) {
-        return switch (version) {
-            case  "1.19.4", "1.20", "1.20.1", "1.20.2" -> true;
-            default -> false;
-        };
     }
 
     public static boolean isEmptyBlock(@NotNull Material material) {

@@ -1,10 +1,13 @@
 package me.general_breddok.blockdisplaycreator;
 
 import dev.jorel.commandapi.CommandAPI;
+import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import dev.jorel.commandapi.arguments.CommandArgument;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
+import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorSpigotCommand;
 import me.general_breddok.blockdisplaycreator.command.capi.BlockDisplayCreatorCAPICommand;
 import me.general_breddok.blockdisplaycreator.command.capi.CustomBlockGiveCAPICommand;
 import me.general_breddok.blockdisplaycreator.custom.block.*;
@@ -29,14 +32,20 @@ import me.general_breddok.blockdisplaycreator.listener.player.PlayerInteractList
 import me.general_breddok.blockdisplaycreator.service.CustomBlockServiceManager;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.sound.SimplePlayableSound;
+import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
 import org.bukkit.Bukkit;
+import org.bukkit.command.Command;
+import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.nio.file.Path;
+import java.util.Map;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -57,21 +66,32 @@ public final class BlockDisplayCreator extends JavaPlugin {
     BlockDisplayCreatorCAPICommand bdcCommand;
     CustomBlockGiveCAPICommand cbGiveCommand;
 
+    VersionManager versionManager;
+    boolean capi = false;
+
 
     @Override
     public void onLoad() {
-        CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
+        this.versionManager = new VersionManager(this.getServer());
 
-        this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
-        this.bdcCommand.register();
+        if (!this.versionManager.isVersion1_19_4()) {
+            this.capi = true;
+            CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
+            /*unregisterCommand("blockdisplaycreator");
 
-        this.cbGiveCommand = new CustomBlockGiveCAPICommand(this);
-        this.cbGiveCommand.register();
+            this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
+            this.bdcCommand.register();
 
-        worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
-        placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+            this.cbGiveCommand = new CustomBlockGiveCAPICommand(this);
+            this.cbGiveCommand.register();*/
+        } else {
+            ChatUtil.log("&6[BlockDisplayCreator] &eCommandAPI is not supported on Minecraft 1.19.4 and below, using legacy commands.");
+        }
 
-        if (worldGuard != null) {
+        this.worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
+        this.placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+
+        if (this.worldGuard != null) {
             BDCRegionFlags regionFlags = new BDCRegionFlags();
             regionFlags.registerFlags();
         }
@@ -79,12 +99,26 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     @Override
     public void onEnable() {
-        instance = this;
-        CommandAPI.onEnable();
+        this.instance = this;
 
-        this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage());
+        this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage(this));
         this.servicesManager = new CustomBlockServiceManager();
         this.servicesManager.registerService(this.customBlockService);
+
+        if (this.capi) {
+            CommandAPI.onEnable();
+
+            CommandAPIBukkit.unregister("blockdisplaycreator", true, true);
+            CommandAPIBukkit.unregister("bdc", true, true);
+
+            this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
+            this.bdcCommand.register();
+
+            this.cbGiveCommand = new CustomBlockGiveCAPICommand(this);
+            this.cbGiveCommand.register();
+        } else {
+            getCommand("blockdisplaycreator").setExecutor(new BlockDisplayCreatorSpigotCommand(this, this.customBlockService));
+        }
 
         registerDataAdapters();
 
@@ -110,11 +144,11 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     private void registerEvents() {
         PluginManager pluginManager = getServer().getPluginManager();
-        pluginManager.registerEvents(new PlayerInteractListener(servicesManager), this);
-        pluginManager.registerEvents(new EntityDamageByEntityListener(servicesManager), this);
+        pluginManager.registerEvents(new PlayerInteractListener(this.servicesManager), this);
+        pluginManager.registerEvents(new EntityDamageByEntityListener(this.servicesManager), this);
         pluginManager.registerEvents(new BlockPlaceListener(), this);
-        pluginManager.registerEvents(new PlayerInteractEntityListener(servicesManager), this);
-        pluginManager.registerEvents(new BlockBreakListener(servicesManager), this);
+        pluginManager.registerEvents(new PlayerInteractEntityListener(this.servicesManager), this);
+        pluginManager.registerEvents(new BlockBreakListener(this.servicesManager), this);
         pluginManager.registerEvents(new BlockExplodeListener(), this);
         pluginManager.registerEvents(new EntityExplodeListener(), this);
         pluginManager.registerEvents(new BlockPistonExtendListener(), this);
@@ -149,6 +183,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
         yamlStore.register(TypeTokens.COMMAND_SOURCE, PersistentDataTypes.COMMAND_SOURCE);
         yamlStore.register(TypeTokens.COMMAND_BUNDLE, PersistentDataTypes.COMMAND_BUNDLE);
         yamlStore.register(TypeTokens.DYE_COLOR, PersistentDataTypes.DYE_COLOR);
+        yamlStore.register(TypeTokens.DIRECTED_VECTOR, PersistentDataTypes.DIRECTED_VECTOR);
     }
 
     @Override
@@ -168,6 +203,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        CommandAPI.onDisable();
+        if (this.capi) {
+            CommandAPI.onDisable();
+        }
     }
 }
