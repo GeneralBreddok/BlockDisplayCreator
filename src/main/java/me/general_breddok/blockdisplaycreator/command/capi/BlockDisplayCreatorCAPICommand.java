@@ -113,7 +113,7 @@ public class BlockDisplayCreatorCAPICommand {
                                 .then(
                                         new LiteralArgument("give")
                                                 .then(
-                                                        new StringArgument("block")
+                                                        new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
                                                                 .then(
                                                                         new EntitySelectorArgument.ManyPlayers("receiver")
@@ -174,7 +174,7 @@ public class BlockDisplayCreatorCAPICommand {
                                 ).then(
                                         new LiteralArgument("editfile")
                                                 .then(
-                                                        new StringArgument("block")
+                                                        new TextArgument ("block")
                                                                 .replaceSuggestions((info, builder) -> {
                                                                             List<AbstractCustomBlock> abstractCustomBlocks = this.plugin.getCustomBlockService().getStorage().getAbstractCustomBlocks();
                                                                             String remaining = builder.getRemainingLowerCase();
@@ -226,13 +226,30 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                 })
                                                                                 )
                                                                 ).then(
+                                                                        new LiteralArgument("save-system")
+                                                                                .then(
+                                                                                        new StringArgument("save-system-type")
+                                                                                                .replaceSuggestions(ArgumentSuggestions.strings("yaml-file", "item"))
+                                                                                                .executes((sender, args) -> {
+                                                                                                    String block = (String) args.get("block");
+                                                                                                    String saveSystemType = (String) args.get("save-system-type");
+
+                                                                                                    if (!saveSystemType.equals("yaml-file") && !saveSystemType.equals("item")) {
+                                                                                                        throw CommandAPI.failWithString("Invalid save system type: " + saveSystemType);
+                                                                                                    }
+
+                                                                                                    setCBConfigValue(block, "save-system", saveSystemType, sender);
+                                                                                                })
+                                                                                )
+                                                                ).then(
                                                                         new LiteralArgument("display")
                                                                                 .then(
-                                                                                        new LiteralArgument("spawn-command")
+                                                                                        new MultiLiteralArgument("versioned-command", "spawn-command", "spawn-command-1_19_4", "spawn-command-1_20-1_20_4")
                                                                                                 .then(
                                                                                                         new GreedyStringArgument("command")
                                                                                                                 .executes((sender, args) -> {
                                                                                                                     String block = (String) args.get("block");
+                                                                                                                    String commandType = (String) args.get("versioned-command");
                                                                                                                     String commandLine = (String) args.get("command");
                                                                                                                     Object value = commandLine;
 
@@ -240,7 +257,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         value = NumberUtil.parseNumber(commandLine);
                                                                                                                     }
 
-                                                                                                                    setCBConfigValue(block, "display.spawn-command", List.of(value), sender);
+                                                                                                                    setCBConfigValue(block, "display." + commandType, List.of(value), sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -316,6 +333,17 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
+                                                                                        new LiteralArgument("use-placeholder")
+                                                                                                .then(
+                                                                                                        new BooleanArgument("use-placeholder-value")
+                                                                                                                .executes((sender, args) -> {
+                                                                                                                    String block = (String) args.get("block");
+                                                                                                                    boolean usePlaceholder = (boolean) args.get("use-placeholder-value");
+
+                                                                                                                    setCBConfigValue(block, "display.use-placeholder", usePlaceholder, sender);
+                                                                                                                })
+                                                                                                )
+                                                                                ).then(
                                                                                         new LiteralArgument("brightness")
                                                                                                 .then(
                                                                                                         new MultiLiteralArgument("type", "sky", "block")
@@ -342,6 +370,18 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     double value = (double) args.get("value");
 
                                                                                                                                     setCBConfigValue(block, "display.translation." + axis, value, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new MultiLiteralArgument("angle", "yaw", "pitch")
+                                                                                                                .then(
+                                                                                                                        new FloatArgument("value")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String angle = (String) args.get("angle");
+                                                                                                                                    float value = (float) args.get("value");
+
+                                                                                                                                    setCBConfigValue(block, "display.translation." + angle, value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -592,6 +632,49 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                                     setCBConfigValue(block, "collisions." + collisionName + ".offset." + axis, value, sender);
                                                                                                                                                 })
                                                                                                                                 )
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("invisible")
+                                                                                                                .then(
+                                                                                                                        new BooleanArgument("value")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String collisionName = (String) args.get("collision-name");
+                                                                                                                                    boolean value = (boolean) args.get("value");
+
+                                                                                                                                    setCBConfigValue(block, "collisions." + collisionName + ".invisible", value, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("color")
+                                                                                                                .then(
+                                                                                                                        new StringArgument("color")
+                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(Arrays.stream(DyeColor.values()).map(Enum::name).toList()))
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String collisionName = (String) args.get("collision-name");
+                                                                                                                                    String color = (String) args.get("color");
+
+                                                                                                                                    try {
+                                                                                                                                        DyeColor dyeColor = DyeColor.valueOf(color.toUpperCase());
+                                                                                                                                        setCBConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
+                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                        throw CommandAPI.failWithString("Invalid color: " + color);
+                                                                                                                                    }
+                                                                                                                                })
+
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("disable-below-1_20_5")
+                                                                                                                .then(
+                                                                                                                        new BooleanArgument("value")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String collisionName = (String) args.get("collision-name");
+                                                                                                                                    boolean value = (boolean) args.get("value");
+
+                                                                                                                                    setCBConfigValue(block, "collisions." + collisionName + ".disable-below-1_20_5", value, sender);
+                                                                                                                                })
                                                                                                                 )
                                                                                                 )
                                                                                 )

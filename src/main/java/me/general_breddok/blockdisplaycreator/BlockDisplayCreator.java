@@ -77,13 +77,6 @@ public final class BlockDisplayCreator extends JavaPlugin {
         if (!this.versionManager.isVersion1_19_4()) {
             this.capi = true;
             CommandAPI.onLoad(new CommandAPIBukkitConfig(this).setNamespace("bdc"));
-            /*unregisterCommand("blockdisplaycreator");
-
-            this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
-            this.bdcCommand.register();
-
-            this.cbGiveCommand = new CustomBlockGiveCAPICommand(this);
-            this.cbGiveCommand.register();*/
         } else {
             ChatUtil.log("&6[BlockDisplayCreator] &eCommandAPI is not supported on Minecraft 1.19.4 and below, using legacy commands.");
         }
