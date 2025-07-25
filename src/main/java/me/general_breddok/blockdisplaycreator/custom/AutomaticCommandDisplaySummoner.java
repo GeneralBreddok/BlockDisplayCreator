@@ -38,14 +38,13 @@ public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>
     DirectedVector translation;
     boolean usePlaceholder;
 
-
-    public AutomaticCommandDisplaySummoner(List<CommandLine> commands) {
-        this.commands = commands;
-    }
-
     public AutomaticCommandDisplaySummoner(List<CommandLine> commands, DirectedVector translation) {
         this.commands = commands;
         this.translation = translation;
+    }
+
+    public AutomaticCommandDisplaySummoner(List<CommandLine> commands) {
+        this.commands = commands;
     }
 
     @Override

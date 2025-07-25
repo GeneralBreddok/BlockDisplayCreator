@@ -39,6 +39,9 @@ public class EntityDamageByEntityListener implements Listener {
         if (!(event.getDamager() instanceof Player player))
             return;
 
+        if (player.getGameMode() == GameMode.ADVENTURE)
+            return;
+
         Entity entity = event.getEntity();
 
         if (!(entity instanceof Interaction) && !(entity instanceof Shulker))
@@ -102,7 +105,7 @@ public class EntityDamageByEntityListener implements Listener {
 
         CustomBlockOption[] options = new CustomBlockOption[5];
 
-        if (player.getGameMode() != GameMode.CREATIVE) {
+        if (player.getGameMode() != GameMode.CREATIVE || player.getGameMode() != GameMode.SPECTATOR) {
             options[0] = CustomBlockBreakOption.DROP_ITEM;
         }
 

@@ -154,12 +154,12 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
 
             InteractionSummoner interactionSummoner = new InteractionSummoner(width, height);
-            InteractionDispatcher interactionDispatcher = null;
+            InteractionHandlerDta interactionHandlerDta = null;
             CommandBundle commandBundle = getCommandBundle(interactionPath);
             int cooldown = getCooldown(interactionPath);
 
             if (commandBundle != null) {
-                interactionDispatcher = new InteractionDispatcher(commandBundle, cooldown);
+                interactionHandlerDta = new InteractionHandlerDta(commandBundle, cooldown);
             }
 
             configuredInteractions.add(
@@ -167,7 +167,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
                             interactionSummoner,
                             interactionIdentifier,
                             offset,
-                            interactionDispatcher
+                            interactionHandlerDta
                     )
             );
         }

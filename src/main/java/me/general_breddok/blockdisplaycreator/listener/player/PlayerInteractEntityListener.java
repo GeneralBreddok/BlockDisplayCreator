@@ -3,6 +3,7 @@ package me.general_breddok.blockdisplaycreator.listener.player;
 import com.google.common.base.Preconditions;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
+import me.general_breddok.blockdisplaycreator.custom.ConfiguredInteraction;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPermissions;
@@ -85,17 +86,22 @@ public class PlayerInteractEntityListener implements Listener {
 
         event.setCancelled(true);
 
-
         if (checkAccess(customBlock, player))
             return;
 
+        ConfiguredInteraction configuredInteraction = customBlock.getConfiguredInteraction(interaction);
 
-        CustomBlockInteractEvent customBlockInteractEvent = new CustomBlockInteractEvent(customBlock, player, hand);
+        CustomBlockInteractEvent customBlockInteractEvent = new CustomBlockInteractEvent(customBlock, player, interaction, configuredInteraction, hand);
+
         if (!EventUtil.call(customBlockInteractEvent)) {
             return;
         }
 
-        customBlock.handleClick(interaction, player, new CustomBlockPlaceholder(customBlock), new InteractionPlaceholder(interaction));
+        if (configuredInteraction == null) {
+            return;
+        }
+
+        customBlock.handleClick(configuredInteraction, interaction, player, new CustomBlockPlaceholder(customBlock), new InteractionPlaceholder(interaction));
 
 
         /*

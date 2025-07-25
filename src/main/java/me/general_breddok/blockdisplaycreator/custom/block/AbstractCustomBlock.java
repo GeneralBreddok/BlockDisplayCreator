@@ -90,23 +90,29 @@ public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> 
         return spawnDisplay(location, iteration);
     }
 
-    default void handleClick(@NotNull Interaction interaction, @NotNull Player sender, UniversalPlaceholder<?>... placeholders) {
+    default void handleClick(@NotNull ConfiguredInteraction configuredInteraction, @NotNull Interaction interaction, @NotNull Player sender, UniversalPlaceholder<?>... placeholders) {
+        InteractionHandler interactionHandler = configuredInteraction.getInteractionHandler();
 
-        getConfiguredInteractions().forEach(configuredInteraction -> {
-            InteractionHandler handler = configuredInteraction.getInteractionHandler();
+        if (interactionHandler == null) {
+            return;
+        }
 
-            if (handler == null) {
-                return;
-            }
+        interactionHandler.handleClick(interaction, sender, placeholders);
+    }
 
-            String configuredInteractionIdentifier = configuredInteraction.getIdentifier();
+    @Nullable
+    default ConfiguredInteraction getConfiguredInteraction(@NotNull Interaction interaction) {
+        String interactionIdentifier = getInteractionIdentifier(interaction);
 
-            String actualInteractionIdentifier = getInteractionIdentifier(interaction);
+        return getConfiguredInteraction(interactionIdentifier);
+    }
 
-            if (configuredInteractionIdentifier.equalsIgnoreCase(actualInteractionIdentifier)) {
-                handler.handleClick(interaction, sender, placeholders);
-            }
-        });
+    @Nullable
+    default ConfiguredInteraction getConfiguredInteraction(@NotNull String identifier) {
+        return getConfiguredInteractions().stream()
+                .filter(configuredInteraction -> configuredInteraction.getIdentifier().equalsIgnoreCase(identifier))
+                .findFirst()
+                .orElse(null);
     }
 
     private String getInteractionIdentifier(@NotNull Interaction interaction) {
@@ -117,22 +123,18 @@ public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> 
     }
 
     default void playBreakSound(@NotNull Location location) {
-        if (getSoundGroup() == null)
-            return;
-
-        PlayableSound breakSound = getSoundGroup().getBreakSound();
-
-        if (breakSound == null)
-            return;
-
-        breakSound.play(location);
+        playSound("break", location);
     }
 
     default void playPlaceSound(@NotNull Location location) {
+        playSound("place", location);
+    }
+
+    private void playSound(String name, Location location) {
         if (getSoundGroup() == null)
             return;
 
-        PlayableSound placeSound = getSoundGroup().getPlaceSound();
+        PlayableSound placeSound = name.equals("place") ? getSoundGroup().getPlaceSound() : getSoundGroup().getBreakSound();
 
         if (placeSound == null)
             return;

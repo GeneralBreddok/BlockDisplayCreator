@@ -40,12 +40,13 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
 
         EntityRotation displayRotation = new EntityRotation(display);
 
-        if (attachedFace == BlockFace.UP || attachedFace == BlockFace.DOWN) {
+        if (this.attachedFace == BlockFace.UP || this.attachedFace == BlockFace.DOWN) {
             YawSnapper yawSnapper = new YawSnapper(sidesCount);
-            float closestAngle = yawSnapper.getClosestAngle(direction);
+            float closestAngle = yawSnapper.getClosestAngle(this.direction);
+
             displayRotation.setYaw(closestAngle);
         } else {
-            float yaw = switch (attachedFace) {
+            float yaw = switch (this.attachedFace) {
                 case SOUTH -> 0;
                 case WEST -> 90;
                 case NORTH -> 180;
@@ -116,11 +117,11 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
 
     private Vector rotateForCardinal(Entity entity, Vector originalOffset) {
         Vector rotated = originalOffset.clone()
-                .rotateAroundY(getYawRadians(attachedFace));
+                .rotateAroundY(getYawRadians(this.attachedFace));
 
-        switch (attachedFace) {
-            case NORTH, SOUTH -> rotated.rotateAroundX(Math.toRadians(attachedFace == BlockFace.SOUTH ? 90 : 270));
-            case WEST, EAST -> rotated.rotateAroundZ(Math.toRadians(attachedFace == BlockFace.WEST ? 90 : 270));
+        switch (this.attachedFace) {
+            case NORTH, SOUTH -> rotated.rotateAroundX(Math.toRadians(this.attachedFace == BlockFace.SOUTH ? 90 : 270));
+            case WEST, EAST -> rotated.rotateAroundZ(Math.toRadians(this.attachedFace == BlockFace.WEST ? 90 : 270));
         }
 
 

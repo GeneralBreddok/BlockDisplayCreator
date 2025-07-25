@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 public class ConfiguredCollisionDta implements ConfiguredCollision {
     @NotNull
     Summoner<Shulker> summoner;
-    String identifier;
+    final String identifier;
     @Nullable
     Vector offset;
     double size;
@@ -80,7 +80,7 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
     }
 
     private void setScale(Shulker shulker, double size) {
-        if (size <= 0) {
+        if (size <= 0 || size == 1) {
             return;
         }
 

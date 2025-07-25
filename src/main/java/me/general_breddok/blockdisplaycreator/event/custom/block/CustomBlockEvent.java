@@ -16,5 +16,4 @@ public abstract class CustomBlockEvent extends Event {
     protected CustomBlockEvent(CustomBlock customBlock) {
         this.customBlock = customBlock;
     }
-
 }

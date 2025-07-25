@@ -172,9 +172,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         Location blockLocation = interactionPDC.get(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION);
 
-        CustomBlock customBlock = getCustomBlock(blockLocation);
-
-        return customBlock;
+        return getCustomBlock(blockLocation);
     }
 
     /**
@@ -524,5 +522,9 @@ public class BDCCustomBlockService implements CustomBlockService {
         customBlockData.remove(CustomBlockKey.COLLISION_UUID);
         customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
         customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
+        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
+
+        customBlockData.remove(CustomBlockKey.ITEM);
+        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
     }
 }

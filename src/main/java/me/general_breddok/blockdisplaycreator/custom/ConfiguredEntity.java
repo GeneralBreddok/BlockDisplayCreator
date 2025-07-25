@@ -9,8 +9,8 @@ public interface ConfiguredEntity<E> extends Summoner<E>  {
     @NotNull
     Summoner<E> getSummoner();
     void setSummoner(@NotNull Summoner<E> summoner);
+    @NotNull
     String getIdentifier();
-    void setIdentifier(String identifier);
     @Nullable
     Vector getOffset();
     void setOffset(Vector offset);

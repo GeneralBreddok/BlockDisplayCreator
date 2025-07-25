@@ -17,7 +17,7 @@ import org.jetbrains.annotations.Nullable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ConfiguredInteractionDta implements ConfiguredInteraction {
     Summoner<Interaction> summoner;
-    String identifier;
+    final String identifier;
     @Nullable
     Vector offset;
     @Nullable

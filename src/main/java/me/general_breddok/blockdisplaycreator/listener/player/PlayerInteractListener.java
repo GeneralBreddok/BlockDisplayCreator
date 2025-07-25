@@ -68,6 +68,8 @@ public class PlayerInteractListener implements Listener {
         if (event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
 
+        if (player.getGameMode() == GameMode.ADVENTURE)
+            return;
 
         Location blockLocation = clickedBlock.getLocation()
                 .add(blockFace.getDirection())

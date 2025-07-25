@@ -16,13 +16,17 @@ import java.util.UUID;
 @EqualsAndHashCode
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class InteractionDispatcher implements InteractionHandler, DeepCloneable<InteractionDispatcher> {
+public class InteractionHandlerDta implements InteractionHandler, DeepCloneable<InteractionHandlerDta> {
     CommandBundle commandBundle;
     Cooldown<UUID> cooldown;
 
-    public InteractionDispatcher(CommandBundle commandBundle, int cooldown) {
+    public InteractionHandlerDta(CommandBundle commandBundle, int cooldown) {
         this.commandBundle = commandBundle;
         this.cooldown = new Cooldown<>(cooldown);
+    }
+
+    public InteractionHandlerDta(CommandBundle commandBundle) {
+        this(commandBundle, 0);
     }
 
     @Override
@@ -40,7 +44,12 @@ public class InteractionDispatcher implements InteractionHandler, DeepCloneable<
     }
 
     @Override
-    public InteractionDispatcher clone() {
-        return new InteractionDispatcher(this.commandBundle, this.cooldown);
+    public long getCooldown() {
+        return cooldown.getCooldownValue();
+    }
+
+    @Override
+    public InteractionHandlerDta clone() {
+        return new InteractionHandlerDta(this.commandBundle, this.cooldown);
     }
 }
