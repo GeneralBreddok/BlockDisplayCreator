@@ -2,8 +2,8 @@ package me.general_breddok.blockdisplaycreator.data.yaml;
 
 import com.google.common.reflect.TypeToken;
 import me.general_breddok.blockdisplaycreator.data.BukkitData;
-import me.general_breddok.blockdisplaycreator.data.manager.ParameterizedClasses;
 import me.general_breddok.blockdisplaycreator.data.exception.ConfigurationDataTypeMismatchException;
+import me.general_breddok.blockdisplaycreator.data.manager.ParameterizedClasses;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeManager;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeStore;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
@@ -201,7 +201,6 @@ public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
             return null;
         }
 
-
         if (!(result instanceof String)) {
             if (result instanceof Number number) {
                 if (NumberUtil.isNumberClass(primitiveType)) {
@@ -213,7 +212,7 @@ public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
             }
         }
 
-        if (!(result instanceof ArrayList<?>) && primitiveType.equals(ArrayList.class)) {
+        if (!(result instanceof List<?>) && primitiveType.isAssignableFrom(List.class)) {
             List<Object> list = new ArrayList<>();
             list.add(result);
             result = list;

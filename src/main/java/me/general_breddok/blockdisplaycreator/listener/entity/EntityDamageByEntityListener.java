@@ -105,7 +105,7 @@ public class EntityDamageByEntityListener implements Listener {
 
         CustomBlockOption[] options = new CustomBlockOption[5];
 
-        if (player.getGameMode() != GameMode.CREATIVE || player.getGameMode() != GameMode.SPECTATOR) {
+        if (!(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR)) {
             options[0] = CustomBlockBreakOption.DROP_ITEM;
         }
 

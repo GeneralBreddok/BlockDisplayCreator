@@ -28,7 +28,6 @@ public class CustomBlockInteractEvent extends CustomBlockPlayerEvent implements 
     @NonFinal
     boolean cancelled = false;
     Interaction interactionEntity;
-    @Nullable
     ConfiguredInteraction configuredInteraction;
     EquipmentSlot hand;
 
@@ -45,7 +44,7 @@ public class CustomBlockInteractEvent extends CustomBlockPlayerEvent implements 
 
     public CustomBlockInteractEvent(@NotNull CustomBlock block, @NotNull Player player,
                                     @NotNull Interaction interactionEntity,
-                                    @Nullable ConfiguredInteraction configuredInteraction,
+                                    @NotNull ConfiguredInteraction configuredInteraction,
                                     @NotNull EquipmentSlot hand) {
         super(block, player);
         this.interactionEntity = interactionEntity;

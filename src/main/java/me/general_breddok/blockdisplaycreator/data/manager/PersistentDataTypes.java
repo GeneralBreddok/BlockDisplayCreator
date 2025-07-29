@@ -204,7 +204,7 @@ public interface PersistentDataTypes {
 
     PersistentDataType<String, UUID> UUID = PersistentDataTypeStore.newPersistentDataType(
             String.class,
-            java.util.UUID.class,
+            UUID.class,
             (complex, context) -> complex.toString(),
             (primitive, context) -> java.util.UUID.fromString(primitive)
     );
@@ -390,9 +390,20 @@ public interface PersistentDataTypes {
                 CommandBundle.CommandSource commandSource = CommandBundle.CommandSource.CONSOLE;
                 List<String> grantedCommandPermissions = new ArrayList<>();
 
-                ArrayList<?> commandList = (ArrayList<?>) primitive.getList("command");
+                Object command = primitive.get("command");
+                ArrayList<Object> commandList = null;
                 ArrayList<?> grantedCommandPermissionList = (ArrayList<?>) primitive.getList("granted-command-permission");
                 String commandSourceStr = primitive.getString("command-source");
+
+                if (command instanceof List) {
+                    commandList = (ArrayList<Object>) command;
+                    if (commandList.isEmpty()) {
+                        return null;
+                    }
+                } else {
+                    commandList = new ArrayList<>();
+                    commandList.add(command);
+                }
 
                 if (commandList != null) {
                     commands = COMMAND_LIST.fromPrimitive(commandList, context);

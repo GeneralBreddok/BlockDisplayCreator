@@ -91,13 +91,13 @@ public class PlayerInteractEntityListener implements Listener {
 
         ConfiguredInteraction configuredInteraction = customBlock.getConfiguredInteraction(interaction);
 
-        CustomBlockInteractEvent customBlockInteractEvent = new CustomBlockInteractEvent(customBlock, player, interaction, configuredInteraction, hand);
-
-        if (!EventUtil.call(customBlockInteractEvent)) {
+        if (configuredInteraction == null) {
             return;
         }
 
-        if (configuredInteraction == null) {
+        CustomBlockInteractEvent customBlockInteractEvent = new CustomBlockInteractEvent(customBlock, player, interaction, configuredInteraction, hand);
+
+        if (!EventUtil.call(customBlockInteractEvent)) {
             return;
         }
 
