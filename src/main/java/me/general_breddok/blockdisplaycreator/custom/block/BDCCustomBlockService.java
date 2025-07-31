@@ -11,8 +11,6 @@ import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockBre
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockPlaceOption;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
-import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.entity.display.TranslationVectorAdjustable;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockBreakEvent;
@@ -23,7 +21,6 @@ import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
-import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -239,7 +236,6 @@ public class BDCCustomBlockService implements CustomBlockService {
             }
         }
 
-
         if (!location.getChunk().isLoaded()) {
             if (loadChunk) {
                 location.getChunk().load();
@@ -247,7 +243,6 @@ public class BDCCustomBlockService implements CustomBlockService {
                 return null;
             }
         }
-
 
         if (!WorldSelection.isDestructible(originalType)) {
             if (replaceIndestructible) {
@@ -283,7 +278,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             display.setInvulnerable(true);
 
             rotation.adjustDisplayRotation(display, abstractCustomBlock.getSidesCount());
-            applyRotationTranslation(abstractCustomBlock, display);
+            applyDisplayTranslationRotation(abstractCustomBlock.getDisplaySummoner(), display);
 
             CustomBlockKey.holder(display)
                     .setServiceClass(BDCCustomBlockService.class.getName())
@@ -321,16 +316,11 @@ public class BDCCustomBlockService implements CustomBlockService {
             rotation.adjustInteractionRotation(interaction, configuredInteraction.getOffset(), abstractCustomBlock.getSidesCount());
 
 
-            CustomBlockKey.DataHolder dataHolder = CustomBlockKey.holder(interaction);
-
-            dataHolder.setServiceClass(BDCCustomBlockService.class.getName())
+            CustomBlockKey.holder(interaction)
+                    .setServiceClass(BDCCustomBlockService.class.getName())
                     .setName(abstractCustomBlock.getName())
-                    .setLocation(location);
-
-
-            if (!configuredInteractionIdentifier.isEmpty()) {
-                dataHolder.setInteractionIdentifier(configuredInteractionIdentifier);
-            }
+                    .setLocation(location)
+                    .setInteractionIdentifier(configuredInteractionIdentifier);
 
             interaction.addScoreboardTag("custom-block");
             interaction.addScoreboardTag("custom-block-name:" + abstractCustomBlock.getName());
@@ -401,8 +391,8 @@ public class BDCCustomBlockService implements CustomBlockService {
         return rawCustomBlock;
     }
 
-    private static void applyRotationTranslation(@NotNull AbstractCustomBlock abstractCustomBlock, Display display) {
-        if (abstractCustomBlock.getDisplaySummoner() instanceof TranslationVectorAdjustable translationVectorAdjustable) {
+    public static void applyDisplayTranslationRotation(@NotNull GroupSummoner<Display> displaySummoner, Display display) {
+        if (displaySummoner instanceof TranslationVectorAdjustable translationVectorAdjustable) {
             DirectedVector translation = translationVectorAdjustable.getTranslation();
             if (translation != null) {
                 EntityRotation displayRotation = new EntityRotation(display);
@@ -480,7 +470,7 @@ public class BDCCustomBlockService implements CustomBlockService {
         return true;
     }
 
-    protected static CustomBlockData createCustomBlockData(CustomBlock customBlock, List<UUID> displayVehicleUuids) {
+    public static CustomBlockData createCustomBlockData(CustomBlock customBlock, List<UUID> displayVehicleUuids) {
         CustomBlockData customBlockData = new CustomBlockData(customBlock.getLocation().getBlock(), BlockDisplayCreator.getInstance());
         customBlockData.set(CustomBlockKey.NAME, PersistentDataType.STRING, customBlock.getName());
         customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, displayVehicleUuids.toArray(UUID[]::new));
@@ -515,7 +505,7 @@ public class BDCCustomBlockService implements CustomBlockService {
         return EventUtil.call(customBlockBreakEvent);
     }
 
-    protected static void clearCustomBlockData(CustomBlockData customBlockData) {
+    public static void clearCustomBlockData(CustomBlockData customBlockData) {
         customBlockData.remove(CustomBlockKey.NAME);
         customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
         customBlockData.remove(CustomBlockKey.INTERACTION_UUID);

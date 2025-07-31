@@ -4,7 +4,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 /**
  * Storage interface for managing abstract custom blocks.
@@ -43,18 +42,20 @@ public interface CustomBlockStorage {
     void reload(@NotNull String name);
 
     /**
-     * Saves the specified abstract custom block to storage.
+     * Adds a new abstract custom block to storage.
      *
-     * @param abstractCustomBlock the custom block to save
+     * @param abstractCustomBlock the custom block to add
+     * @throws IllegalArgumentException if a block with the same name already exists
      */
-    void saveAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
+    void addAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
 
     /**
-     * Deletes the specified abstract custom block from storage.
+     * Saves an abstract custom block to storage.
      *
-     * @param abstractCustomBlock the custom block to delete
+     * @param abstractCustomBlock the custom block to save
+     * @throws IllegalArgumentException if the block does not exist in storage
      */
-    void deleteAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
+    void removeAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
 
     /**
      * Returns a list of all abstract custom blocks in storage.

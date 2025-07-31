@@ -71,6 +71,7 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
         shulker.setAI(false);
         shulker.setGravity(false);
         shulker.setInvulnerable(true);
+        shulker.setPersistent(true);
 
         this.setScale(shulker, this.size);
 
@@ -79,7 +80,7 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
         return shulker;
     }
 
-    private void setScale(Shulker shulker, double size) {
+    public static void setScale(Shulker shulker, double size) {
         if (size <= 0 || size == 1) {
             return;
         }

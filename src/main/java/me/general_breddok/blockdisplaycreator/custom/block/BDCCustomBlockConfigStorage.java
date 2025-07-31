@@ -85,7 +85,7 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     }
 
     @Override
-    public void saveAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) {
+    public void addAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) {
         if (this.containsAbstractCustomBlock(abstractCustomBlock)) {
             throw new IllegalStateException("Block named " + abstractCustomBlock.getName() + " already exists in storage");
         }
@@ -93,7 +93,7 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     }
 
     @Override
-    public void deleteAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) throws NoSuchElementException {
+    public void removeAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) throws NoSuchElementException {
         if (!this.containsAbstractCustomBlock(abstractCustomBlock)) {
             throw new NoSuchElementException("Block named " + abstractCustomBlock.getName() + " does not exists in storage");
         }

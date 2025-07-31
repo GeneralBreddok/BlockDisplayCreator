@@ -6,22 +6,17 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockChangeNameOption;
+import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockChangeDataOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockPlaceOption;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.rotation.BlockRotation;
-import me.general_breddok.blockdisplaycreator.service.ServiceManager;
-import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.EntityUtil;
 import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Shulker;
+import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -58,26 +53,38 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
         this.interactions.forEach(Entity::remove);
         this.interactions = interactions;
 
-        CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), BlockDisplayCreator.getInstance());
+        CustomBlockData customBlockData = new CustomBlockData(this.location.getBlock(), BlockDisplayCreator.getInstance());
         UUID[] uuids = new UUID[interactions.size()];
 
         for (int i = 0; i < interactions.size(); i++) {
             Interaction interaction = interactions.get(i);
 
+            if (interaction == null) {
+                continue;
+            }
+
+            String interactionIdentifier = CustomBlockKey.holder(interaction).getInteractionIdentifier();
+            if (interactionIdentifier == null) {
+                continue;
+            }
+
             interaction.setPersistent(true);
             interaction.setInvulnerable(true);
 
-            interaction.teleport(location.clone().add(0, -0.001, 0));
-
-            CustomBlockKey.DataHolder cbDataHolder = CustomBlockKey.holder(interaction);
-
-            cbDataHolder.setServiceClass(BDCCustomBlockService.class.getName());
-            cbDataHolder.setName(name);
-            cbDataHolder.setLocation(location);
-
+            interaction.teleport(this.location.clone());
             Vector offset = interaction.getLocation().toVector().subtract(this.location.toVector());
-
             rotation.adjustInteractionRotation(interaction, offset, sidesCount);
+
+            CustomBlockKey.holder(interaction)
+                    .setServiceClass(BDCCustomBlockService.class.getName())
+                    .setName(this.name)
+                    .setLocation(this.location);
+
+            interaction.addScoreboardTag("custom-block");
+            interaction.addScoreboardTag("custom-block-name:" + this.name);
+            interaction.addScoreboardTag("custom-block-interaction");
+            interaction.addScoreboardTag("custom-block-interaction-id:" + interactionIdentifier);
+            interaction.addScoreboardTag("custom-block-location:" + this.location.toVector());
 
             uuids[i] = interaction.getUniqueId();
         }
@@ -87,10 +94,63 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
     @Override
     public void setCollisions(@NotNull List<Shulker> collisions, CustomBlockOption... options) {
+        this.collisions.forEach(collision -> {
+            Entity vehicle = collision.getVehicle();
+            collision.remove();
+
+            if (vehicle != null) {
+                vehicle.remove();
+            }
+        });;
+        this.collisions = collisions;
+        CustomBlockData customBlockData = new CustomBlockData(this.location.getBlock(), BlockDisplayCreator.getInstance());
+        UUID[] uuids = new UUID[collisions.size()];
+        for (int i = 0; i < collisions.size(); i++) {
+            Shulker collision = collisions.get(i);
+
+            if (collision == null) {
+                continue;
+            }
+
+            String collisionIdentifier = CustomBlockKey.holder(collision).getCollisionIdentifier();
+
+            if (collisionIdentifier == null) {
+                continue;
+            }
+
+            BlockDisplay vehicle = location.getWorld().spawn(collision.getLocation(), BlockDisplay.class);
+
+            collision.setRemoveWhenFarAway(false);
+            collision.setAI(false);
+            collision.setGravity(false);
+            collision.setInvulnerable(true);
+            collision.setPersistent(true);
+
+            vehicle.teleport(this.location.clone());
+            vehicle.addPassenger(collision);
+
+            Vector offset = collision.getLocation().toVector().subtract(this.location.toVector());
+            rotation.adjustCollisionRotation(collision, offset, sidesCount);
+
+            CustomBlockKey.holder(collision)
+                    .setServiceClass(BDCCustomBlockService.class.getName())
+                    .setName(this.name)
+                    .setLocation(this.location);
+
+            collision.addScoreboardTag("custom-block");
+            collision.addScoreboardTag("custom-block-name:" + this.name);
+            collision.addScoreboardTag("custom-block-collision");
+            collision.addScoreboardTag("custom-block-collision-id:" + collisionIdentifier);
+            collision.addScoreboardTag("custom-block-location:" + this.location.toVector());
+
+            uuids[i] = collision.getUniqueId();
+        }
+        customBlockData.set(CustomBlockKey.COLLISION_UUID, PersistentDataTypes.UUID_ARRAY, uuids);
 
     }
 
     public void setName(@NotNull String name, CustomBlockOption... options) {
+        this.name = name;
 
         boolean saveToStorage = false;
 
@@ -100,9 +160,8 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
                 continue;
             }
 
-            if (option == CustomBlockChangeNameOption.SAVE_TO_STORAGE) {
+            if (option == CustomBlockChangeDataOption.SAVE_TO_STORAGE) {
                 saveToStorage = true;
-                break;
             }
         }
 
@@ -111,10 +170,11 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
         customBlockData.set(CustomBlockKey.NAME, PersistentDataType.STRING, name);
 
         this.displays.forEach(display -> CustomBlockKey.holder(display).setName(name));
-        this.interactions.forEach(display -> CustomBlockKey.holder(display).setName(name));
+        this.interactions.forEach(interaction -> CustomBlockKey.holder(interaction).setName(name));
+        this.collisions.forEach(collision -> CustomBlockKey.holder(collision).setName(name));
 
         if (saveToStorage) {
-            //BlockDisplayCreator.getInstance().getCustomBlockService().getStorage().saveToStorage(this);
+            BlockDisplayCreator.getInstance().getCustomBlockService().getStorage().addAbstractCustomBlock(this);
         }
     }
 
@@ -123,29 +183,33 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
         this.displays.forEach(Entity::remove);
         this.displays = displays;
 
-        List<UUID> vehicleUuids = new ArrayList<>();
+        List<UUID> displayVehicleUuids = new ArrayList<>();
 
         for (Display display : displays) {
             if (!display.isInsideVehicle()) {
                 EntityUtil.teleportEntityWithPassengers(display, location);
-                vehicleUuids.add(display.getUniqueId());
+                displayVehicleUuids.add(display.getUniqueId());
             }
             display.setInvulnerable(true);
             display.setPersistent(true);
 
-            display.setTransformation(new TransformationBuilder(display).addTranslation(-0.5f, 0, -0.5f).build());
-
             rotation.adjustDisplayRotation(display, sidesCount);
+            BDCCustomBlockService.applyDisplayTranslationRotation(this.displaySummoner, display);
 
-            CustomBlockKey.DataHolder cbDataHolder = CustomBlockKey.holder(display);
-            cbDataHolder.setName(name);
-            cbDataHolder.setLocation(location);
-            cbDataHolder.setServiceClass(BDCCustomBlockService.class.getName());
+            CustomBlockKey.holder(display)
+                    .setName(name)
+                    .setLocation(location)
+                    .setServiceClass(BDCCustomBlockService.class.getName());
+
+            display.addScoreboardTag("custom-block");
+            display.addScoreboardTag("custom-block-name:" + this.name);
+            display.addScoreboardTag("custom-block-display");
+            display.addScoreboardTag("custom-block-location:" + location.toVector());
         }
 
 
         CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), BlockDisplayCreator.getInstance());
-        customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, vehicleUuids.toArray(UUID[]::new));
+        customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, displayVehicleUuids.toArray(UUID[]::new));
     }
 
     @Override
@@ -157,6 +221,12 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
             Location interactionLocation = interaction.getLocation();
             Vector offset = interactionLocation.toVector().subtract(this.location.toVector());
             rotation.adjustInteractionRotation(interaction, offset, this.sidesCount);
+        });
+
+        this.collisions.forEach(collision -> {
+            Location collisionLocation = collision.getLocation();
+            Vector offset = collisionLocation.toVector().subtract(this.location.toVector());
+            rotation.adjustCollisionRotation(collision, offset, this.sidesCount);
         });
 
         this.displays.forEach(display -> {
@@ -174,16 +244,13 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
     @Override
     public void setLocation(@NotNull Location location, CustomBlockOption... options) {
+        CustomBlockService service = BlockDisplayCreator.getInstance().getCustomBlockService();
 
-        if (!location.getChunk().isLoaded()) {
-            return;
-        }
-
+        boolean loadChunk = false;
         boolean replaceCustomBlock = false;
         boolean replaceIndestructible = false;
 
         for (CustomBlockOption option : options) {
-
             if (option == null) {
                 continue;
             }
@@ -192,6 +259,16 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
                 replaceCustomBlock = true;
             } else if (option == CustomBlockPlaceOption.BREAK_INDESTRUCTIBLE_MATERIAL) {
                 replaceIndestructible = true;
+            } else if (option == CustomBlockPlaceOption.LOAD_CHUNK) {
+                loadChunk = true;
+            }
+        }
+
+        if (!location.getChunk().isLoaded()) {
+            if (loadChunk) {
+                location.getChunk().load();
+            } else {
+                return;
             }
         }
 
@@ -201,13 +278,6 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
             } else {
                 return;
             }
-        }
-
-        ServiceManager<String, CustomBlockService> servicesManager = BlockDisplayCreator.getInstance().getServicesManager();
-        CustomBlockService service = servicesManager.getService(serviceClassName);
-
-        if (service == null) {
-            throw new UnregisteredServiceException("Service " + serviceClassName + " is not registered", serviceClassName);
         }
 
         if (service.isCustomBlockOnLocation(location)) {
@@ -223,26 +293,42 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
         BDCCustomBlockService.clearCustomBlockData(new CustomBlockData(this.location.getBlock(), BlockDisplayCreator.getInstance()));
         this.location = location;
 
-
-        this.interactions.forEach(interaction -> {
-            interaction.teleport(location.clone().add(0, -0.001, 0));
-            interaction.getPersistentDataContainer().set(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION, location);
-        });
-
-        List<UUID> vehicleUuids = new ArrayList<>();
+        List<UUID> displayVehicleUuids = new ArrayList<>();
 
         this.displays.forEach(display -> {
 
             display.getPersistentDataContainer().set(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION, location);
 
             if (!display.isInsideVehicle()) {
-                vehicleUuids.add(display.getUniqueId());
+                displayVehicleUuids.add(display.getUniqueId());
 
                 EntityUtil.teleportEntityWithPassengers(display, location);
             }
         });
 
-        BDCCustomBlockService.createCustomBlockData(this, vehicleUuids);
+        this.interactions.forEach(interaction -> {
+            interaction.teleport(location);
+            interaction.getPersistentDataContainer().set(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION, location);
+            interaction.getScoreboardTags().forEach(tag -> {
+                if (tag.startsWith("custom-block-location:")) {
+                    interaction.removeScoreboardTag(tag);
+                }
+            });
+            interaction.addScoreboardTag("custom-block-location:" + location.toVector());
+        });
+
+        this.collisions.forEach(collision -> {
+            collision.teleport(location);
+            collision.getPersistentDataContainer().set(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION, location);
+            collision.getScoreboardTags().forEach(tag -> {
+                if (tag.startsWith("custom-block-location:")) {
+                    collision.removeScoreboardTag(tag);
+                }
+            });
+            collision.addScoreboardTag("custom-block-location:" + location.toVector());
+        });
+
+        BDCCustomBlockService.createCustomBlockData(this, displayVehicleUuids);
         location.getBlock().setType(centralMaterial);
     }
 }

@@ -10,7 +10,7 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class StringTooltipDta implements IStringTooltip {
+public class StringTooltip implements IStringTooltip {
     String suggestion;
     Message tooltip;
 }

@@ -45,7 +45,7 @@ import java.util.*;
 /**
  * @deprecated
  */
-@Deprecated(since = "1.19.4")
+@Deprecated(since = "MC1.19.4")
 public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
     private final BlockDisplayCreator instance;
