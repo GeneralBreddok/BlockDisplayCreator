@@ -86,18 +86,18 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
 
     @Override
     public void addAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) {
-        if (this.containsAbstractCustomBlock(abstractCustomBlock)) {
+        if (this.containsAbstractCustomBlock(abstractCustomBlock.getName())) {
             throw new IllegalStateException("Block named " + abstractCustomBlock.getName() + " already exists in storage");
         }
         this.abstractCustomBlocks.add(abstractCustomBlock);
     }
 
     @Override
-    public void removeAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock) throws NoSuchElementException {
-        if (!this.containsAbstractCustomBlock(abstractCustomBlock)) {
-            throw new NoSuchElementException("Block named " + abstractCustomBlock.getName() + " does not exists in storage");
+    public void removeAbstractCustomBlock(String name) throws NoSuchElementException {
+        if (!this.containsAbstractCustomBlock(name)) {
+            throw new NoSuchElementException("Block named " + name + " does not exists in storage");
         }
-        this.abstractCustomBlocks.remove(abstractCustomBlock);
+        this.abstractCustomBlocks.remove(name);
     }
 
     @Override
@@ -111,10 +111,15 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
         return null;
     }
 
-
     @Override
-    public boolean containsAbstractCustomBlock(@NotNull AbstractCustomBlock abstractCustomBlock) {
-        String name = abstractCustomBlock.getName();
+    public boolean containsAbstractCustomBlock(@NotNull String name) {
         return abstractCustomBlocks.stream().anyMatch(element -> element.getName().equals(name));
+    }
+
+    @NotNull
+    public List<AbstractCustomBlock> getAbstractCustomBlocks() {
+        return abstractCustomBlocks.stream()
+                .map(AbstractCustomBlock::clone)
+                .toList();
     }
 }

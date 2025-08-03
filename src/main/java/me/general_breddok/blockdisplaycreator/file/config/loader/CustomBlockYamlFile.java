@@ -85,11 +85,11 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
                     return;
 
 
-                if (monoInteractionSummoner.getInteractionWidth() > 0.03) {
+                if (monoInteractionSummoner.getInteractionWidth() > 0.1f) {
                     return;
                 }
 
-                monoInteractionSummoner.setInteractionWidth(0.03f);
+                monoInteractionSummoner.setInteractionWidth(0.1f);
             });
         }
 

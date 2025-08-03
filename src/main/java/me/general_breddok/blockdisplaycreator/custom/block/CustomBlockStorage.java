@@ -20,14 +20,13 @@ public interface CustomBlockStorage {
      */
     @Nullable
     AbstractCustomBlock getAbstractCustomBlock(@NotNull String name, Object... data);
-
     /**
-     * Checks if the specified abstract custom block exists in storage.
+     * Checks if an abstract custom block with the given name exists in storage.
      *
-     * @param abstractCustomBlock the custom block to check
-     * @return true if the block exists, false otherwise
+     * @param name the name of the custom block to check
+     * @return true if the custom block exists, false otherwise
      */
-    boolean containsAbstractCustomBlock(@NotNull AbstractCustomBlock abstractCustomBlock);
+    boolean containsAbstractCustomBlock(@NotNull String name);
 
     /**
      * Reloads all abstract custom blocks from the storage source.
@@ -50,12 +49,11 @@ public interface CustomBlockStorage {
     void addAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
 
     /**
-     * Saves an abstract custom block to storage.
+     * Removes an abstract custom block from storage by its name.
      *
-     * @param abstractCustomBlock the custom block to save
-     * @throws IllegalArgumentException if the block does not exist in storage
+     * @param name the name of the custom block to remove
      */
-    void removeAbstractCustomBlock(AbstractCustomBlock abstractCustomBlock);
+    void removeAbstractCustomBlock(String name);
 
     /**
      * Returns a list of all abstract custom blocks in storage.

@@ -384,7 +384,12 @@ public class BDCCustomBlockService implements CustomBlockService {
         if (stageSettings != null) {
             CommandBundle placeCommandBundle = stageSettings.getPlaceCommandBundle();
             if (placeCommandBundle != null) {
-                placeCommandBundle.execute(player, new CustomBlockPlaceholder(rawCustomBlock));
+                CommandBundle.CommandSource commandSource = placeCommandBundle.getCommandSource();
+                if (commandSource == CommandBundle.CommandSource.PLAYER && player != null) {
+                    placeCommandBundle.execute(player, new CustomBlockPlaceholder(rawCustomBlock));
+                } else if (commandSource == CommandBundle.CommandSource.CONSOLE) {
+                    placeCommandBundle.execute(ChatUtil.CONSOLE, new CustomBlockPlaceholder(rawCustomBlock));
+                }
             }
         }
 

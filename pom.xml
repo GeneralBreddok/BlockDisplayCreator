@@ -6,7 +6,7 @@
 
     <groupId>me.Genral_Breddok</groupId>
     <artifactId>BlockDisplayCreator</artifactId>
-    <version>1.5.2.0</version>
+    <version>1.5.3.0</version>
     <packaging>jar</packaging>
 
     <name>BlockDisplayCreator</name>
@@ -43,6 +43,10 @@
                         <relocation>
                             <pattern>dev.jorel.commandapi</pattern>
                             <shadedPattern>me.general_breddok.commandapi</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>org.bstats</pattern>
+                            <shadedPattern>me.general_breddok.bstats</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -147,6 +151,12 @@
             <groupId>com.mojang</groupId>
             <artifactId>brigadier</artifactId>
             <version>1.0.18</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>3.1.0</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 </project>

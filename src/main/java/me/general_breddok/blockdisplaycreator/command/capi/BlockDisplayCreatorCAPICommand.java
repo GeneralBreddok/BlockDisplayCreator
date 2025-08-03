@@ -15,10 +15,9 @@ import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.common.ColorConverter;
 import me.general_breddok.blockdisplaycreator.custom.*;
-import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
-import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockConfigStorage;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockStorage;
+import me.general_breddok.blockdisplaycreator.custom.block.*;
+import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
+import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockPlaceOption;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
@@ -32,6 +31,7 @@ import me.general_breddok.blockdisplaycreator.util.NumberUtil;
 import me.general_breddok.blockdisplaycreator.version.VersionCompat;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.*;
+import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
@@ -80,7 +80,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                     if (block != null) {
                                                         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
-                                                        if (storage.getNames().contains(block)) {
+                                                        if (storage.containsAbstractCustomBlock(block)) {
                                                             storage.reload(block);
                                                             ChatUtil.sendMessage(sender, "&a%s block has been reloaded!", block);
                                                         } else {
@@ -95,10 +95,11 @@ public class BlockDisplayCreatorCAPICommand {
                 ).then(
                         new LiteralArgument("killcbentities")
                                 .withPermission(DefaultPermissions.BDC.Command.KILL_CB_ENTITIES)
+                                .withRequirement(Player.class::isInstance)
                                 .then(
-                                        new LocationArgument("position1")
+                                        new LocationArgument("position1", LocationType.PRECISE_POSITION, false)
                                                 .then(
-                                                        new LocationArgument("position2")
+                                                        new LocationArgument("position2", LocationType.PRECISE_POSITION, false)
                                                                 .executesPlayer((sender, args) -> {
                                                                     Location position1 = (Location) args.get("position1");
                                                                     Location position2 = (Location) args.get("position2");
@@ -129,7 +130,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                     CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
-                                                                                                    if (!storage.getNames().contains(block)) {
+                                                                                                    if (!storage.containsAbstractCustomBlock(block)) {
                                                                                                         ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
                                                                                                         return;
                                                                                                     }
@@ -171,27 +172,12 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 )
                                                                 )
                                                 )
-                                ).then(
+                                )
+                                .then(
                                         new LiteralArgument("editfile")
                                                 .then(
                                                         new TextArgument ("block")
-                                                                .replaceSuggestions((info, builder) -> {
-                                                                            List<AbstractCustomBlock> abstractCustomBlocks = this.plugin.getCustomBlockService().getStorage().getAbstractCustomBlocks();
-                                                                            String remaining = builder.getRemainingLowerCase();
-
-
-                                                                            for (AbstractCustomBlock abstractCustomBlock : abstractCustomBlocks) {
-                                                                                String name = abstractCustomBlock.getName();
-
-                                                                                if (name.toLowerCase().startsWith(remaining)) {
-                                                                                    AbstractCustomBlockTooltip abstractCustomBlockTooltip = new AbstractCustomBlockTooltip(abstractCustomBlock);
-
-                                                                                    builder.suggest(abstractCustomBlockTooltip.getSuggestion(), abstractCustomBlockTooltip.getTooltip());
-                                                                                }
-                                                                            }
-                                                                            return builder.buildFuture();
-                                                                        }
-                                                                )
+                                                                .replaceSuggestions(getCustomBlockSuggestions())
                                                                 .then(
                                                                         new LiteralArgument("central-material")
                                                                                 .then(

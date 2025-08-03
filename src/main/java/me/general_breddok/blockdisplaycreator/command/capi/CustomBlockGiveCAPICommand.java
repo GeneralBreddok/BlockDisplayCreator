@@ -48,7 +48,7 @@ public class CustomBlockGiveCAPICommand {
 
                     CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
-                    if (!storage.getNames().contains(block)) {
+                    if (!storage.containsAbstractCustomBlock(block)) {
                         ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
                         return;
                     }

@@ -109,7 +109,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                             return true;
                         }
 
-                        if (!service.getStorage().getNames().contains(arg3)) {
+                        if (!service.getStorage().containsAbstractCustomBlock(arg3)) {
                             ChatUtil.sendMessage(sender, "&cThis block does not exist!");
                             return true;
                         }

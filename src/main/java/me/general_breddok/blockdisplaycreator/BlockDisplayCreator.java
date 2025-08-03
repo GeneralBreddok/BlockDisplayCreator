@@ -3,14 +3,15 @@ package me.general_breddok.blockdisplaycreator;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import dev.jorel.commandapi.arguments.CommandArgument;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorSpigotCommand;
 import me.general_breddok.blockdisplaycreator.command.capi.BlockDisplayCreatorCAPICommand;
 import me.general_breddok.blockdisplaycreator.command.capi.CustomBlockGiveCAPICommand;
-import me.general_breddok.blockdisplaycreator.custom.block.*;
+import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockConfigStorage;
+import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockService;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeManager;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
@@ -29,23 +30,22 @@ import me.general_breddok.blockdisplaycreator.listener.entity.EntityDamageByEnti
 import me.general_breddok.blockdisplaycreator.listener.entity.EntityExplodeListener;
 import me.general_breddok.blockdisplaycreator.listener.player.PlayerInteractEntityListener;
 import me.general_breddok.blockdisplaycreator.listener.player.PlayerInteractListener;
+import me.general_breddok.blockdisplaycreator.metrics.BlockDisplayCreatorMetrics;
+import me.general_breddok.blockdisplaycreator.metrics.PluginMetrics;
 import me.general_breddok.blockdisplaycreator.service.CustomBlockServiceManager;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.sound.SimplePlayableSound;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.version.UpdateChecker;
 import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
 import org.bukkit.Bukkit;
-import org.bukkit.command.Command;
-import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.util.Map;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -68,6 +68,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     VersionManager versionManager;
     boolean capi = false;
+
+    PluginMetrics pluginMetrics;
 
 
     @Override
@@ -133,6 +135,9 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
         reloadConfig();
         registerEvents();
+
+        pluginMetrics = new BlockDisplayCreatorMetrics(this, 26735);
+        checkForUpdates();
     }
 
     private void registerEvents() {
@@ -187,10 +192,15 @@ public final class BlockDisplayCreator extends JavaPlugin {
         this.initializeConfigValues();
     }
 
-    private void initializeConfigValues() {
+    public void initializeConfigValues() {
         new BooleanConfigValue().initialize(new YamlData<>(this.getYamlConfiguration(), TypeTokens.BOOLEAN));
         new LongConfigValue().initialize(new YamlData<>(this.getYamlConfiguration(), TypeTokens.LONG));
         new StringConfigValue().initialize(new YamlData<>(this.getMessagesFile(), TypeTokens.STRING));
+    }
+
+    public void checkForUpdates() {
+        UpdateChecker updateChecker = new UpdateChecker(this, 114877);
+        updateChecker.updateLastVersion(UpdateChecker::sendNewUpdateMessage);
     }
 
 
