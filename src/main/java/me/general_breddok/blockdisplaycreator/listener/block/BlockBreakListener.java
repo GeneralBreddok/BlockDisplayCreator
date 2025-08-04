@@ -82,7 +82,10 @@ public class BlockBreakListener implements Listener {
             options[0] = CustomBlockBreakOption.DROP_ITEM;
         }
 
-        customBlockService.breakBlock(customBlock, player, options);
+        try {
+            customBlockService.breakBlock(customBlock, player, options);
+        } catch (IllegalArgumentException ignore) {
+        }
     }
 
     private static boolean checkAccess(Player player, CustomBlock customBlock) {

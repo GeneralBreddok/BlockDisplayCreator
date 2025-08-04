@@ -11,12 +11,13 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.command.capi.tooltip.AbstractCustomBlockTooltip;
+import me.general_breddok.blockdisplaycreator.command.capi.tooltip.StringTooltip;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.common.ColorConverter;
 import me.general_breddok.blockdisplaycreator.custom.*;
 import me.general_breddok.blockdisplaycreator.custom.block.*;
-import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
+import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockBreakOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockPlaceOption;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
@@ -31,6 +32,7 @@ import me.general_breddok.blockdisplaycreator.util.NumberUtil;
 import me.general_breddok.blockdisplaycreator.version.VersionCompat;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.*;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
@@ -41,6 +43,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.permissions.Permission;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -172,11 +175,162 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 )
                                                                 )
                                                 )
-                                )
-                                .then(
+                                ).then(
+                                        new LiteralArgument("place")
+                                                .then(
+                                                        new TextArgument("block")
+                                                                .replaceSuggestions(getCustomBlockSuggestions())
+                                                                .then(
+                                                                        new LocationArgument("location", LocationType.BLOCK_POSITION)
+                                                                                .then(
+                                                                                        new MultiLiteralArgument("attached-face", "north", "south", "east", "west", "up", "down")
+                                                                                                .setOptional(true)
+                                                                                                .then(
+                                                                                                        new IntegerArgument("direction", 0, 360)
+                                                                                                                .setOptional(true)
+                                                                                                                .then(
+                                                                                                                        new ListArgumentBuilder<CustomBlockPlaceOption>("options")
+                                                                                                                                .allowDuplicates(false)
+                                                                                                                                .withList(CustomBlockPlaceOption.REPLACE_CUSTOM_BLOCK, CustomBlockPlaceOption.LOAD_CHUNK, CustomBlockPlaceOption.BREAK_SOLID_MATERIAL, CustomBlockPlaceOption.SILENT_PLACE)
+                                                                                                                                .withStringTooltipMapper(option -> {
+                                                                                                                                    String tooltip = switch (option) {
+                                                                                                                                        case REPLACE_CUSTOM_BLOCK ->
+                                                                                                                                                "Replaces existing custom blocks at the location (if there is already a custom block placed there)";
+                                                                                                                                        case LOAD_CHUNK ->
+                                                                                                                                                "Loads the chunk where the block is placed (if not already loaded)";
+                                                                                                                                        case BREAK_SOLID_MATERIAL ->
+                                                                                                                                                "Allows breaking blocks with solid materials (if location is not air or liquid)";
+                                                                                                                                        case SILENT_PLACE ->
+                                                                                                                                                "Places the block without sound";
+                                                                                                                                    };
+                                                                                                                                    return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
+                                                                                                                                })
+                                                                                                                                .buildGreedy()
+                                                                                                                                .setOptional(true)
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    Bukkit.getScheduler().runTask(this.plugin, () -> {
+                                                                                                                                        String block = (String) args.get("block");
+                                                                                                                                        Location location = (Location) args.get("location");
+                                                                                                                                        String attachedFaceStr = (String) args.getOrDefault("attached-face", "up");
+                                                                                                                                        int direction = (int) args.getOrDefault("direction", 0);
+                                                                                                                                        List<CustomBlockPlaceOption> options = (List<CustomBlockPlaceOption>) args.getOrDefault("options", Collections.emptyList());
+
+                                                                                                                                        BlockFace attachedFace;
+
+                                                                                                                                        CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
+
+                                                                                                                                        if (!storage.containsAbstractCustomBlock(block)) {
+                                                                                                                                            ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
+                                                                                                                                            return;
+                                                                                                                                        }
+
+                                                                                                                                        try {
+                                                                                                                                            attachedFace = BlockFace.valueOf(attachedFaceStr.toUpperCase());
+                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                            ChatUtil.sendMessage(sender, "&cInvalid attached face: %s. Valid values are: north, south, east, west, up, down", attachedFaceStr);
+                                                                                                                                            return;
+                                                                                                                                        }
+
+                                                                                                                                        AbstractCustomBlock abstractCustomBlock = storage.getAbstractCustomBlock(block);
+
+                                                                                                                                        CustomBlockRotation rotation = new BDCCustomBlockRotation(attachedFace, direction);
+
+                                                                                                                                        CustomBlock customBlock;
+                                                                                                                                        try {
+                                                                                                                                            customBlock = this.plugin.getCustomBlockService().placeBlock(abstractCustomBlock, location.clone().add(0.5, 0, 0.5), rotation, null, options.toArray(CustomBlockPlaceOption[]::new));
+                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                            ChatUtil.sendMessage(sender, "&cFailed to place the block %s: %s", block, e.getMessage());
+                                                                                                                                            return;
+                                                                                                                                        }
+
+                                                                                                                                        if (customBlock == null) {
+                                                                                                                                            ChatUtil.sendMessage(sender, "&cFailed to place the block %s at " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + location.getWorld().getName(), block);
+                                                                                                                                            return;
+                                                                                                                                        }
+
+                                                                                                                                        ChatUtil.sendMessage(sender, "&aSuccessfully placed the block &l%s&r&a at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + " &a!", block);
+                                                                                                                                    });
+                                                                                                                                })
+                                                                                                                )
+                                                                                                )
+                                                                                )
+                                                                )
+                                                )
+                                ).then(
+                                        new LiteralArgument("break")
+                                                .then(
+                                                        new LocationArgument("location")
+                                                                .replaceSuggestions((info, builder) -> {
+                                                                    Player player = (Player) info.sender();
+
+                                                                    RayTraceResult result = player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getLocation().getDirection(), 10, 0.5, entity -> !entity.equals(player));
+                                                                    if (result != null && result.getHitEntity() != null) {
+                                                                        Entity entity = result.getHitEntity();
+                                                                        Location customBlockLocation = CustomBlockKey.holder(entity).getLocation();
+
+                                                                        if (customBlockLocation != null) {
+                                                                            builder.suggest(customBlockLocation.getX() + " " + customBlockLocation.getY() + " " + customBlockLocation.getZ());
+                                                                            return builder.buildFuture();
+                                                                        }
+                                                                    }
+
+                                                                    Block targetBlockExact = player.getTargetBlockExact(6);
+                                                                    Location blockLoc = targetBlockExact != null
+                                                                            ? targetBlockExact.getLocation()
+                                                                            : null;
+
+                                                                    if (blockLoc != null && blockLoc.getBlock().getType().isSolid()) {
+                                                                        builder.suggest(blockLoc.getX() + " " + blockLoc.getY() + " " + blockLoc.getZ());
+                                                                        return builder.buildFuture();
+                                                                    }
+
+                                                                    builder.suggest("~ ~ ~");
+                                                                    return builder.buildFuture();
+                                                                })
+                                                                .then(
+                                                                        new ListArgumentBuilder<CustomBlockBreakOption>("options")
+                                                                                .allowDuplicates(false)
+                                                                                .withList(CustomBlockBreakOption.DROP_ITEM, CustomBlockBreakOption.SILENT_BREAK)
+                                                                                .withStringTooltipMapper(option -> {
+                                                                                    String tooltip = switch (option) {
+                                                                                        case DROP_ITEM ->
+                                                                                                "Drops the item when breaking the block";
+                                                                                        case SILENT_BREAK ->
+                                                                                                "Breaks the block without sound";
+                                                                                    };
+                                                                                    return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
+                                                                                })
+                                                                                .buildGreedy()
+                                                                                .setOptional(true)
+                                                                                .executes((sender, args) -> {
+                                                                                            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                                                                                                Location location = (Location) args.get("location");
+                                                                                                List<CustomBlockBreakOption> options = (List<CustomBlockBreakOption>) args.getOrDefault("options", Collections.emptyList());
+
+                                                                                                CustomBlock customBlock = this.plugin.getCustomBlockService().getCustomBlock(location);
+
+                                                                                                if (customBlock == null) {
+                                                                                                    ChatUtil.sendMessage(sender, "&cNo custom block found at %s", location);
+                                                                                                    return;
+                                                                                                }
+
+                                                                                                try {
+                                                                                                    this.plugin.getCustomBlockService().breakBlock(customBlock, null, options.toArray(CustomBlockBreakOption[]::new));
+                                                                                                } catch (IllegalArgumentException e) {
+                                                                                                    ChatUtil.sendMessage(sender, "&cFailed to break the block: %s", location, e.getMessage());
+                                                                                                    return;
+                                                                                                }
+
+                                                                                                ChatUtil.sendMessage(sender, "&aSuccessfully broke the block at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + " &a!");
+                                                                                            });
+                                                                                        }
+                                                                                )
+                                                                )
+                                                )
+                                ).then(
                                         new LiteralArgument("editfile")
                                                 .then(
-                                                        new TextArgument ("block")
+                                                        new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
                                                                 .then(
                                                                         new LiteralArgument("central-material")
@@ -644,7 +798,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     try {
                                                                                                                                         DyeColor dyeColor = DyeColor.valueOf(color.toUpperCase());
                                                                                                                                         setCBConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
-                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
                                                                                                                                         throw CommandAPI.failWithString("Invalid color: " + color);
                                                                                                                                     }
                                                                                                                                 })

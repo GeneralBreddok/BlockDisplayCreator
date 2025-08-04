@@ -109,6 +109,9 @@ public class EntityDamageByEntityListener implements Listener {
             options[0] = CustomBlockBreakOption.DROP_ITEM;
         }
 
-        customBlockService.breakBlock(customBlock, player, options);
+        try {
+            customBlockService.breakBlock(customBlock, player, options);
+        } catch (IllegalArgumentException ignore) {
+        }
     }
 }

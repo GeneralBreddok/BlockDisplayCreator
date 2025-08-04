@@ -119,7 +119,11 @@ public class PlayerInteractListener implements Listener {
         }
 
 
-        CustomBlock customBlock = customBlockService.placeBlock(abstractCustomBlock, blockLocation, customBlockRotation, player);
+        CustomBlock customBlock = null;
+        try {
+            customBlock = customBlockService.placeBlock(abstractCustomBlock, blockLocation, customBlockRotation, player);
+        } catch (IllegalArgumentException ignore) {
+        }
 
         if (customBlock != null && !(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR)) {
             item.setAmount(item.getAmount() - 1);

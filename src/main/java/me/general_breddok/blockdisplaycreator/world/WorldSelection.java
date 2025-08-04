@@ -20,21 +20,22 @@ import java.util.List;
 @ApiStatus.Obsolete
 public class WorldSelection extends BoundingBox {
 
-    private static final List<Material> destructibleMaterials = new ArrayList<>();
+    private static final List<Material> ephemeralMaterials = new ArrayList<>();
 
     static {
-        destructibleMaterials.add(Material.LAVA);
-        destructibleMaterials.add(Material.WATER);
-        destructibleMaterials.add(getShortGrass());
-        destructibleMaterials.add(Material.TALL_GRASS);
-        destructibleMaterials.add(Material.FERN);
-        destructibleMaterials.add(Material.LARGE_FERN);
-        destructibleMaterials.add(Material.SEAGRASS);
-        destructibleMaterials.add(Material.TALL_SEAGRASS);
-        destructibleMaterials.add(Material.AIR);
-        destructibleMaterials.add(Material.CAVE_AIR);
-        destructibleMaterials.add(Material.VOID_AIR);
-        destructibleMaterials.add(Material.LIGHT);
+        ephemeralMaterials.add(Material.LAVA);
+        ephemeralMaterials.add(Material.WATER);
+
+        ephemeralMaterials.add(getShortGrass());
+        ephemeralMaterials.add(Material.TALL_GRASS);
+        ephemeralMaterials.add(Material.FERN);
+        ephemeralMaterials.add(Material.LARGE_FERN);
+        ephemeralMaterials.add(Material.SEAGRASS);
+        ephemeralMaterials.add(Material.TALL_SEAGRASS);
+        ephemeralMaterials.add(Material.AIR);
+        ephemeralMaterials.add(Material.CAVE_AIR);
+        ephemeralMaterials.add(Material.VOID_AIR);
+        ephemeralMaterials.add(Material.LIGHT);
     }
 
     private World world;
@@ -57,16 +58,16 @@ public class WorldSelection extends BoundingBox {
         this(boundingBox.getMin().toLocation(world), boundingBox.getMax().toLocation(world), world);
     }
 
-    public static boolean isDestructible(List<Location> locationList) {
-        return locationList.stream().allMatch(location -> isDestructible(location.getBlock()));
+    public static boolean isEphemeral(List<Location> locationList) {
+        return locationList.stream().allMatch(location -> isEphemeral(location.getBlock()));
     }
 
-    public static boolean isDestructible(Block block) {
-        return isDestructible(block.getType());
+    public static boolean isEphemeral(Block block) {
+        return isEphemeral(block.getType());
     }
 
-    public static boolean isDestructible(Material material) {
-        return destructibleMaterials.contains(material);
+    public static boolean isEphemeral(Material material) {
+        return ephemeralMaterials.contains(material);
     }
 
     public Location getMinLocation() {

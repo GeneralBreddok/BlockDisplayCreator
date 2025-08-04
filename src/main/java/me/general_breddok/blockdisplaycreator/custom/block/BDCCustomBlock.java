@@ -248,7 +248,7 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
         boolean loadChunk = false;
         boolean replaceCustomBlock = false;
-        boolean replaceIndestructible = false;
+        boolean breakSolidMaterial = false;
 
         for (CustomBlockOption option : options) {
             if (option == null) {
@@ -257,8 +257,8 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
             if (option == CustomBlockPlaceOption.REPLACE_CUSTOM_BLOCK) {
                 replaceCustomBlock = true;
-            } else if (option == CustomBlockPlaceOption.BREAK_INDESTRUCTIBLE_MATERIAL) {
-                replaceIndestructible = true;
+            } else if (option == CustomBlockPlaceOption.BREAK_SOLID_MATERIAL) {
+                breakSolidMaterial = true;
             } else if (option == CustomBlockPlaceOption.LOAD_CHUNK) {
                 loadChunk = true;
             }
@@ -272,8 +272,8 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
             }
         }
 
-        if (!WorldSelection.isDestructible(location.getBlock())) {
-            if (replaceIndestructible) {
+        if (!WorldSelection.isEphemeral(location.getBlock())) {
+            if (breakSolidMaterial) {
                 location.getBlock().setType(centralMaterial);
             } else {
                 return;

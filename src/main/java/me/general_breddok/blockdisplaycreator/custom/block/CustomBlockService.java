@@ -84,7 +84,7 @@ public interface CustomBlockService {
      * @return the placed {@link CustomBlock} if successful, otherwise null.
      */
     @Nullable
-    CustomBlock placeBlock(@NotNull AbstractCustomBlock abstractCustomBlock, @NotNull Location location, @NotNull CustomBlockRotation rotation, @Nullable Player player, CustomBlockOption... options);
+    CustomBlock placeBlock(@NotNull AbstractCustomBlock abstractCustomBlock, @NotNull Location location, @NotNull CustomBlockRotation rotation, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException;
 
     /**
      * Breaks the specified custom block.
@@ -94,7 +94,7 @@ public interface CustomBlockService {
      * @param options additional breaking options.
      * @return true if the block was successfully broken, false otherwise.
      */
-    boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options);
+    boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException;
 
     /**
      * Creates an item associated with a custom block.

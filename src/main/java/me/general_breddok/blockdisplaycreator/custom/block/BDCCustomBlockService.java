@@ -25,6 +25,7 @@ import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
@@ -209,13 +210,18 @@ public class BDCCustomBlockService implements CustomBlockService {
      * {@inheritDoc}
      */
     @Override
-    public CustomBlock placeBlock(@NotNull AbstractCustomBlock abstractCustomBlock, @NotNull Location location, @NotNull CustomBlockRotation rotation, @Nullable Player player, CustomBlockOption... options) {
+    public CustomBlock placeBlock(@NotNull AbstractCustomBlock abstractCustomBlock, @NotNull Location location, @NotNull CustomBlockRotation rotation, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException {
         Material centralMaterial = abstractCustomBlock.getCentralMaterial();
-        Block block = location.getBlock();
-        Material originalType = block.getType();
+        World world = location.getWorld();
+        int chunkX = location.getBlockX() >> 4;
+        int chunkZ = location.getBlockZ() >> 4;
+
+        if (world == null) {
+            throw new IllegalArgumentException("Location's world cannot be null");
+        }
 
         boolean replaceCustomBlock = false;
-        boolean replaceIndestructible = false;
+        boolean breakSolidMaterial = false;
         boolean silentPlace = false;
         boolean loadChunk = false;
 
@@ -227,8 +233,8 @@ public class BDCCustomBlockService implements CustomBlockService {
 
             if (option == CustomBlockPlaceOption.REPLACE_CUSTOM_BLOCK) {
                 replaceCustomBlock = true;
-            } else if (option == CustomBlockPlaceOption.BREAK_INDESTRUCTIBLE_MATERIAL) {
-                replaceIndestructible = true;
+            } else if (option == CustomBlockPlaceOption.BREAK_SOLID_MATERIAL) {
+                breakSolidMaterial = true;
             } else if (option == CustomBlockPlaceOption.SILENT_PLACE) {
                 silentPlace = true;
             } else if (option == CustomBlockPlaceOption.LOAD_CHUNK) {
@@ -236,19 +242,22 @@ public class BDCCustomBlockService implements CustomBlockService {
             }
         }
 
-        if (!location.getChunk().isLoaded()) {
+        if (!world.isChunkLoaded(chunkX, chunkZ)) {
             if (loadChunk) {
                 location.getChunk().load();
             } else {
-                return null;
+                throw new IllegalArgumentException("Location " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + world.getName() + " is not loaded. Use CustomBlockPlaceOption.LOAD_CHUNK to load it automatically.");
             }
         }
 
-        if (!WorldSelection.isDestructible(originalType)) {
-            if (replaceIndestructible) {
+        Block block = location.getBlock();
+        Material originalType = block.getType();
+
+        if (!WorldSelection.isEphemeral(originalType)) {
+            if (breakSolidMaterial) {
                 block.setType(centralMaterial);
             } else {
-                return null;
+                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because the block is solid and CustomBlockPlaceOption.BREAK_SOLID_MATERIAL is not set.");
             }
         } else {
             block.setType(centralMaterial);
@@ -259,7 +268,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (replaceCustomBlock) {
                 this.breakBlock(this.getCustomBlock(location), player);
             } else {
-                return null;
+                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because a custom block is already present at this location. Use CustomBlockPlaceOption.REPLACE_CUSTOM_BLOCK to replace it.");
             }
         }
 
@@ -267,7 +276,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         List<UUID> displayVehicleUuids = new ArrayList<>();
 
-        BlockDisplay centerEntity = location.getWorld().spawn(location, BlockDisplay.class);
+        BlockDisplay centerEntity = world.spawn(location, BlockDisplay.class);
 
         List<Display> displays = abstractCustomBlock.spawnDisplay(location, centerEntity, display -> {
             if (!display.isInsideVehicle()) {
@@ -297,7 +306,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         if (displays.isEmpty()) {
             block.setType(originalType);
-            ChatUtil.log("&6[BlockDisplayCreator] &4Something went wrong, custom block at location " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + " in %s world was not placed due to missing display entities. You may have specified the spawn command incorrectly.", location.getWorld().getName());
+            ChatUtil.log("&6[BlockDisplayCreator] &4Something went wrong, custom block at location " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + " in %s world was not placed due to missing display entities. You may have specified the spawn command incorrectly.", world.getName());
             return null;
         }
 
@@ -411,11 +420,11 @@ public class BDCCustomBlockService implements CustomBlockService {
      * {@inheritDoc}
      */
     @Override
-    public boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) {
+    public boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException {
         Location location = customBlock.getLocation();
 
         if (!isCustomBlockOnLocation(location)) {
-            return false;
+            throw new IllegalArgumentException("Cannot break custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + location.getWorld().getName() + " because no custom block is present at this location.");
         }
 
         boolean dropItem = false;
