@@ -48,6 +48,7 @@ import org.bukkit.util.RayTraceResult;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlockDisplayCreatorCAPICommand {
@@ -339,7 +340,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                 .replaceSuggestions(ArgumentSuggestions.strings(
                                                                                                                 Arrays.stream(Material.values())
                                                                                                                         .filter(Material::isBlock)
-                                                                                                                        .map(Material::toString)
+                                                                                                                        .map(material -> material.name().toLowerCase())
                                                                                                                         .toList()
                                                                                                         )
                                                                                                 ).executes((sender, args) -> {
@@ -416,7 +417,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                 .then(
                                                                                                         new StringArgument("color")
                                                                                                                 .replaceSuggestions(
-                                                                                                                        ArgumentSuggestions.strings(ColorConverter.NAMED_COLORS.keySet().stream().toList())
+                                                                                                                        ArgumentSuggestions.strings(ColorConverter.NAMED_COLORS.keySet().stream().map(String::toLowerCase).toList())
                                                                                                                 ).executes((sender, args) -> {
 
                                                                                                                     String block = (String) args.get("block");
@@ -536,7 +537,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                 .replaceSuggestions(ArgumentSuggestions.strings(
                                                                                                                         Arrays.stream(Material.values())
                                                                                                                                 .filter(Material::isItem)
-                                                                                                                                .map(Material::toString)
+                                                                                                                                .map(material -> material.name().toLowerCase())
                                                                                                                                 .toList()
                                                                                                                 )).executes((sender, args) -> {
                                                                                                                     String block = (String) args.get("block");
@@ -567,7 +568,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         new ListArgumentBuilder<ItemFlag>("item-flags-list")
                                                                                                                 .allowDuplicates(false)
                                                                                                                 .withList(List.of(ItemFlag.values()))
-                                                                                                                .withMapper(ItemFlag::name)
+                                                                                                                .withMapper(itemFlag -> itemFlag.name().toLowerCase())
                                                                                                                 .buildGreedy()
                                                                                                                 .executes((sender, args) -> {
                                                                                                                             String block = (String) args.get("block");
@@ -583,7 +584,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         new MapArgumentBuilder<Enchantment, Integer>("enchantments-list", ':')
                                                                                                                 .withKeyMapper(enchantment -> Registry.ENCHANTMENT.get(NamespacedKey.minecraft(enchantment.toLowerCase())))
                                                                                                                 .withValueMapper(Integer::parseInt)
-                                                                                                                .withKeyList(List.of(Enchantment.values()).stream().map(enchantment -> enchantment.getKey().getKey()).toList())
+                                                                                                                .withKeyList(Stream.of(Enchantment.values()).map(enchantment -> enchantment.getKey().getKey().toLowerCase()).toList())
                                                                                                                 .withValueList(IntStream.rangeClosed(1, 256).sorted().mapToObj(String::valueOf).toList(), true)
                                                                                                                 .build()
                                                                                                                 .executes((sender, args) -> {
@@ -789,7 +790,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         new LiteralArgument("color")
                                                                                                                 .then(
                                                                                                                         new StringArgument("color")
-                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(Arrays.stream(DyeColor.values()).map(Enum::name).toList()))
+                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(Arrays.stream(DyeColor.values()).map(color -> color.name().toLowerCase()).toList()))
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                     String block = (String) args.get("block");
                                                                                                                                     String collisionName = (String) args.get("collision-name");
@@ -885,7 +886,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                 .then(
                                                                                                                         new StringArgument("sound-name")
                                                                                                                                 .replaceSuggestions(ArgumentSuggestions.strings(
-                                                                                                                                        VersionCompat.getSoundNames()
+                                                                                                                                        VersionCompat.getSoundNames().stream().map(String::toLowerCase).toList()
                                                                                                                                 )).executes((sender, args) -> {
                                                                                                                                             String block = (String) args.get("block");
                                                                                                                                             String soundName = (String) args.get("sound-name");

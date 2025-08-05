@@ -44,7 +44,7 @@ public interface PersistentDataTypes {
             (complex, context) -> complex.name(),
             (primitive, context) -> {
                 try {
-                    return Sound.valueOf(primitive);
+                    return Sound.valueOf(primitive.toUpperCase());
                 } catch (IllegalArgumentException e) {
                     throw new IllegalEnumNameException(primitive + " is not a Sound enum constant", null, primitive);
                 }

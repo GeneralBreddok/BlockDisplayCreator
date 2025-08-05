@@ -251,13 +251,13 @@ public class BDCCustomBlockService implements CustomBlockService {
         }
 
         Block block = location.getBlock();
-        Material originalType = block.getType();
+        Material originalMaterial = block.getType();
 
-        if (!WorldSelection.isEphemeral(originalType)) {
+        if (!(WorldSelection.isEphemeral(originalMaterial) || WorldSelection.isSingleLayerSnow(block))) {
             if (breakSolidMaterial) {
                 block.setType(centralMaterial);
             } else {
-                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because the block is solid and CustomBlockPlaceOption.BREAK_SOLID_MATERIAL is not set.");
+                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world \"" + world.getName() + "\" because the block is solid and CustomBlockPlaceOption.BREAK_SOLID_MATERIAL is not set.");
             }
         } else {
             block.setType(centralMaterial);
@@ -276,7 +276,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         List<UUID> displayVehicleUuids = new ArrayList<>();
 
-        BlockDisplay centerEntity = world.spawn(location, BlockDisplay.class);
+        Interaction centerEntity = world.spawn(location, Interaction.class);
 
         List<Display> displays = abstractCustomBlock.spawnDisplay(location, centerEntity, display -> {
             if (!display.isInsideVehicle()) {
@@ -305,7 +305,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
 
         if (displays.isEmpty()) {
-            block.setType(originalType);
+            block.setType(originalMaterial);
             ChatUtil.log("&6[BlockDisplayCreator] &4Something went wrong, custom block at location " + location.getBlockX() + " " + location.getBlockY() + " " + location.getBlockZ() + " in %s world was not placed due to missing display entities. You may have specified the spawn command incorrectly.", world.getName());
             return null;
         }

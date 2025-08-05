@@ -16,6 +16,7 @@ import me.general_breddok.blockdisplaycreator.world.TransformationBuilder;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.*;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
@@ -101,7 +102,7 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
             if (vehicle != null) {
                 vehicle.remove();
             }
-        });;
+        });
         this.collisions = collisions;
         CustomBlockData customBlockData = new CustomBlockData(this.location.getBlock(), BlockDisplayCreator.getInstance());
         UUID[] uuids = new UUID[collisions.size()];
@@ -118,7 +119,9 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
                 continue;
             }
 
-            BlockDisplay vehicle = location.getWorld().spawn(collision.getLocation(), BlockDisplay.class);
+            Interaction vehicle = location.getWorld().spawn(collision.getLocation(), Interaction.class);
+            vehicle.setInteractionHeight(0);
+            vehicle.setInteractionWidth(0);
 
             collision.setRemoveWhenFarAway(false);
             collision.setAI(false);
@@ -272,9 +275,11 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
             }
         }
 
-        if (!WorldSelection.isEphemeral(location.getBlock())) {
+
+        Block block = location.getBlock();
+        if (!(WorldSelection.isEphemeral(block) || WorldSelection.isSingleLayerSnow(block))) {
             if (breakSolidMaterial) {
-                location.getBlock().setType(centralMaterial);
+                block.setType(centralMaterial);
             } else {
                 return;
             }
@@ -329,6 +334,6 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
         });
 
         BDCCustomBlockService.createCustomBlockData(this, displayVehicleUuids);
-        location.getBlock().setType(centralMaterial);
+        block.setType(centralMaterial);
     }
 }

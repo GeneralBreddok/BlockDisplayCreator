@@ -20,12 +20,15 @@ import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
+import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.guard.WorldGuardChecker;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -71,15 +74,18 @@ public class PlayerInteractListener implements Listener {
         if (player.getGameMode() == GameMode.ADVENTURE)
             return;
 
-        Location blockLocation = clickedBlock.getLocation()
-                .add(blockFace.getDirection())
-                .add(0.5, 0, 0.5);
-
         if (clickedBlock.getType().isInteractable() && !player.isSneaking())
             return;
 
         if (item == null || item.getItemMeta() == null)
             return;
+
+        Location blockLocation = clickedBlock.getLocation()
+                .add(0.5, 0, 0.5);
+
+        if (!(WorldSelection.isEphemeral(clickedBlock) || WorldSelection.isSingleLayerSnow(clickedBlock))) {
+            blockLocation.add(blockFace.getDirection());
+        }
 
         String blockName = CustomBlockKey.holder(item.getItemMeta()).getName();
 

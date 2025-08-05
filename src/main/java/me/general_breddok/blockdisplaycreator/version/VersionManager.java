@@ -39,6 +39,10 @@ public class VersionManager {
         return this.currentVersion.isBelow(MinecraftVersion.V1_21_3);
     }
 
+    public boolean isVersionBefore1_21_5() {
+        return this.currentVersion.isBelow(MinecraftVersion.V1_21_5);
+    }
+
     public boolean isVersion1_19_4() {
         return this.currentVersion.equals(MinecraftVersion.V1_19_4);
     }

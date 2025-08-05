@@ -17,6 +17,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.Registry;
 import org.bukkit.attribute.Attribute;
 import org.bukkit.entity.BlockDisplay;
+import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Shulker;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -65,7 +66,9 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
 
         Shulker shulker = this.summoner.summon(summonLocation);
 
-        BlockDisplay vehicle = location.getWorld().spawn(summonLocation, BlockDisplay.class);
+        Interaction vehicle = location.getWorld().spawn(summonLocation, Interaction.class);
+        vehicle.setInteractionHeight(0);
+        vehicle.setInteractionWidth(0);
 
         shulker.setRemoveWhenFarAway(false);
         shulker.setAI(false);

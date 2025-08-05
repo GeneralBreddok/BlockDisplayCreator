@@ -70,15 +70,13 @@ public class EntityDamageByEntityListener implements Listener {
         }
 
 
-        CustomBlock customBlock;
+        CustomBlock customBlock = null;
 
         if (entity instanceof Interaction interaction) {
             customBlock = customBlockService.getCustomBlock(interaction);
-        } else {
-            Shulker collision = (Shulker) entity;
+        } else if (entity instanceof Shulker collision) {
             customBlock = customBlockService.getCustomBlock(collision);
         }
-
 
         if (customBlock == null) {
             ChatUtil.sendMessage(player, "&cError, block %s not found.", blockName);
