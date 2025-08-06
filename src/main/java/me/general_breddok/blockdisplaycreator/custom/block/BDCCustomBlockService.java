@@ -246,7 +246,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (loadChunk) {
                 location.getChunk().load();
             } else {
-                throw new IllegalArgumentException("Location " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + world.getName() + " is not loaded. Use CustomBlockPlaceOption.LOAD_CHUNK to load it automatically.");
+                throw new IllegalArgumentException("Location " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + world.getName() + " is not loaded. Use load_chunk option to load it automatically.");
             }
         }
 
@@ -257,7 +257,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (breakSolidMaterial) {
                 block.setType(centralMaterial);
             } else {
-                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world \"" + world.getName() + "\" because the block is solid and CustomBlockPlaceOption.BREAK_SOLID_MATERIAL is not set.");
+                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world \"" + world.getName() + "\" because the block is solid and break_solid_material option is not set.");
             }
         } else {
             block.setType(centralMaterial);
@@ -268,7 +268,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (replaceCustomBlock) {
                 this.breakBlock(this.getCustomBlock(location), player);
             } else {
-                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because a custom block is already present at this location. Use CustomBlockPlaceOption.REPLACE_CUSTOM_BLOCK to replace it.");
+                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because a custom block is already present at this location. Use replace_custom_block option to replace it.");
             }
         }
 

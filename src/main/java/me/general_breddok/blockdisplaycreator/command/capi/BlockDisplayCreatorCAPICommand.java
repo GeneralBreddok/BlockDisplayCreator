@@ -196,13 +196,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                 .withStringTooltipMapper(option -> {
                                                                                                                                     String tooltip = switch (option) {
                                                                                                                                         case REPLACE_CUSTOM_BLOCK ->
-                                                                                                                                                "Replaces existing custom blocks at the location (if there is already a custom block placed there)";
+                                                                                                                                                "Replaces an existing custom block at the target location";
                                                                                                                                         case LOAD_CHUNK ->
-                                                                                                                                                "Loads the chunk where the block is placed (if not already loaded)";
+                                                                                                                                                "Loads the chunk before placing the block, if needed";
                                                                                                                                         case BREAK_SOLID_MATERIAL ->
-                                                                                                                                                "Allows breaking blocks with solid materials (if location is not air or liquid)";
+                                                                                                                                                "Destroys a solid vanilla block at the target location, if present";
                                                                                                                                         case SILENT_PLACE ->
-                                                                                                                                                "Places the block without sound";
+                                                                                                                                                "Suppresses block placement sounds";
                                                                                                                                     };
                                                                                                                                     return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
                                                                                                                                 })
@@ -295,9 +295,9 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 .withStringTooltipMapper(option -> {
                                                                                     String tooltip = switch (option) {
                                                                                         case DROP_ITEM ->
-                                                                                                "Drops the item when breaking the block";
+                                                                                                "Drops the corresponding item upon breaking";
                                                                                         case SILENT_BREAK ->
-                                                                                                "Breaks the block without sound";
+                                                                                                "Suppresses block breaking sounds";
                                                                                     };
                                                                                     return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
                                                                                 })
