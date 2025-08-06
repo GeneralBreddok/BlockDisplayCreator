@@ -71,7 +71,7 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
     @Override
     public void adjustInteractionRotation(@NotNull Interaction interaction, Vector offset, int sidesCount) {
         if (offset == null) {
-            return;
+            offset = new Vector(0, 0, 0);
         }
 
         Location location = interaction.getLocation();
@@ -85,7 +85,7 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
     @Override
     public void adjustCollisionRotation(@NotNull Shulker collision, Vector offset, int sidesCount) {
         if (offset == null) {
-            return;
+            offset = new Vector(0, 0, 0);
         }
 
         Entity vehicle = collision.getVehicle();

@@ -238,11 +238,7 @@ public interface PersistentDataTypes {
                 ArrayList<ItemFlag> result = new ArrayList<>(primitive.size());
 
                 for (Object o : primitive) {
-                    result.add(
-                            ItemFlag.valueOf(
-                                    String.valueOf(o)
-                            )
-                    );
+                    result.add(ITEM_FLAG.fromPrimitive(o.toString(), context));
                 }
 
                 return result;

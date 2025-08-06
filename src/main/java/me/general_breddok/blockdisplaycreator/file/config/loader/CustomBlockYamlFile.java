@@ -77,20 +77,11 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         CustomBlockStageSettings customBlockStageSettings = this.getCustomBlockStageSettings();
 
 
-        if (WorldSelection.isEmptyBlock(centralMaterial)) {
-            configuredInteractions.forEach(configuredInteraction -> {
-                Summoner<Interaction> summoner = configuredInteraction.getSummoner();
-
-                if (!(summoner instanceof InteractionSummoner monoInteractionSummoner))
-                    return;
-
-
-                if (monoInteractionSummoner.getInteractionWidth() > 0.1f) {
-                    return;
-                }
-
-                monoInteractionSummoner.setInteractionWidth(0.1f);
-            });
+        if (WorldSelection.isEmptyBlock(centralMaterial) && configuredInteractions.isEmpty()  && configuredCollisions.isEmpty()) {
+            configuredInteractions.add(new ConfiguredInteractionDta(
+                    new InteractionSummoner(1.001f, 1.001f),
+                    "interaction"
+            ));
         }
 
         return new BDCAbstractCustomBlock(this.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem(), BDCCustomBlockService.class.getName());
@@ -116,7 +107,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         ConfigurationSection interactionSection = file.getConfigurationSection(ParameterLocators.INTERACTION_PATH);
 
         if (interactionSection == null) {
-            return List.of();
+            return new ArrayList<>();
         }
 
         Set<String> interactionNames = interactionSection.getValues(false).keySet();
@@ -181,7 +172,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         ConfigurationSection collisionSection = file.getConfigurationSection(ParameterLocators.COLLISION_PATH);
 
         if (collisionSection == null) {
-            return List.of();
+            return new ArrayList<>();
         }
 
         Set<String> collisionNames = collisionSection.getValues(false).keySet();
