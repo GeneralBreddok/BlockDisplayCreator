@@ -11,7 +11,6 @@ import java.util.stream.Collectors;
 public interface DeepCloneable<T extends DeepCloneable<T>> extends Cloneable {
     T clone();
 
-
     static <T> T tryClone(T object) {
         if (object == null) {
             return null;

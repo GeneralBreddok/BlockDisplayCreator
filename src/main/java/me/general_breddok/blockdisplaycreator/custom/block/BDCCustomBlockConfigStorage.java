@@ -10,6 +10,7 @@ import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFile
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockRepository;
 import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,27 +32,38 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     }
 
     @Override
-    public void reloadAll() {
-        ChatUtil.log("&6[BlockDisplayCreator] &eInitializing blocks...");
+    public void reloadAll(@Nullable Runnable onComplete) {
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            ChatUtil.log("&6[BlockDisplayCreator] &eInitializing blocks...");
 
-        BlockDisplayCreator plugin = BlockDisplayCreator.getInstance();
+            BlockDisplayCreator plugin = BlockDisplayCreator.getInstance();
 
-        this.abstractCustomBlocks.clear();
-        this.customBlockRepository = new CustomBlockFileRepository(plugin);
+            CustomBlockRepository tempCustomBlockRepository = new CustomBlockFileRepository(plugin);
+            List<AbstractCustomBlock> tempAbstractCustomBlocks = new ArrayList<>();
 
-        for (CustomBlockConfigurationFile configurationFile : this.customBlockRepository.getFiles()) {
-            try {
-                this.abstractCustomBlocks.add(configurationFile.getAbstractCustomBlock());
-            } catch (CustomBlockLoadException e) {
-                ChatUtil.log(e.getMessage());
+            for (CustomBlockConfigurationFile configurationFile : tempCustomBlockRepository.getFiles()) {
+                try {
+                    tempAbstractCustomBlocks.add(configurationFile.getAbstractCustomBlock());
+                } catch (CustomBlockLoadException e) {
+                    ChatUtil.log(e.getMessage());
+                }
             }
-        }
 
-        BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
-        if (bdcCommand != null) {
-            bdcCommand.reloadSuggestions();
-        }
-        ChatUtil.log("&6[BlockDisplayCreator] &eInitialization complete, %d blocks initialized", this.abstractCustomBlocks.size());
+            BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
+            if (bdcCommand != null) {
+                bdcCommand.reloadSuggestions();
+            }
+            ChatUtil.log("&6[BlockDisplayCreator] &eInitialization complete, %d blocks initialized", tempAbstractCustomBlocks.size());
+
+            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                this.customBlockRepository = tempCustomBlockRepository;
+                this.abstractCustomBlocks = tempAbstractCustomBlocks;
+
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+        });
     }
 
     @Override
@@ -60,14 +72,7 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
             throw new NoSuchElementException("Block \"" + name + "\" is not in storage");
         }
 
-        final AbstractCustomBlock[] block = new AbstractCustomBlock[1];
-        this.abstractCustomBlocks.removeIf(abstractCustomBlock -> {
-            if (abstractCustomBlock.getName().equals(name)) {
-                block[0] = abstractCustomBlock;
-                return true;
-            }
-            return false;
-        });
+        this.abstractCustomBlocks.removeIf(abstractCustomBlock -> abstractCustomBlock.getName().equals(name));
 
         try {
             CustomBlockConfigurationFile file = this.customBlockRepository.getFile(name);

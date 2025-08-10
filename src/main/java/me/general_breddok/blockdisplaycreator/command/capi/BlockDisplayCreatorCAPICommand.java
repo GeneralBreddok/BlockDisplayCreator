@@ -76,7 +76,7 @@ public class BlockDisplayCreatorCAPICommand {
                         new LiteralArgument("reload")
                                 .withPermission(DefaultPermissions.BDC.Command.RELOAD)
                                 .then(
-                                        new StringArgument("block")
+                                        new TextArgument("block")
                                                 .replaceSuggestions(getCustomBlockSuggestions())
                                                 .setOptional(true)
                                                 .executes((sender, args) -> {
@@ -91,8 +91,10 @@ public class BlockDisplayCreatorCAPICommand {
                                                             ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
                                                         }
                                                     } else {
-                                                        this.plugin.reloadConfig();
-                                                        ChatUtil.sendMessage(sender, "&aConfig has been reloaded!");
+                                                        this.plugin.getYamlConfiguration().reload();
+                                                        this.plugin.getMessagesFile().reload();
+                                                        this.plugin.getCustomBlockService().getStorage().reloadAll(() -> ChatUtil.sendMessage(sender, "&aConfig has been reloaded!"));
+                                                        this.plugin.initializeConfigValues();
                                                     }
                                                 })
                                 )

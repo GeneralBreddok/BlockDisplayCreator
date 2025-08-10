@@ -5,6 +5,7 @@ import dev.jorel.commandapi.CommandAPICommand;
 import dev.jorel.commandapi.arguments.EntitySelectorArgument;
 import dev.jorel.commandapi.arguments.IntegerArgument;
 import dev.jorel.commandapi.arguments.StringArgument;
+import dev.jorel.commandapi.arguments.TextArgument;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
@@ -35,7 +36,7 @@ public class CustomBlockGiveCAPICommand {
                         "/cb <block> [receiver] [amount]"
                 )
                 .withArguments(
-                        new StringArgument("block")
+                        new TextArgument("block")
                                 .replaceSuggestions(this.plugin.getBdcCommand().getCustomBlockSuggestions())
                 ).withOptionalArguments(
                         new EntitySelectorArgument.ManyPlayers("receiver"),

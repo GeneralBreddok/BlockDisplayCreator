@@ -79,7 +79,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
         if (WorldSelection.isEmptyBlock(centralMaterial) && configuredInteractions.isEmpty()  && configuredCollisions.isEmpty()) {
             configuredInteractions.add(new ConfiguredInteractionDta(
-                    new InteractionSummoner(1.001f, 1.001f),
+                    new InteractionSummoner(0.1f, 0.1f),
                     "interaction"
             ));
         }

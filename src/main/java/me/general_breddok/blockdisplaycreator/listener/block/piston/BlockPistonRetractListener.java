@@ -16,18 +16,10 @@ import java.util.List;
 
 public class BlockPistonRetractListener implements Listener {
 
-
-    /*private ServiceManager<CustomBlockService> serviceManager;
-
-    public BlockPistonRetractListener(ServiceManager<CustomBlockService> serviceManager) {
-        this.serviceManager = serviceManager;
-    }*/
-
     @EventHandler
     public void onBlockPistonRetract(BlockPistonRetractEvent event) {
 
         List<Block> blocks = event.getBlocks();
-        BlockFace direction = event.getDirection();
 
         for (Block block : blocks) {
 
@@ -36,17 +28,6 @@ public class BlockPistonRetractListener implements Listener {
             if (!customBlockData.has(CustomBlockKey.NAME)) {
                 continue;
             }
-
-            /*CustomBlock customBlock = CustomBlockManager.getByLocation(location);
-
-
-            if (customBlock == null) {
-                event.setCancelled(true);
-                return;
-            }
-
-            Location to = location.clone().add(direction.getDirection()).add(0.5, 0, 0.5);
-            customBlock.setLocation(to, true);*/
 
             event.setCancelled(true);
             return;

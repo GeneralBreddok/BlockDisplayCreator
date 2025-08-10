@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.util.Vector;
@@ -14,7 +15,7 @@ import javax.annotation.Nullable;
 @Setter
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class DirectedVector extends Vector {
+public class DirectedVector extends Vector implements DeepCloneable<DirectedVector> {
     float yaw;
     float pitch;
 
