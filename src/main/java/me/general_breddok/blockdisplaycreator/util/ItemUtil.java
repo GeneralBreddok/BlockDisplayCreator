@@ -82,7 +82,7 @@ public class ItemUtil {
 
         for (int slot = 9; slot < inv.getSize(); slot++) {
             ItemStack item = inv.getItem(slot);
-            if (item != null && filter.test(item)) {
+            if (item != null && filter.test(item) && slot < 36) {
                 inv.setItem(slot, current);
                 inv.setItem(heldItemSlot, item);
                 return true;
@@ -108,7 +108,7 @@ public class ItemUtil {
 
             for (int slot = 9; slot < inv.getSize(); slot++) {
                 ItemStack item = inv.getItem(slot);
-                if (item == null || item.getType() == Material.AIR) {
+                if ((item == null || item.getType() == Material.AIR) && slot < 36) {
                     inv.setItem(slot, heldItem);
                     inv.setItem(heldItemSlot, creativeItem.clone());
                     return true;

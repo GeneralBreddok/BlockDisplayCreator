@@ -112,7 +112,7 @@ public class PlayerInteractListener implements Listener {
         AbstractCustomBlock abstractCustomBlock = customBlockService.getStorage().getAbstractCustomBlock(blockName);
 
         if (abstractCustomBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, no block %s in storage.", blockName);
+            ChatUtil.sendMessage(player, "&cError, no custom block %s in storage.", blockName);
             return;
         }
 
@@ -145,7 +145,7 @@ public class PlayerInteractListener implements Listener {
         CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
 
         if (customBlockService == null) {
-            throw new UnregisteredServiceException("Service " + serviceClassName + " is not registered", serviceClassName);
+            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
         }
         return customBlockService;
     }

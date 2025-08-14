@@ -74,13 +74,13 @@ public class PlayerInteractEntityListener implements Listener {
         CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
 
         if (customBlockService == null) {
-            throw new UnregisteredServiceException("Service " + serviceClassName + " is not registered", serviceClassName);
+            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
         }
 
         CustomBlock customBlock = customBlockService.getCustomBlock(interaction);
 
         if (customBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, block %s not found.", blockName);
+            ChatUtil.sendMessage(player, "&cError, custom block %s not found.", blockName);
             return;
         }
 
