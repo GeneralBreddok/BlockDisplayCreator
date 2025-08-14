@@ -1,9 +1,12 @@
 package me.general_breddok.blockdisplaycreator.util;
 
 import lombok.experimental.UtilityClass;
+import org.bukkit.GameMode;
+import org.bukkit.Material;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Base64;
+import java.util.function.Predicate;
 
 @UtilityClass
 public class ItemUtil {
@@ -55,5 +59,69 @@ public class ItemUtil {
         } catch (ClassNotFoundException | IOException e) {
             throw new IllegalStateException("Unable to decode class type.", e);
         }
+    }
+
+    public static boolean selectItem(Player player, Predicate<ItemStack> filter, ItemStack creativeItem) {
+        if (player == null || filter == null) return false;
+
+        PlayerInventory inv = player.getInventory();
+        int heldItemSlot = inv.getHeldItemSlot();
+        ItemStack current = inv.getItem(heldItemSlot);
+
+        if (current != null && filter.test(current)) {
+            return true;
+        }
+
+        for (int slot = 0; slot < 9; slot++) {
+            ItemStack item = inv.getItem(slot);
+            if (item != null && filter.test(item)) {
+                inv.setHeldItemSlot(slot);
+                return true;
+            }
+        }
+
+        for (int slot = 9; slot < inv.getSize(); slot++) {
+            ItemStack item = inv.getItem(slot);
+            if (item != null && filter.test(item)) {
+                inv.setItem(slot, current);
+                inv.setItem(heldItemSlot, item);
+                return true;
+            }
+        }
+
+        if (player.getGameMode() == GameMode.CREATIVE && creativeItem != null) {
+            ItemStack heldItem = inv.getItem(heldItemSlot);
+
+            if (heldItem == null || heldItem.getType() == Material.AIR) {
+                inv.setItem(heldItemSlot, creativeItem.clone());
+                return true;
+            }
+
+            for (int slot = 0; slot < 9; slot++) {
+                ItemStack item = inv.getItem(slot);
+                if (item == null || item.getType() == Material.AIR) {
+                    inv.setItem(slot, creativeItem.clone());
+                    inv.setHeldItemSlot(slot);
+                    return true;
+                }
+            }
+
+            for (int slot = 9; slot < inv.getSize(); slot++) {
+                ItemStack item = inv.getItem(slot);
+                if (item == null || item.getType() == Material.AIR) {
+                    inv.setItem(slot, heldItem);
+                    inv.setItem(heldItemSlot, creativeItem.clone());
+                    return true;
+                }
+            }
+
+            inv.setItem(heldItemSlot, creativeItem.clone());
+        }
+
+        return false;
+    }
+
+    public static boolean selectItem(Player player, Material material) {
+        return selectItem(player, item -> item.getType() == material, new ItemStack(material));
     }
 }

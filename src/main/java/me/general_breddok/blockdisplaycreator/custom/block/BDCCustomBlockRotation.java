@@ -95,7 +95,7 @@ public class BDCCustomBlockRotation implements CustomBlockRotation {
         Vector calculatedOffset = calculateOffset(collision, offset, sidesCount);
 
         Vector subtracted = calculatedOffset.subtract(offset);
-        EntityUtil.teleportWithVehicle(collision, location.clone().add(subtracted));
+        EntityUtil.teleportEntityWithVehicle(collision, location.clone().add(subtracted));
     }
 
     public Vector calculateOffset(Entity entity, Vector originalOffset, int sidesCount) {

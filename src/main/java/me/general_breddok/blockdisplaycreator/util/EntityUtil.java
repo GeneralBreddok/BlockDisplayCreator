@@ -1,10 +1,11 @@
 package me.general_breddok.blockdisplaycreator.util;
 
 import lombok.experimental.UtilityClass;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
-import org.bukkit.entity.LivingEntity;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class EntityUtil {
         passengers.forEach(entity::addPassenger);
     }
 
-    public void teleportWithVehicle(@NotNull Entity entity, @NotNull Location location) {
+    public void teleportEntityWithVehicle(@NotNull Entity entity, @NotNull Location location) {
         Entity vehicle = entity.getVehicle();
         if (vehicle == null) {
             return;
@@ -39,5 +40,21 @@ public class EntityUtil {
 
     public boolean isSpawnable(@NotNull Class<? extends Entity> entityClass) {
         return getEntityType(entityClass) != null;
+    }
+
+    public Entity getNearEntity(Location nearbyLoc, int entityId) {
+        World world = nearbyLoc.getWorld();
+        Chunk center = nearbyLoc.getChunk();
+
+        for (int dx = -1; dx <= 1; dx++) {
+            for (int dz = -1; dz <= 1; dz++) {
+                for (Entity entity : world.getChunkAt(center.getX() + dx, center.getZ() + dz).getEntities()) {
+                    if (entity.getEntityId() == entityId) {
+                        return entity;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

@@ -5,7 +5,7 @@ main: me.general_breddok.blockdisplaycreator.BlockDisplayCreator
 api-version: 1.19
 description: Plugin for creating and fully customizing custom blocks
 
-softdepend: [ PlaceholderAPI, WorldGuard ]
+softdepend: [ PlaceholderAPI, WorldGuard, PacketEvents ]
 
 commands:
   blockdisplaycreator:

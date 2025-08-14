@@ -22,7 +22,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.function.Predicate;
 
-
+/**
+ * Represents an abstract custom block with various properties and behaviors.
+ * This interface defines methods to manage the block's name, service class,
+ * display summoner, interactions, collisions, item representation, material,
+ * sound group, stage settings, and permissions.
+ */
 public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> {
     @NotNull
     String getName();

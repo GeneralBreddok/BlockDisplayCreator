@@ -27,10 +27,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -687,6 +684,61 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
     }
 
 
+    private void killBlockEntities(BoundingBox boundingBox, Player sender) {
+        WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
+
+        List<Entity> displayEntities = new ArrayList<>();
+        List<Entity> interactions = new ArrayList<>();
+        List<Entity> collisions = new ArrayList<>();
+
+
+        sender.getWorld().getNearbyEntities(
+                boundingBox,
+                entity -> entity instanceof Display || entity instanceof Interaction || entity instanceof Shulker
+        ).forEach(entity -> {
+            if (entity instanceof Display) {
+                displayEntities.add(entity);
+            } else if (entity instanceof Interaction) {
+                interactions.add(entity);
+            } else if (entity instanceof Shulker) {
+                collisions.add(entity);
+            }
+        });
+
+
+        final int[] blocksCount = {0};
+
+        worldSelection.getLocations().forEach(location -> {
+                    CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), BlockDisplayCreator.getInstance());
+
+                    if (customBlockData.has(CustomBlockKey.NAME)) {
+                        customBlockData.remove(CustomBlockKey.NAME);
+                        customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
+                        customBlockData.remove(CustomBlockKey.LOCATION);
+                        customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
+                        customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
+                        customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
+                        customBlockData.remove(CustomBlockKey.COLLISION_UUID);
+                        customBlockData.remove(CustomBlockKey.INTERACTION_IDENTIFIER);
+                        customBlockData.remove(CustomBlockKey.COLLISION_IDENTIFIER);
+                        customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
+                        customBlockData.remove(CustomBlockKey.ITEM);
+                        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
+                        blocksCount[0]++;
+                    }
+                }
+        );
+
+        displayEntities.forEach(Entity::remove);
+        interactions.forEach(Entity::remove);
+        collisions.forEach(Entity::remove);
+
+        ChatUtil.sendMessage(sender, "&6Killed %d display entities", displayEntities.size());
+        ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
+        ChatUtil.sendMessage(sender, "&6Killed %d collision entities", collisions.size());
+        ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
+    }
+
     public void applyPlaceholdersForItem(ItemStack item, Player player) {
         ItemMeta itemMeta = item.getItemMeta();
         Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
@@ -742,76 +794,6 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
             item.setItemMeta(itemMeta);
         }
-    }
-
-    private void killBlockEntities(BoundingBox boundingBox, Player sender) {
-        Collection<Entity> displayEntities = sender.getWorld().getNearbyEntities(
-                boundingBox,
-                Display.class::isInstance);
-
-        Collection<Entity> interactions = sender.getWorld().getNearbyEntities(
-                boundingBox,
-                Interaction.class::isInstance);
-
-
-        WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
-
-        final int[] blocksCount = {0};
-
-        worldSelection.getLocations().forEach(location -> {
-                    CustomBlockData customBlockData = new CustomBlockData(location.getBlock(), BlockDisplayCreator.getInstance());
-
-                    if (customBlockData.has(CustomBlockKey.NAME)) {
-                        customBlockData.remove(CustomBlockKey.NAME);
-                        customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
-                        customBlockData.remove(CustomBlockKey.LOCATION);
-                        customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
-                        customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
-                        customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
-                        customBlockData.remove(CustomBlockKey.COLLISION_UUID);
-                        customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
-                        blocksCount[0]++;
-                    }
-                }
-        );
-
-        ChatUtil.sendMessage(sender, "&6Killed %d display entities", displayEntities.size());
-        ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
-        ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
-
-        displayEntities.forEach(Entity::remove);
-        interactions.forEach(Entity::remove);
-    }
-
-
-    private void setCustomBlockParameter(String blockName, List<String> pathSections, Object value, CommandSender sender) {
-        String path = String.join(".", pathSections);
-        String valueName = value.toString();
-
-
-        if (pathSections.size() >= 3 && pathSections.get(2).equals("enchantments")) {
-
-            valueName = pathSections.get(pathSections.size() - 1) + ": " + value;
-
-        }
-
-        if (value instanceof List<?> list) {
-            List<String> stringList = list.stream().map(String::valueOf).toList();
-            List<String> configList = instance.getConfig().getStringList(path);
-            configList.addAll(stringList);
-
-            value = configList;
-
-            valueName = String.join(" ", stringList);
-        }
-
-        CustomBlockRepository customBlockRepository = new CustomBlockFileRepository(instance);
-
-        CustomBlockConfigurationFile file = customBlockRepository.getFile(blockName);
-
-        file.set(path, value);
-
-        ChatUtil.sendMessage(sender, "&aYou have successfully set the parameter &l%s&r&a in path &l%s&r&a to \"&l%s&r&a\".", pathSections.get(pathSections.size() - 1), path, valueName);
     }
 }
 

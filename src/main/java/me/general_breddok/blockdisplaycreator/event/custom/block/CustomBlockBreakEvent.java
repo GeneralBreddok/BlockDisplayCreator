@@ -10,7 +10,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 
-
+/**
+ * This class represents a custom event that is fired when a player breaks a custom block.
+ * It extends {@link CustomBlockPlayerEvent} and implements {@link Cancellable}.
+ */
 public class CustomBlockBreakEvent extends CustomBlockPlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     @Getter

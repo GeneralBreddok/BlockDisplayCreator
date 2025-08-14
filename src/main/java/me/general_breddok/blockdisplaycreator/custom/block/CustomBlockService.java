@@ -2,10 +2,7 @@ package me.general_breddok.blockdisplaycreator.custom.block;
 
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import org.bukkit.Location;
-import org.bukkit.entity.Display;
-import org.bukkit.entity.Interaction;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Shulker;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.jetbrains.annotations.NotNull;
@@ -42,36 +39,15 @@ public interface CustomBlockService {
      */
     @Nullable
     CustomBlock getCustomBlock(@NotNull Location location, Object... data);
-
     /**
-     * Gets the custom block associated with the given interaction entity.
+     * Gets the custom block associated with the specified entity.
      *
-     * @param interaction the interaction entity.
+     * @param entity the entity to check for a custom block.
      * @param data additional data for the search.
      * @return the {@link CustomBlock} if found, otherwise null.
      */
     @Nullable
-    CustomBlock getCustomBlock(@NotNull Interaction interaction, Object... data);
-
-    /**
-     * Gets the custom block associated with the given display entity.
-     *
-     * @param display the display entity.
-     * @param data additional data for the search.
-     * @return the {@link CustomBlock} if found, otherwise null.
-     */
-    @Nullable
-    CustomBlock getCustomBlock(@NotNull Display display, Object... data);
-
-    /**
-     * Gets the custom block associated with the given shulker entity (collision).
-     *
-     * @param collision the shulker entity.
-     * @param data additional data for the search.
-     * @return the {@link CustomBlock} if found, otherwise null.
-     */
-    @Nullable
-    CustomBlock getCustomBlock(@NotNull Shulker collision, Object... data);
+    CustomBlock getCustomBlock(@NotNull Entity entity, Object... data);
 
     /**
      * Places a custom block at the specified location.

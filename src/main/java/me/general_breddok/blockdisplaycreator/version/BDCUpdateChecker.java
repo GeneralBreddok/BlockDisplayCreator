@@ -18,20 +18,20 @@ import java.util.function.Consumer;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class UpdateChecker {
+public class BDCUpdateChecker {
     JavaPlugin plugin;
     int resourceId;
     String pluginVersion;
     @NonFinal
     String lastVersion;
 
-    public UpdateChecker(JavaPlugin plugin, int resourceId) {
+    public BDCUpdateChecker(JavaPlugin plugin, int resourceId) {
         this.plugin = plugin;
         this.resourceId = resourceId;
         this.pluginVersion = plugin.getDescription().getVersion();
     }
 
-    public void updateLastVersion(@NotNull Consumer<UpdateChecker> onComplete) {
+    public void updateLastVersion(@NotNull Consumer<BDCUpdateChecker> onComplete) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             try (InputStream is = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId + "/~").openStream(); Scanner scann = new Scanner(is)) {
                 if (scann.hasNext()) {

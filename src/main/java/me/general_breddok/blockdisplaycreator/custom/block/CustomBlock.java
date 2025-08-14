@@ -8,6 +8,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+
+/**
+ * Represents a custom block in the Block Display Creator plugin.
+ * This interface extends {@link AbstractCustomBlock} and provides methods to manage the properties of a custom block.
+ */
 public interface CustomBlock extends AbstractCustomBlock {
 
     Location getLocation();

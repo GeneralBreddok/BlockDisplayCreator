@@ -1,8 +1,11 @@
 package me.general_breddok.blockdisplaycreator;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandAPIBukkit;
 import dev.jorel.commandapi.CommandAPIBukkitConfig;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +31,7 @@ import me.general_breddok.blockdisplaycreator.listener.block.piston.BlockPistonE
 import me.general_breddok.blockdisplaycreator.listener.block.piston.BlockPistonRetractListener;
 import me.general_breddok.blockdisplaycreator.listener.entity.EntityDamageByEntityListener;
 import me.general_breddok.blockdisplaycreator.listener.entity.EntityExplodeListener;
+import me.general_breddok.blockdisplaycreator.listener.packet.PacketReceiveListener;
 import me.general_breddok.blockdisplaycreator.listener.player.PlayerInteractEntityListener;
 import me.general_breddok.blockdisplaycreator.listener.player.PlayerInteractListener;
 import me.general_breddok.blockdisplaycreator.metrics.BlockDisplayCreatorMetrics;
@@ -36,7 +40,7 @@ import me.general_breddok.blockdisplaycreator.service.CustomBlockServiceManager;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.sound.SimplePlayableSound;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.version.UpdateChecker;
+import me.general_breddok.blockdisplaycreator.version.BDCUpdateChecker;
 import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
 import org.bukkit.Bukkit;
@@ -56,6 +60,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
     private static Plugin worldGuard;
     @Getter
     private static Plugin placeholderApi;
+    @Getter
+    private static Plugin packetEvents;
 
     ServiceManager<String, CustomBlockService> servicesManager;
     CustomBlockService customBlockService;
@@ -74,6 +80,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
     @Override
     public void onLoad() {
+        loadSoftdependPlugins();
+
         this.versionManager = new VersionManager(this.getServer());
 
         if (!this.versionManager.isVersion1_19_4()) {
@@ -83,17 +91,30 @@ public final class BlockDisplayCreator extends JavaPlugin {
             ChatUtil.log("&6[BlockDisplayCreator] &eCommandAPI is not supported on Minecraft 1.19.4 and below, using legacy commands.");
         }
 
-        this.worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
-        this.placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        if (packetEvents != null) {
+            PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+            PacketEvents.getAPI().load();
 
-        if (this.worldGuard != null) {
+            PacketEvents.getAPI().getEventManager().registerListener(PacketReceiveListener.get(), PacketListenerPriority.NORMAL);
+        }
+
+        if (worldGuard != null) {
             BDCRegionFlags regionFlags = new BDCRegionFlags();
             regionFlags.registerFlags();
         }
     }
 
+    private static void loadSoftdependPlugins() {
+        worldGuard = Bukkit.getPluginManager().getPlugin("WorldGuard");
+        placeholderApi = Bukkit.getPluginManager().getPlugin("PlaceholderAPI");
+        packetEvents = Bukkit.getPluginManager().getPlugin("PacketEvents");
+    }
+
     @Override
     public void onEnable() {
+        if (packetEvents != null) {
+            PacketEvents.getAPI().init();
+        }
         this.instance = this;
 
         this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage(this));
@@ -152,7 +173,6 @@ public final class BlockDisplayCreator extends JavaPlugin {
         pluginManager.registerEvents(new BlockPistonExtendListener(), this);
         pluginManager.registerEvents(new BlockPistonRetractListener(), this);
         //pluginManager.registerEvents(new PrepareItemCraftListener(), this);
-
     }
 
 
@@ -199,8 +219,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
     }
 
     public void checkForUpdates() {
-        UpdateChecker updateChecker = new UpdateChecker(this, 114877);
-        updateChecker.updateLastVersion(UpdateChecker::sendNewUpdateMessage);
+        BDCUpdateChecker updateChecker = new BDCUpdateChecker(this, 114877);
+        updateChecker.updateLastVersion(BDCUpdateChecker::sendNewUpdateMessage);
     }
 
 
@@ -208,6 +228,9 @@ public final class BlockDisplayCreator extends JavaPlugin {
     public void onDisable() {
         if (this.capi) {
             CommandAPI.onDisable();
+        }
+        if (packetEvents != null) {
+            PacketEvents.getAPI().terminate();
         }
     }
 }

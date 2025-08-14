@@ -1,10 +1,13 @@
 package me.general_breddok.blockdisplaycreator.util;
 
+import com.github.retrooper.packetevents.util.Vector3f;
+import com.github.retrooper.packetevents.util.Vector3i;
 import lombok.experimental.UtilityClass;
 import me.general_breddok.blockdisplaycreator.annotation.EmptyCollection;
 import org.bukkit.Axis;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
@@ -74,7 +77,12 @@ public class LocationUtil {
         return !getEntities(location, entity -> entity.getType().equals(entityType)).isEmpty();
     }
 
-    public static void asyncTeleport(final Entity entity, final Location location, Plugin plugin) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> entity.teleport(location));
+
+    public Location toLocation(@NotNull Vector3i vector3i, @Nullable World world) {
+        return new Location(world, vector3i.getX(), vector3i.getY(), vector3i.getZ());
+    }
+
+    public Vector toVector(@NotNull Vector3i vector3i) {
+        return new Vector(vector3i.getX(), vector3i.getY(), vector3i.getZ());
     }
 }

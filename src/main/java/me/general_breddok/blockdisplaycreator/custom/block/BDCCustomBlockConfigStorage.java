@@ -49,15 +49,17 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
                 }
             }
 
-            BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
-            if (bdcCommand != null) {
-                bdcCommand.reloadSuggestions();
-            }
+
             ChatUtil.log("&6[BlockDisplayCreator] &eInitialization complete, %d blocks initialized", tempAbstractCustomBlocks.size());
 
             Bukkit.getScheduler().runTask(this.plugin, () -> {
                 this.customBlockRepository = tempCustomBlockRepository;
                 this.abstractCustomBlocks = tempAbstractCustomBlocks;
+
+                BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
+                if (bdcCommand != null) {
+                    bdcCommand.reloadSuggestions();
+                }
 
                 if (onComplete != null) {
                     onComplete.run();

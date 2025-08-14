@@ -162,45 +162,13 @@ public class BDCCustomBlockService implements CustomBlockService {
      */
     @Override
     @Nullable
-    public CustomBlock getCustomBlock(@NotNull Interaction interaction, Object... data) {
-        PersistentDataContainer interactionPDC = interaction.getPersistentDataContainer();
+    public CustomBlock getCustomBlock(@NotNull Entity entity, Object... data) {
+        PersistentDataContainer interactionPDC = entity.getPersistentDataContainer();
         if (!interactionPDC.has(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION)) {
             return null;
         }
 
         Location blockLocation = interactionPDC.get(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION);
-
-        return getCustomBlock(blockLocation);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Nullable
-    public CustomBlock getCustomBlock(@NotNull Display display, Object... data) {
-        PersistentDataContainer interactionPDC = display.getPersistentDataContainer();
-        if (!interactionPDC.has(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION)) {
-            return null;
-        }
-
-        Location blockLocation = interactionPDC.get(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION);
-
-        return getCustomBlock(blockLocation);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    @Nullable
-    public CustomBlock getCustomBlock(@NotNull Shulker collision, Object... data) {
-        PersistentDataContainer collisionPDC = collision.getPersistentDataContainer();
-        if (!collisionPDC.has(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION)) {
-            return null;
-        }
-
-        Location blockLocation = collisionPDC.get(CustomBlockKey.LOCATION, PersistentDataTypes.LOCATION);
 
         return getCustomBlock(blockLocation);
     }

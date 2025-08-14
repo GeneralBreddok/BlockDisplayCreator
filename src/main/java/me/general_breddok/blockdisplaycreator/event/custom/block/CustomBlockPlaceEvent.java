@@ -13,7 +13,6 @@ import org.jetbrains.annotations.Nullable;
  * This class represents a custom event that is fired when a player places a custom block.
  * It extends {@link CustomBlockPlayerEvent} and implements {@link Cancellable}.
  */
-
 public class CustomBlockPlaceEvent extends CustomBlockPlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
     @Getter
