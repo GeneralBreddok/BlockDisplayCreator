@@ -26,7 +26,7 @@ import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadExce
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplay;
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplayObject;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
-import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
+import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.version.MinecraftVersion;
@@ -597,8 +597,8 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
     }
 
     public CustomBlockSoundGroup getCustomBlockSoundGroup() {
-        ConfigurableSound placeSound;
-        ConfigurableSound breakSound;
+        PlayableSound placeSound;
+        PlayableSound breakSound;
 
         try {
             placeSound = file.get(ParameterLocators.Sound.PLACE_SOUND);
@@ -694,8 +694,8 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         @UtilityClass
         class Sound {
             String SOUND_PATH = "sound";
-            ConfigLocator<ConfigurableSound> BREAK_SOUND = new ConfigLocator<>(SOUND_PATH + ".break", TypeTokens.PLAYABLE_SOUND);
-            ConfigLocator<ConfigurableSound> PLACE_SOUND = new ConfigLocator<>(SOUND_PATH + ".place", TypeTokens.PLAYABLE_SOUND);
+            ConfigLocator<PlayableSound> BREAK_SOUND = new ConfigLocator<>(SOUND_PATH + ".break", TypeTokens.PLAYABLE_SOUND);
+            ConfigLocator<PlayableSound> PLACE_SOUND = new ConfigLocator<>(SOUND_PATH + ".place", TypeTokens.PLAYABLE_SOUND);
         }
 
         @UtilityClass

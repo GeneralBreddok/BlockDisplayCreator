@@ -29,7 +29,7 @@ import java.util.function.Predicate;
 @Getter
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class SimplePlayableSound implements ConfigurationSerializable, ConfigurableSound {
+public class SimplePlayableSound implements ConfigurationSerializable, PlayableSound {
 
     /**
      * The type of sound to be played.

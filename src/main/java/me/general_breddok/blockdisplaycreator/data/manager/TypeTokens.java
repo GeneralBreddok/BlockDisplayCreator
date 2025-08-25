@@ -5,7 +5,7 @@ import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
-import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
+import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
 import org.bukkit.*;
 import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.enchantments.Enchantment;
@@ -66,7 +66,7 @@ public interface TypeTokens {
     TypeToken<ItemFlag> ITEM_FLAG = TypeToken.of(ItemFlag.class);
     TypeToken<Sound> SOUND = TypeToken.of(Sound.class);
     TypeToken<CommandBundle.CommandSource> COMMAND_SOURCE = TypeToken.of(CommandBundle.CommandSource.class);
-    TypeToken<ConfigurableSound> PLAYABLE_SOUND = TypeToken.of(ConfigurableSound.class);
+    TypeToken<PlayableSound> PLAYABLE_SOUND = TypeToken.of(PlayableSound.class);
     TypeToken<java.util.UUID> UUID = TypeToken.of(UUID.class);
     TypeToken<PersistentDataContainer> PERSISTENT_DATA_CONTAINER = TypeToken.of(PersistentDataContainer.class);
     TypeToken<PersistentDataContainer[]> PERSISTENT_DATA_CONTAINER_ARRAY = TypeToken.of(PersistentDataContainer[].class);

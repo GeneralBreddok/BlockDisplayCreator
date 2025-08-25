@@ -137,7 +137,6 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                 ChatUtil.sendMessage(sender, "&cYou didn't specify the block recipients!");
                                 return true;
                             } else {
-                                ChatUtil.log(Base64.getUrlEncoder().encodeToString(player.getPlayerProfile().getTextures().getSkin().toString().getBytes(StandardCharsets.UTF_8)));
                                 ItemUtil.distributeItem(player, customBlockItem);
                                 ChatUtil.sendMessage(sender, "&bYou have received the &l%s&ox%s&r&b block", arg3, amount);
                             }

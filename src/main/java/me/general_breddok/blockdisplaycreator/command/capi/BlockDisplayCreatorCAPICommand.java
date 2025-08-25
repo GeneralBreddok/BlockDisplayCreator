@@ -229,7 +229,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                         try {
                                                                                                                                             attachedFace = BlockFace.valueOf(attachedFaceStr.toUpperCase());
-                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                        } catch (
+                                                                                                                                                IllegalArgumentException e) {
                                                                                                                                             ChatUtil.sendMessage(sender, "&cInvalid attached face: %s. Valid values are: north, south, east, west, up, down", attachedFaceStr);
                                                                                                                                             return;
                                                                                                                                         }
@@ -241,7 +242,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                         CustomBlock customBlock;
                                                                                                                                         try {
                                                                                                                                             customBlock = this.plugin.getCustomBlockService().placeBlock(abstractCustomBlock, location.clone().add(0.5, 0, 0.5), rotation, null, options.toArray(CustomBlockPlaceOption[]::new));
-                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                        } catch (
+                                                                                                                                                IllegalArgumentException e) {
                                                                                                                                             ChatUtil.sendMessage(sender, "&cFailed to place the block %s: %s", block, e.getMessage());
                                                                                                                                             return;
                                                                                                                                         }
@@ -887,14 +889,29 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         new LiteralArgument("sound-type")
                                                                                                                 .then(
                                                                                                                         new StringArgument("sound-name")
-                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
-                                                                                                                                        VersionCompat.getSoundNames().stream().map(String::toLowerCase).toList()
-                                                                                                                                )).executes((sender, args) -> {
+                                                                                                                                .replaceSuggestions((info, builder) -> {
+                                                                                                                                    String remaining = builder.getRemainingLowerCase();
+
+                                                                                                                                    VersionCompat.getSoundNames().forEach(soundName -> {
+                                                                                                                                        String soundNameLowerCase = soundName.toLowerCase();
+
+                                                                                                                                        if (soundNameLowerCase.contains(remaining)) {
+                                                                                                                                            builder.suggest(soundNameLowerCase);
+                                                                                                                                        }
+                                                                                                                                    });
+                                                                                                                                    return builder.buildFuture();
+                                                                                                                                }).executes((sender, args) -> {
                                                                                                                                             String block = (String) args.get("block");
                                                                                                                                             String soundName = (String) args.get("sound-name");
 
                                                                                                                                             if (!VersionCompat.getSoundNames().contains(soundName.toUpperCase())) {
                                                                                                                                                 throw CommandAPI.failWithString("Invalid sound type: " + soundName);
+                                                                                                                                            }
+
+                                                                                                                                            if (sender instanceof Player player) {
+                                                                                                                                                Sound sound = Sound.valueOf(soundName.toUpperCase());
+
+                                                                                                                                                player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
                                                                                                                                             }
 
                                                                                                                                             setCBConfigValue(block, "sound." + args.get("stage") + ".sound-type", soundName, sender);
@@ -924,16 +941,44 @@ public class BlockDisplayCreatorCAPICommand {
 
     public ArgumentSuggestions<CommandSender> getCustomBlockSuggestions() {
         return (info, builder) -> {
-            String remaining = builder.getRemainingLowerCase();
-            this.abstractCustomBlockTooltips.forEach(tooltip -> {
+            String remaining = normalizeRemaining(builder.getRemainingLowerCase());
+
+            for (var tooltip : this.abstractCustomBlockTooltips) {
                 String name = tooltip.getAbstractCustomBlock().getName();
 
-                if (name.toLowerCase().startsWith(remaining)) {
-                    builder.suggest(tooltip.getSuggestion(), tooltip.getTooltip());
+                if (name.toLowerCase(Locale.ROOT).startsWith(remaining)) {
+                    String suggestion = tooltip.getSuggestion();
+
+                    if (!isValidStringArgument(suggestion)) {
+                        suggestion = "\"" + suggestion + "\"";
+                    }
+
+                    builder.suggest(suggestion, tooltip.getTooltip());
                 }
-            });
+            }
+
             return builder.buildFuture();
         };
+    }
+
+    private static String normalizeRemaining(String remaining) {
+        if (remaining == null || remaining.isEmpty()) {
+            return "";
+        }
+
+        if (remaining.startsWith("\"")) {
+            remaining = remaining.substring(1);
+        }
+
+        if (remaining.endsWith("\"") && remaining.length() > 1) {
+            remaining = remaining.substring(0, remaining.length() - 1);
+        }
+
+        return remaining;
+    }
+
+    public static boolean isValidStringArgument(String input) {
+        return input != null && !input.isEmpty() && input.matches("[A-Za-z0-9_+\\-.]+");
     }
 
     public ArgumentSuggestions<CommandSender> getInteractionSuggestions() {

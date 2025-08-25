@@ -1,6 +1,7 @@
 package me.general_breddok.blockdisplaycreator.sound;
 
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +17,26 @@ import java.util.function.Predicate;
  * for a list of entities, or for entities in a world filtered by a predicate.
  */
 public interface PlayableSound {
+    /**
+     * Retrieves the type of sound to be played.
+     *
+     * @return the {@link Sound} type
+     */
+    Sound getSoundType();
 
+    /**
+     * Retrieves the volume of the sound.
+     *
+     * @return the volume as a float
+     */
+    float getVolume();
+
+    /**
+     * Retrieves the pitch of the sound.
+     *
+     * @return the pitch as a float
+     */
+    float getPitch();
     /**
      * Plays the sound at the specified location.
      *

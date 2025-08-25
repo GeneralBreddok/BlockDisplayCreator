@@ -1,6 +1,5 @@
 package me.general_breddok.blockdisplaycreator.data.manager;
 
-import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
@@ -10,11 +9,9 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.data.exception.IllegalEnumNameException;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
-import me.general_breddok.blockdisplaycreator.sound.ConfigurableSound;
+import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
 import me.general_breddok.blockdisplaycreator.sound.SimplePlayableSound;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
-import me.general_breddok.blockdisplaycreator.version.VersionCompat;
-import me.general_breddok.blockdisplaycreator.version.VersionManager;
 import org.bukkit.*;
 import org.bukkit.block.BlockFace;
 import org.bukkit.configuration.MemorySection;
@@ -252,9 +249,9 @@ public interface PersistentDataTypes {
             (primitive, context) -> ItemUtil.itemFromBase64(primitive)
     );
 
-    PersistentDataType<MemorySection, ConfigurableSound> PLAYABLE_SOUND = PersistentDataTypeStore.newPersistentDataType(
+    PersistentDataType<MemorySection, PlayableSound> PLAYABLE_SOUND = PersistentDataTypeStore.newPersistentDataType(
             MemorySection.class,
-            ConfigurableSound.class,
+            PlayableSound.class,
             (complex, context) -> {
                 YamlConfiguration serialized = new YamlConfiguration();
                 serialized.set("sound-type", complex.getSoundType());
