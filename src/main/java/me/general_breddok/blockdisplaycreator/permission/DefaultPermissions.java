@@ -4,6 +4,7 @@ public interface DefaultPermissions {
     interface BDC {
 
         String WG_BYPASS = "bdc.bypass.wg";
+        String QUICKSELECT_CREATIVE = "bdc.quickselect.creative";
 
         interface CustomBlock {
             String BLOCKS_DESTRUCTION = "blockdisplaycreator.blocks-destruction";
@@ -12,67 +13,70 @@ public interface DefaultPermissions {
         }
 
         interface Command {
-            String CUSTOM_BLOCK = "bdc.command.custom-block";
-            String KILL_CB_ENTITIES = "bdc.command.killcbentities";
+            String BASE = "bdc.command";
+            String ERASE_CB_DATA = "bdc.command.erasecbdata";
             String RELOAD = "bdc.command.reload";
+            String CUSTOM_BLOCK = "bdc.command.custom-block";
+            String GIVE_CB = "bdc.command.custom-block.give";
+            String BREAK_CB = "bdc.command.custom-block.break";
+            String PLACE_CB = "bdc.command.custom-block.place";
+            String EDITFILE_CB = "bdc.command.custom-block.editfile";
         }
     }
 
     interface Vanilla {
-        String MINECRAFT = "minecraft";
         interface Command {
-            String COMMAND = ".command";
-            String SUMMON = MINECRAFT + COMMAND + ".summon";
-            String FUNCTION = MINECRAFT + COMMAND + ".function";
-            String PLAYSOUND = MINECRAFT + COMMAND + ".playsound";
-            String BAN = MINECRAFT + COMMAND + ".ban";
-            String BAN_IP = MINECRAFT + COMMAND + ".ban-ip";
-            String BANLIST = MINECRAFT + COMMAND + ".banlist";
-            String DATA = MINECRAFT + COMMAND + ".data";
-            String DATAPACK = MINECRAFT + COMMAND + ".datapack";
-            String DEBUG = MINECRAFT + COMMAND + ".debug";
-            String DIFFICULTY = MINECRAFT + COMMAND + ".difficulty";
-            String CLEAR = MINECRAFT + COMMAND + ".clear";
-            String CLONE = MINECRAFT + COMMAND + ".clone";
-            String DEFAULTGAMEMODE = MINECRAFT + COMMAND + ".defaultgamemode";
-            String DEOP = MINECRAFT + COMMAND + ".deop";
-            String EFFECT = MINECRAFT + COMMAND + ".effect";
-            String ENCHANT = MINECRAFT + COMMAND + ".enchant";
-            String EXECUTE = MINECRAFT + COMMAND + ".execute";
-            String FILL = MINECRAFT + COMMAND + ".fill";
-            String GAMEMODE = MINECRAFT + COMMAND + ".gamemode";
-            String GAMERULE = MINECRAFT + COMMAND + ".gamerule";
-            String GIVE = MINECRAFT + COMMAND + ".give";
-            String HELP = MINECRAFT + COMMAND + ".help";
-            String KICK = MINECRAFT + COMMAND + ".kick";
-            String KILL = MINECRAFT + COMMAND + ".kill";
-            String LIST = MINECRAFT + COMMAND + ".list";
-            String LOCATE = MINECRAFT + COMMAND + ".locate";
-            String ME = MINECRAFT + COMMAND + ".me";
-            String MSG = MINECRAFT + COMMAND + ".msg";
-            String OP = MINECRAFT + COMMAND + ".op";
-            String PARDON = MINECRAFT + COMMAND + ".pardon";
-            String PARDON_IP = MINECRAFT + COMMAND + ".pardon-ip";
-            String PARTICLE = MINECRAFT + COMMAND + ".particle";
-            String RELOAD = MINECRAFT + COMMAND + ".reload";
-            String SAY = MINECRAFT + COMMAND + ".say";
-            String SCOREBOARD = MINECRAFT + COMMAND + ".scoreboard";
-            String SEED = MINECRAFT + COMMAND + ".seed";
-            String SETBLOCK = MINECRAFT + COMMAND + ".setblock";
-            String SETWORLDSPAWN = MINECRAFT + COMMAND + ".setworldspawn";
-            String SPAWNPOINT = MINECRAFT + COMMAND + ".spawnpoint";
-            String SPREADPLAYERS = MINECRAFT + COMMAND + ".spreadplayers";
-            String STOP = MINECRAFT + COMMAND + ".stop";
-            String TAG = MINECRAFT + COMMAND + ".tag";
-            String TELEPORT = MINECRAFT + COMMAND + ".teleport";
-            String TELLRAW = MINECRAFT + COMMAND + ".tellraw";
-            String TIME = MINECRAFT + COMMAND + ".time";
-            String TITLE = MINECRAFT + COMMAND + ".title";
-            String TOGGLEDOWNFALL = MINECRAFT + COMMAND + ".toggledownfall";
-            String WEATHER = MINECRAFT + COMMAND + ".weather";
-            String WHITELIST = MINECRAFT + COMMAND + ".whitelist";
-            String WORLDBORDER = MINECRAFT + COMMAND + ".worldborder";
-            String XP = MINECRAFT + COMMAND + ".xp";
+            String SUMMON = "minecraft.command.summon";
+            String FUNCTION = "minecraft.command.function";
+            String PLAYSOUND = "minecraft.command.playsound";
+            String BAN = "minecraft.command.ban";
+            String BAN_IP = "minecraft.command.ban-ip";
+            String BANLIST = "minecraft.command.banlist";
+            String DATA = "minecraft.command.data";
+            String DATAPACK = "minecraft.command.datapack";
+            String DEBUG = "minecraft.command.debug";
+            String DIFFICULTY = "minecraft.command.difficulty";
+            String CLEAR = "minecraft.command.clear";
+            String CLONE = "minecraft.command.clone";
+            String DEFAULTGAMEMODE = "minecraft.command.defaultgamemode";
+            String DEOP = "minecraft.command.deop";
+            String EFFECT = "minecraft.command.effect";
+            String ENCHANT = "minecraft.command.enchant";
+            String EXECUTE = "minecraft.command.execute";
+            String FILL = "minecraft.command.fill";
+            String GAMEMODE = "minecraft.command.gamemode";
+            String GAMERULE = "minecraft.command.gamerule";
+            String GIVE = "minecraft.command.give";
+            String HELP = "minecraft.command.help";
+            String KICK = "minecraft.command.kick";
+            String KILL = "minecraft.command.kill";
+            String LIST = "minecraft.command.list";
+            String LOCATE = "minecraft.command.locate";
+            String ME = "minecraft.command.me";
+            String MSG = "minecraft.command.msg";
+            String OP = "minecraft.command.op";
+            String PARDON = "minecraft.command.pardon";
+            String PARDON_IP = "minecraft.command.pardon-ip";
+            String PARTICLE = "minecraft.command.particle";
+            String RELOAD = "minecraft.command.reload";
+            String SAY = "minecraft.command.say";
+            String SCOREBOARD = "minecraft.command.scoreboard";
+            String SEED = "minecraft.command.seed";
+            String SETBLOCK = "minecraft.command.setblock";
+            String SETWORLDSPAWN = "minecraft.command.setworldspawn";
+            String SPAWNPOINT = "minecraft.command.spawnpoint";
+            String SPREADPLAYERS = "minecraft.command.spreadplayers";
+            String STOP = "minecraft.command.stop";
+            String TAG = "minecraft.command.tag";
+            String TELEPORT = "minecraft.command.teleport";
+            String TELLRAW = "minecraft.command.tellraw";
+            String TIME = "minecraft.command.time";
+            String TITLE = "minecraft.command.title";
+            String TOGGLEDOWNFALL = "minecraft.command.toggledownfall";
+            String WEATHER = "minecraft.command.weather";
+            String WHITELIST = "minecraft.command.whitelist";
+            String WORLDBORDER = "minecraft.command.worldborder";
+            String XP = "minecraft.command.xp";
         }
     }
 }

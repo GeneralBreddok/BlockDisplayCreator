@@ -11,6 +11,7 @@ import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
+import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.util.EntityUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.util.LocationUtil;
@@ -36,7 +37,6 @@ public final class PacketReceiveListener {
                 PacketTypeCommon packetType = event.getPacketType();
 
                 CustomBlockService customBlockService = BlockDisplayCreator.getInstance().getCustomBlockService();
-
 
                 if (packetType == PacketType.Play.Client.PICK_ITEM_FROM_ENTITY) {
 
@@ -95,6 +95,6 @@ public final class PacketReceiveListener {
             String name = CustomBlockKey.holder(meta).getName();
 
             return name != null && name.equals(block.getName());
-        }, blockItem);
+        }, blockItem, DefaultPermissions.BDC.QUICKSELECT_CREATIVE);
     }
 }

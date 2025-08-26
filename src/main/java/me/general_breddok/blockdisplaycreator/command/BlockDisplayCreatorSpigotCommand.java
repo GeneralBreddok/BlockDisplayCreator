@@ -12,30 +12,22 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
-import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
-import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFileRepository;
-import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockRepository;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabExecutor;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.StringUtil;
 
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 
@@ -56,6 +48,11 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+
+        /*if (!sender.hasPermission(DefaultPermissions.BDC.Command.BASE)) {
+            ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
+            return true;
+        }*/
 
         String arg1 = null;
         String arg2 = null;
@@ -89,10 +86,10 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
         switch (arg1) {
             case "custom-block" -> {
 
-                if (!sender.hasPermission("bdc.command.custom-block")) {
+                /*if (!sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)) {
                     ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
                     return true;
-                }
+                }*/
 
                 if (arg2 == null) {
                     return false;
@@ -101,6 +98,12 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 switch (arg2) {
 
                     case "give" -> {
+
+                        if (!sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)) {
+                            ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
+                            return true;
+                        }
+
                         if (arg3 == null) {
                             ChatUtil.sendMessage(sender, "&cYou didn't specify a block!");
                             return true;
@@ -443,9 +446,9 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                     }
                 }
             }
-            case "killcbentities" -> {
+            case "erasecbdata" -> {
 
-                if (!sender.hasPermission(DefaultPermissions.BDC.Command.KILL_CB_ENTITIES)) {
+                if (!sender.hasPermission(DefaultPermissions.BDC.Command.ERASE_CB_DATA)) {
                     ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
                     return true;
                 }
@@ -461,7 +464,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 }
 
                 try {
-                    killBlockEntities(new BoundingBox
+                    eraseCbData(new BoundingBox
                                     (
                                             Double.valueOf(arg2),
                                             Double.valueOf(arg3),
@@ -479,7 +482,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
             }
             case "reload" -> {
 
-                if (!sender.hasPermission("bdc.command.reload")) {
+                if (!sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)) {
                     ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
                     return true;
                 }
@@ -536,15 +539,15 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
             player = (Player) sender;
         }
 
-        String killcbentities = "killcbentities";
+        String erasecbdata = "erasecbdata";
         if (args.length == 1) {
             StringUtil.copyPartialMatches(arg1, List.of(
                     "custom-block",
-                    killcbentities,
+                    erasecbdata,
                     "reload"
             ), result);
         } else if (args.length == 2) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
                 if (player != null) {
                     int x = player.getLocation().getBlockX();
                     int y = player.getLocation().getBlockY();
@@ -561,7 +564,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 StringUtil.copyPartialMatches(arg2, blocksNames, result);
             }
         } else if (args.length == 3) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
 
                 if (player != null) {
                     int y = player.getLocation().getBlockY();
@@ -573,7 +576,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 StringUtil.copyPartialMatches(arg3, blocksNames, result);
             }
         } else if (args.length == 4) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
                 if (player != null) {
                     int z = player.getLocation().getBlockZ();
 
@@ -605,7 +608,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 StringUtil.copyPartialMatches(arg4, tabComplete, result);
             }
         } else if (args.length == 5) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
                 if (player != null) {
                     int x = player.getLocation().getBlockX();
                     int y = player.getLocation().getBlockY();
@@ -643,7 +646,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 ), result);
             }*/
         } else if (args.length == 6) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
                 if (player != null) {
                     int y = player.getLocation().getBlockY();
                     int z = player.getLocation().getBlockZ();
@@ -667,7 +670,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 StringUtil.copyPartialMatches(arg6, List.of("sound-type", "volume", "pitch"), result);
             }*/
         } else if (args.length == 7) {
-            if (arg1.equals(killcbentities)) {
+            if (arg1.equals(erasecbdata)) {
                 if (player != null) {
                     int z = player.getLocation().getBlockZ();
 
@@ -683,7 +686,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
     }
 
 
-    private void killBlockEntities(BoundingBox boundingBox, Player sender) {
+    private void eraseCbData(BoundingBox boundingBox, Player sender) {
         WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
 
         List<Entity> displayEntities = new ArrayList<>();

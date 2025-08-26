@@ -1,6 +1,7 @@
 package me.general_breddok.blockdisplaycreator.util;
 
 import lombok.experimental.UtilityClass;
+import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
@@ -10,6 +11,7 @@ import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 
 import java.io.ByteArrayInputStream;
@@ -61,9 +63,7 @@ public class ItemUtil {
         }
     }
 
-    public static boolean selectItem(Player player, Predicate<ItemStack> filter, ItemStack creativeItem) {
-        if (player == null || filter == null) return false;
-
+    public static boolean selectItem(@NotNull Player player, @NotNull Predicate<ItemStack> filter, @Nullable ItemStack creativeItem, @Nullable String creativeReceivePermission) {
         PlayerInventory inv = player.getInventory();
         int heldItemSlot = inv.getHeldItemSlot();
         ItemStack current = inv.getItem(heldItemSlot);
@@ -90,6 +90,10 @@ public class ItemUtil {
         }
 
         if (player.getGameMode() == GameMode.CREATIVE && creativeItem != null) {
+            if (creativeReceivePermission != null && !player.hasPermission(creativeReceivePermission)) {
+                return false;
+            }
+
             ItemStack heldItem = inv.getItem(heldItemSlot);
 
             if (heldItem == null || heldItem.getType() == Material.AIR) {
@@ -122,6 +126,6 @@ public class ItemUtil {
     }
 
     public static boolean selectItem(Player player, Material material) {
-        return selectItem(player, item -> item.getType() == material, new ItemStack(material));
+        return selectItem(player, item -> item.getType() == material, new ItemStack(material), null);
     }
 }

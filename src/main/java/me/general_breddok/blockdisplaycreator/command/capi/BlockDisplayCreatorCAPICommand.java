@@ -65,12 +65,23 @@ public class BlockDisplayCreatorCAPICommand {
     public void register() {
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
+                .withRequirement(sender ->
+                        sender.hasPermission(DefaultPermissions.BDC.Command.BASE)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.ERASE_CB_DATA)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.BREAK_CB)
+                                || sender.hasPermission(DefaultPermissions.BDC.Command.EDITFILE_CB))
+
+
                 .withShortDescription("Basic BlockDisplayCreator commands")
                 .withFullDescription("BlockDisplayCreator commands for managing custom blocks and their configurations.")
                 .withUsage(
-                        "/bdc custom-block {give|editfile} <block> ...",
+                        "/bdc custom-block {give|editfile|place|break} <block> ...",
                         "/bdc reload [block]",
-                        "/bdc killcbentities <position1> <position2>"
+                        "/bdc erasecbdata <position1> <position2>"
                 )
                 .then(
                         new LiteralArgument("reload")
@@ -99,8 +110,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                 })
                                 )
                 ).then(
-                        new LiteralArgument("killcbentities")
-                                .withPermission(DefaultPermissions.BDC.Command.KILL_CB_ENTITIES)
+                        new LiteralArgument("erasecbdata")
+                                .withPermission(DefaultPermissions.BDC.Command.ERASE_CB_DATA)
                                 .withRequirement(Player.class::isInstance)
                                 .then(
                                         new LocationArgument("position1", LocationType.PRECISE_POSITION, false)
@@ -110,15 +121,21 @@ public class BlockDisplayCreatorCAPICommand {
                                                                     Location position1 = (Location) args.get("position1");
                                                                     Location position2 = (Location) args.get("position2");
 
-                                                                    killBlockEntities(BoundingBox.of(position1, position2), sender);
+                                                                    eraseCbData(BoundingBox.of(position1, position2), sender);
                                                                 })
                                                 )
                                 )
                 ).then(
                         new LiteralArgument("custom-block")
-                                .withPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
+                                .withRequirement(sender ->
+                                        sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
+                                                || sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
+                                                || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
+                                                || sender.hasPermission(DefaultPermissions.BDC.Command.BREAK_CB)
+                                                || sender.hasPermission(DefaultPermissions.BDC.Command.EDITFILE_CB))
                                 .then(
                                         new LiteralArgument("give")
+                                                .withPermission(DefaultPermissions.BDC.Command.GIVE_CB)
                                                 .then(
                                                         new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
@@ -153,7 +170,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                             applyPlaceholdersForCommand(abstractCustomBlock, item, player);
 
                                                                                                             ItemUtil.distributeItem(player, item);
-                                                                                                            ChatUtil.sendMessage(player, "&bYou have received the &l%s&ox%s&r&b block", block, amount);
+                                                                                                            ChatUtil.sendMessage(player, "&aYou have received the &b%s&ox&b%s&a block", block, amount);
                                                                                                         } else {
                                                                                                             throw CommandAPI.failWithString("You have not specified the block receiver!");
                                                                                                         }
@@ -163,14 +180,14 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                             applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
 
                                                                                                             ItemUtil.distributeItem(receiver, item);
-                                                                                                            ChatUtil.sendMessage(receiver, "&bYou have received the &l%s&ox%s&r&b block", block, amount);
+                                                                                                            ChatUtil.sendMessage(receiver, "&aYou have received the &b%s&ox&b%s&a block", block, amount);
                                                                                                         }
 
                                                                                                         if (receivers.size() == 1) {
                                                                                                             Player receiver = receivers.stream().findFirst().get();
-                                                                                                            ChatUtil.sendMessage(sender, "&bBlock &l%s&ox%s&r&b was successfully given to the player &l%s!", block, amount, receiver.getName());
+                                                                                                            ChatUtil.sendMessage(sender, "&aBlock &b%s&ox&b%s&a was successfully given to the player &b%s!", block, amount, receiver.getName());
                                                                                                         } else {
-                                                                                                            ChatUtil.sendMessage(sender, "&bBlock &l%s&ox%s&r&b was successfully given!", block, amount);
+                                                                                                            ChatUtil.sendMessage(sender, "&aBlock &b%s&ox&b%s&a was successfully given!", block, amount);
                                                                                                         }
                                                                                                     }
 
@@ -180,6 +197,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                 )
                                 ).then(
                                         new LiteralArgument("place")
+                                                .withPermission(DefaultPermissions.BDC.Command.PLACE_CB)
                                                 .then(
                                                         new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
@@ -263,6 +281,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                 )
                                 ).then(
                                         new LiteralArgument("break")
+                                                .withPermission(DefaultPermissions.BDC.Command.BREAK_CB)
                                                 .then(
                                                         new LocationArgument("location")
                                                                 .replaceSuggestions((info, builder) -> {
@@ -315,7 +334,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                 CustomBlock customBlock = this.plugin.getCustomBlockService().getCustomBlock(location);
 
                                                                                                 if (customBlock == null) {
-                                                                                                    ChatUtil.sendMessage(sender, "&cNo custom block found at %s", location);
+                                                                                                    ChatUtil.sendMessage(sender, "&cNo custom block found at &4" + location.getX() + ", " + location.getY() + ", " + location.getZ() + " &cin world &4" + location.getWorld().getName());
                                                                                                     return;
                                                                                                 }
 
@@ -326,7 +345,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                     return;
                                                                                                 }
 
-                                                                                                ChatUtil.sendMessage(sender, "&aSuccessfully broke the block at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + " &a!");
+                                                                                                ChatUtil.sendMessage(sender, "&aSuccessfully broke the block at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + "&a!");
                                                                                             });
                                                                                         }
                                                                                 )
@@ -334,6 +353,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                 )
                                 ).then(
                                         new LiteralArgument("editfile")
+                                                .withPermission(DefaultPermissions.BDC.Command.EDITFILE_CB)
                                                 .then(
                                                         new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
@@ -356,7 +376,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         throw CommandAPI.failWithString("Invalid material: " + material);
                                                                                                     }
 
-                                                                                                    setCBConfigValue(block, "central-material", material, sender);
+                                                                                                    setCbConfigValue(block, "central-material", material, sender);
                                                                                                 })
                                                                                 )
                                                                 ).then(
@@ -367,7 +387,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                     String block = (String) args.get("block");
                                                                                                     int sidesCount = (int) args.get("count");
 
-                                                                                                    setCBConfigValue(block, "sides-count", sidesCount, sender);
+                                                                                                    setCbConfigValue(block, "sides-count", sidesCount, sender);
                                                                                                 })
                                                                                 )
                                                                 ).then(
@@ -383,7 +403,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         throw CommandAPI.failWithString("Invalid save system type: " + saveSystemType);
                                                                                                     }
 
-                                                                                                    setCBConfigValue(block, "save-system", saveSystemType, sender);
+                                                                                                    setCbConfigValue(block, "save-system", saveSystemType, sender);
                                                                                                 })
                                                                                 )
                                                                 ).then(
@@ -402,7 +422,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         value = NumberUtil.parseNumber(commandLine);
                                                                                                                     }
 
-                                                                                                                    setCBConfigValue(block, "display." + commandType, List.of(value), sender);
+                                                                                                                    setCbConfigValue(block, "display." + commandType, List.of(value), sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -413,7 +433,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     boolean glowing = (boolean) args.get("glowing-value");
 
-                                                                                                                    setCBConfigValue(block, "display.glowing", glowing, sender);
+                                                                                                                    setCbConfigValue(block, "display.glowing", glowing, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -427,7 +447,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     String color = (String) args.get("color");
 
-                                                                                                                    setCBConfigValue(block, "display.glow-color-override", color, sender);
+                                                                                                                    setCbConfigValue(block, "display.glow-color-override", color, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -450,7 +470,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         throw CommandAPI.failWithString("Invalid billboard type: " + billboardType);
                                                                                                                     }
 
-                                                                                                                    setCBConfigValue(block, "display.billboard", billboardType, sender);
+                                                                                                                    setCbConfigValue(block, "display.billboard", billboardType, sender);
                                                                                                                 })
 
                                                                                                 )
@@ -463,7 +483,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String shadowParameter = (String) args.get("shadow-parameter");
                                                                                                                     float value = (float) args.get("value");
 
-                                                                                                                    setCBConfigValue(block, "display." + shadowParameter, value, sender);
+                                                                                                                    setCbConfigValue(block, "display." + shadowParameter, value, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -474,7 +494,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     float range = (float) args.get("range");
 
-                                                                                                                    setCBConfigValue(block, "display.view-range", range, sender);
+                                                                                                                    setCbConfigValue(block, "display.view-range", range, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -485,7 +505,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     boolean usePlaceholder = (boolean) args.get("use-placeholder-value");
 
-                                                                                                                    setCBConfigValue(block, "display.use-placeholder", usePlaceholder, sender);
+                                                                                                                    setCbConfigValue(block, "display.use-placeholder", usePlaceholder, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -499,7 +519,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String block = (String) args.get("block");
                                                                                                                                     float level = (float) args.get("level");
 
-                                                                                                                                    setCBConfigValue(block, "display.brightness." + type, level, sender);
+                                                                                                                                    setCbConfigValue(block, "display.brightness." + type, level, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -514,7 +534,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String axis = (String) args.get("axis");
                                                                                                                                     double value = (double) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "display.translation." + axis, value, sender);
+                                                                                                                                    setCbConfigValue(block, "display.translation." + axis, value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -526,7 +546,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String angle = (String) args.get("angle");
                                                                                                                                     float value = (float) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "display.translation." + angle, value, sender);
+                                                                                                                                    setCbConfigValue(block, "display.translation." + angle, value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -552,7 +572,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                         throw CommandAPI.failWithString("Invalid material: " + material);
                                                                                                                     }
 
-                                                                                                                    setCBConfigValue(block, "item.material", material, sender);
+                                                                                                                    setCbConfigValue(block, "item.material", material, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -563,7 +583,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     String itemName = (String) args.get("item-name");
 
-                                                                                                                    setCBConfigValue(block, "item.name", itemName, sender);
+                                                                                                                    setCbConfigValue(block, "item.name", itemName, sender);
                                                                                                                 })
                                                                                                 )
                                                                                 ).then(
@@ -578,7 +598,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                             String block = (String) args.get("block");
                                                                                                                             List<ItemFlag> itemFlags = (List<ItemFlag>) args.get("item-flags-list");
 
-                                                                                                                            setCBConfigValue(block, "item.item-flags", itemFlags, sender);
+                                                                                                                            setCbConfigValue(block, "item.item-flags", itemFlags, sender);
                                                                                                                         }
                                                                                                                 )
                                                                                                 )
@@ -595,7 +615,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                             String block = (String) args.get("block");
                                                                                                                             Map<Enchantment, Integer> enchantments = (Map<Enchantment, Integer>) args.get("enchantments-list");
 
-                                                                                                                            setCBConfigValue(block, "item.enchantments", enchantments, sender);
+                                                                                                                            setCbConfigValue(block, "item.enchantments", enchantments, sender);
                                                                                                                         }
                                                                                                                 )
                                                                                                 )
@@ -617,7 +637,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                             List<String> loreLinesList = parseQuotedStrings(loreLines);
 
-                                                                                                                            setCBConfigValue(block, "item.lore", loreLinesList, sender);
+                                                                                                                            setCbConfigValue(block, "item.lore", loreLinesList, sender);
                                                                                                                         }
                                                                                                                 )
                                                                                                 )
@@ -631,7 +651,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String block = (String) args.get("block");
                                                                                                                                     String value = (String) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "item.skullmeta.url", value, sender);
+                                                                                                                                    setCbConfigValue(block, "item.skullmeta.url", value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -653,7 +673,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String block = (String) args.get("block");
                                                                                                                                     String headOwnerName = (String) args.get("head-owner-name");
 
-                                                                                                                                    setCBConfigValue(block, "item.skullmeta.name", headOwnerName, sender);
+                                                                                                                                    setCbConfigValue(block, "item.skullmeta.name", headOwnerName, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -673,7 +693,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String measurement = (String) args.get("measurement");
                                                                                                                                     float value = (float) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "interactions." + interactionName + "." + measurement, value, sender);
+                                                                                                                                    setCbConfigValue(block, "interactions." + interactionName + "." + measurement, value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -685,7 +705,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String interactionName = (String) args.get("interaction-name");
                                                                                                                                     String commandLine = (String) args.get("command-line");
 
-                                                                                                                                    setCBConfigValue(block, "interactions." + interactionName + ".command", List.of(commandLine), sender);
+                                                                                                                                    setCbConfigValue(block, "interactions." + interactionName + ".command", List.of(commandLine), sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -707,7 +727,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                         throw CommandAPI.failWithString("Invalid command source: " + commandSource);
                                                                                                                                     }
 
-                                                                                                                                    setCBConfigValue(block, "interactions." + interactionName + ".command-source", commandSource, sender);
+                                                                                                                                    setCbConfigValue(block, "interactions." + interactionName + ".command-source", commandSource, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -723,7 +743,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String interactionName = (String) args.get("interaction-name");
                                                                                                                                     List<Permission> permissions = (List<Permission>) args.get("granted-command-permission-list");
 
-                                                                                                                                    setCBConfigValue(block, "interactions." + interactionName + ".granted-command-permission", permissions, sender);
+                                                                                                                                    setCbConfigValue(block, "interactions." + interactionName + ".granted-command-permission", permissions, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -738,7 +758,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                                     String axis = (String) args.get("axis");
                                                                                                                                                     double value = (double) args.get("value");
 
-                                                                                                                                                    setCBConfigValue(block, "interactions." + interactionName + ".offset." + axis, value, sender);
+                                                                                                                                                    setCbConfigValue(block, "interactions." + interactionName + ".offset." + axis, value, sender);
                                                                                                                                                 })
                                                                                                                                 )
                                                                                                                 )
@@ -758,7 +778,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             String collisionName = (String) args.get("collision-name");
                                                                                                                                             double sizeValue = (double) args.get("size-value");
 
-                                                                                                                                            setCBConfigValue(block, "collisions." + collisionName + ".size", sizeValue, sender);
+                                                                                                                                            setCbConfigValue(block, "collisions." + collisionName + ".size", sizeValue, sender);
                                                                                                                                         }
                                                                                                                                 )
                                                                                                                 )
@@ -774,7 +794,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                                     String axis = (String) args.get("axis");
                                                                                                                                                     double value = (double) args.get("value");
 
-                                                                                                                                                    setCBConfigValue(block, "collisions." + collisionName + ".offset." + axis, value, sender);
+                                                                                                                                                    setCbConfigValue(block, "collisions." + collisionName + ".offset." + axis, value, sender);
                                                                                                                                                 })
                                                                                                                                 )
                                                                                                                 )
@@ -787,7 +807,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String collisionName = (String) args.get("collision-name");
                                                                                                                                     boolean value = (boolean) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "collisions." + collisionName + ".invisible", value, sender);
+                                                                                                                                    setCbConfigValue(block, "collisions." + collisionName + ".invisible", value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -802,7 +822,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                     try {
                                                                                                                                         DyeColor dyeColor = DyeColor.valueOf(color.toUpperCase());
-                                                                                                                                        setCBConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
+                                                                                                                                        setCbConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
                                                                                                                                     } catch (
                                                                                                                                             IllegalArgumentException e) {
                                                                                                                                         throw CommandAPI.failWithString("Invalid color: " + color);
@@ -819,7 +839,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String collisionName = (String) args.get("collision-name");
                                                                                                                                     boolean value = (boolean) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "collisions." + collisionName + ".disable-below-1_20_5", value, sender);
+                                                                                                                                    setCbConfigValue(block, "collisions." + collisionName + ".disable-below-1_20_5", value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -837,7 +857,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String stage = (String) args.get("stage");
                                                                                                                                     String commandLine = (String) args.get("command-line");
 
-                                                                                                                                    setCBConfigValue(block, "stage-settings." + stage + ".command", commandLine, sender);
+                                                                                                                                    setCbConfigValue(block, "stage-settings." + stage + ".command", commandLine, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -859,7 +879,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                         throw CommandAPI.failWithString("Invalid command source: " + commandSource);
                                                                                                                                     }
 
-                                                                                                                                    setCBConfigValue(block, "stage-settings." + stage + ".command-source", commandSource, sender);
+                                                                                                                                    setCbConfigValue(block, "stage-settings." + stage + ".command-source", commandSource, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -875,7 +895,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             String stage = (String) args.get("stage");
                                                                                                                                             List<Permission> permissions = (List<Permission>) args.get("granted-command-permission-list");
 
-                                                                                                                                            setCBConfigValue(block, "stage-settings." + stage + ".granted-command-permission", permissions, sender);
+                                                                                                                                            setCbConfigValue(block, "stage-settings." + stage + ".granted-command-permission", permissions, sender);
                                                                                                                                         }
                                                                                                                                 )
                                                                                                                 )
@@ -914,7 +934,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                                 player.playSound(player.getLocation(), sound, 1.0f, 1.0f);
                                                                                                                                             }
 
-                                                                                                                                            setCBConfigValue(block, "sound." + args.get("stage") + ".sound-type", soundName, sender);
+                                                                                                                                            setCbConfigValue(block, "sound." + args.get("stage") + ".sound-type", soundName, sender);
                                                                                                                                         }
                                                                                                                                 )
                                                                                                                 )
@@ -928,7 +948,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     String parameter = (String) args.get("sound-parameter");
                                                                                                                                     float value = (float) args.get("value");
 
-                                                                                                                                    setCBConfigValue(block, "sound." + stage + "." + parameter, value, sender);
+                                                                                                                                    setCbConfigValue(block, "sound." + stage + "." + parameter, value, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 )
@@ -1023,7 +1043,7 @@ public class BlockDisplayCreatorCAPICommand {
     }
 
 
-    private void setCBConfigValue(String block, String path, Object value, CommandSender sender) {
+    private void setCbConfigValue(String block, String path, Object value, CommandSender sender) {
         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
         if (!(storage instanceof BDCCustomBlockConfigStorage configStorage)) {
@@ -1159,7 +1179,7 @@ public class BlockDisplayCreatorCAPICommand {
         }
     }
 
-    private void killBlockEntities(BoundingBox boundingBox, Player sender) {
+    private void eraseCbData(BoundingBox boundingBox, Player sender) {
         WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());
 
         List<Entity> displayEntities = new ArrayList<>();

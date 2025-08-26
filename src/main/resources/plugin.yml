@@ -4,13 +4,14 @@ version: '${project.version}'
 main: me.general_breddok.blockdisplaycreator.BlockDisplayCreator
 api-version: 1.19
 description: Plugin for creating and fully customizing custom blocks
+website: https://www.spigotmc.org/resources/blockdisplaycreator.114877/
 
 softdepend: [ PlaceholderAPI, WorldGuard, PacketEvents ]
 
 commands:
   blockdisplaycreator:
     description: Main command for BlockDisplayCreator
-    usage: /bdc <custom-block|reload|killcbentities>
+    usage: /bdc <custom-block|reload|erase>
     aliases: [bdc]
 
 
@@ -32,16 +33,50 @@ permissions:
     description: Allows players to bypass WorldGuard region checks for custom blocks
     default: op
 
+  bdc.quickselect.creative:
+    description: Allows players in creative to get custom blocks that they don't have in their inventory using quick select
+    default: op
+
+  bdc.command:
+    description: Allows players to use all BlockDisplayCreator commands
+    default: op
+    children:
+      bdc.command.custom-block: true
+      bdc.command.reload: true
+      bdc.command.erasecbdata: true
+
+
   bdc.command.custom-block:
-    description: Allows players to use the custom-block command
+    description: Allows players to use /bdc custom-block command
+    default: op
+    children:
+      bdc.command.custom-block.give: true
+      bdc.command.custom-block.place: true
+      bdc.command.custom-block.break: true
+      bdc.command.custom-block.editfile: true
+
+  bdc.command.custom-block.give:
+    description: Allows players to use /bdc custom-block give command
+    default: op
+
+  bdc.command.custom-block.place:
+    description: Allows players to use /bdc custom-block place command
+    default: op
+
+  bdc.command.custom-block.break:
+    description: Allows players to use /bdc custom-block break command
+    default: op
+
+  bdc.command.custom-block.editfile:
+    description: Allows players to use /bdc custom-block editfile command
     default: op
 
   bdc.command.reload:
-    description: Allows players to reload the plugin configuration
+    description: Allows players to use /bdc reload command
     default: op
 
-  bdc.command.killcbentities:
-    description: Allows players to use the killcbentities command to remove custom block entities
+  bdc.command.erasecbdata:
+    description: Allows players to use /bdc erasecbdata command to remove custom block data and entities
     default: op
 
 

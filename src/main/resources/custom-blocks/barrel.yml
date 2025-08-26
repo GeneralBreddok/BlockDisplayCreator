@@ -30,21 +30,6 @@ central-material: BARRIER
 #Count of sides of the block. Can be set in the range from 1 to 360.     By def 4
 sides-count: 96
 
-#Sounds of this block (list of sound-types can be found at https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html).   Volume and pitch are set to 1 by default
-sound:
-  #Break sound
-  break:
-    #Sound type.    By def ITEM_LODESTONE_COMPASS_LOCK
-    sound-type: BLOCK_WOOD_BREAK
-    volume: 2.5
-    pitch: 0.6
-  #Place sound
-  place:
-    #Sound type.    By def BLOCK_LODESTONE_PLACE
-    sound-type: BLOCK_BARREL_OPEN
-    volume: 1.7
-    pitch: 3
-
 #Item of this block.  Only material is a required field
 item:
   #Item material
@@ -102,3 +87,18 @@ collisions:
     #If true, the collision entity will not be spawned on versions below 1.20.5 (before the scale attribute for collision size was added).   By def false.
     disable-below-1_20_5: true
 
+
+#Sounds of this block (list of sound-types can be found at https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Sound.html).   Volume and pitch are set to 1 by default
+sound:
+  #Break sound
+  break:
+    #Sound type.    By def ITEM_LODESTONE_COMPASS_LOCK
+    sound-type: BLOCK_WOOD_BREAK
+    volume: 2.5
+    pitch: 0.6
+  #Place sound
+  place:
+    #Sound type.    By def BLOCK_LODESTONE_PLACE
+    sound-type: BLOCK_BARREL_OPEN
+    volume: 1.7
+    pitch: 3
