@@ -450,7 +450,6 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             if (changed) {
                 nbtDisplay.setNbtPassengers(nbtPassengers);
                 nbtArg.setContainer(nbtDisplay);
-                displaySummonCommand.setNbtArg(nbtArg);
             }
         }
 

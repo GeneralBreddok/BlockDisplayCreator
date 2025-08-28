@@ -1,11 +1,16 @@
 max-entities-per-chunk: "&cYou cannot place a custom block in this chunk!"
 
 permission-denied:
-  place: "&cSorry, you do not have permission to place this block."
-  break: "&cSorry, you do not have permission to break this block."
-  interact: "&cSorry, you do not have permission to interact with this block."
+  place: "&cYou do not have permission to place this block."
+  break: "&cYou do not have permission to break this block."
+  interact: "&cYou do not have permission to interact with this block."
 
 region-denied:
-  place: "&cYou cannot place blocks in foreign regions."
-  break: "&cYou cannot break blocks in foreign regions."
-  interact: "&cSorry, you do not have permission to interact with this block."
+  place: "&c&lHey! &r&7Sorry, but you can`t place that custom block here."
+  break: "&c&lHey! &r&7Sorry, but you can`t break that custom block here."
+  interact: "&c&lHey! &r&7Sorry, but you can`t interact with that custom block here."
+
+island-denied:
+  place: "&c&lError | &7This island is protected. You cannot place custom blocks here."
+  break: "&c&lError | &7This island is protected. You cannot break custom blocks here."
+  interact: "&c&lError | &7This island is protected. You cannot interact with custom blocks here."

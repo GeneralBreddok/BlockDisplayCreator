@@ -18,4 +18,5 @@ public abstract class CachedFile {
     public abstract void save();
     protected abstract void load(@NotNull Path path, boolean createNew);
     public abstract void reload();
+    public abstract void reload(boolean loadNew);
 }

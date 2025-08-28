@@ -743,7 +743,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
     public void applyPlaceholdersForItem(ItemStack item, Player player) {
         ItemMeta itemMeta = item.getItemMeta();
-        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
 
         if (placeholderApi == null) {
             return;
@@ -762,7 +762,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
     }
 
     public void applyPlaceholdersForCommand(AbstractCustomBlock abstractCustomBlock, ItemStack item, Player player) {
-        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
         if (placeholderApi == null) {
             return;
         }

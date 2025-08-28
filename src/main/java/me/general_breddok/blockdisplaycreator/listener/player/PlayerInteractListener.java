@@ -3,7 +3,7 @@ package me.general_breddok.blockdisplaycreator.listener.player;
 import com.jeff_media.customblockdata.CustomBlockData;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
-import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
+import me.general_breddok.blockdisplaycreator.common.BDCDependentPluginsManager;
 import me.general_breddok.blockdisplaycreator.custom.AutomaticCommandDisplaySummoner;
 import me.general_breddok.blockdisplaycreator.custom.block.*;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
@@ -12,38 +12,32 @@ import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.LongConfigValue;
-import me.general_breddok.blockdisplaycreator.file.config.value.StringConfigValue;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
-import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
-import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
-import me.general_breddok.blockdisplaycreator.world.guard.WorldGuardChecker;
+import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.block.data.type.Snow;
 import org.bukkit.entity.Display;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
-import org.bukkit.event.player.PlayerCommandSendEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.persistence.PersistentDataType;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.stream.Collectors;
 
 public class PlayerInteractListener implements Listener {
@@ -87,27 +81,30 @@ public class PlayerInteractListener implements Listener {
             blockLocation.add(blockFace.getDirection());
         }
 
+
         String blockName = CustomBlockKey.holder(item.getItemMeta()).getName();
 
         if (blockName == null)
             return;
 
+        event.setCancelled(true);
+
         if (LongConfigValue.MAX_ENTITIES_PER_CHUNK > 0) {
             if (blockLocation.getChunk().getEntities().length > LongConfigValue.MAX_ENTITIES_PER_CHUNK) {
-                ChatUtil.sendMessage(player, StringConfigValue.MAX_ENTITIES_PER_CHUNK);
+                ChatUtil.sendMessage(player, StringMessagesValue.MAX_ENTITIES_PER_CHUNK);
                 return;
             }
         }
 
         if (!BooleanConfigValue.BLOCKS_PLACEMENT) {
             if (!player.hasPermission(DefaultPermissions.BDC.CustomBlock.BLOCKS_PLACEMENT)) {
-                ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_PLACE);
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
                 return;
             }
         }
 
 
-        CustomBlockService customBlockService = getService(item);
+        CustomBlockService customBlockService = CustomBlockService.getService(serviceManager, item.getItemMeta());
 
         AbstractCustomBlock abstractCustomBlock = customBlockService.getStorage().getAbstractCustomBlock(blockName);
 
@@ -117,8 +114,9 @@ public class PlayerInteractListener implements Listener {
         }
 
 
-        if (checkAccess(blockLocation, player, abstractCustomBlock))
+        if (!checkAccess(blockLocation, player, abstractCustomBlock)) {
             return;
+        }
 
         if (abstractCustomBlock.getSaveSystem().equals("item")) {
             configureDataFromItem(item, blockLocation, abstractCustomBlock);
@@ -136,19 +134,6 @@ public class PlayerInteractListener implements Listener {
         }
     }
 
-    @NotNull
-    private CustomBlockService getService(ItemStack item) {
-        String serviceClassName = CustomBlockKey.holder(item.getItemMeta()).getServiceClass();
-
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
-        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
-
-        if (customBlockService == null) {
-            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
-        }
-        return customBlockService;
-    }
 
     private static void configureDataFromItem(ItemStack item, Location blockLocation, AbstractCustomBlock abstractCustomBlock) {
         PersistentData<CommandLine[]> commandListPD = new PersistentData<>(item.getItemMeta(), TypeTokens.COMMAND_ARRAY);
@@ -172,19 +157,28 @@ public class PlayerInteractListener implements Listener {
     }
 
     private static boolean checkAccess(Location blockLocation, Player player, AbstractCustomBlock abstractCustomBlock) {
-        if (BlockDisplayCreator.getWorldGuard() != null) {
-            if (!WorldGuardChecker.checkWGAccess(blockLocation, BDCRegionFlags.PLACE_CB, player)) {
-                ChatUtil.sendMessage(player, StringConfigValue.REGION_DENIED_PLACE);
-                return true;
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, CBRegionFlags.PLACE_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSIslandAccessChecker.checkIslandAccess(blockLocation, CBIslandPrivileges.PLACE_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
+                return false;
             }
         }
 
         CustomBlockPermissions permissions = abstractCustomBlock.getPermissions();
 
         if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.PLACE)) {
-            ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_PLACE);
-            return true;
+            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
+            return false;
         }
-        return false;
+        return true;
     }
 }

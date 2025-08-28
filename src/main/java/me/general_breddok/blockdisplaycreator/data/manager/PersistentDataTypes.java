@@ -384,9 +384,13 @@ public interface PersistentDataTypes {
                 List<String> grantedCommandPermissions = new ArrayList<>();
 
                 Object command = primitive.get("command");
-                ArrayList<Object> commandList = null;
+                ArrayList<Object> commandList;
                 ArrayList<?> grantedCommandPermissionList = (ArrayList<?>) primitive.getList("granted-command-permission");
                 String commandSourceStr = primitive.getString("command-source");
+
+                if (command == null) {
+                    return null;
+                }
 
                 if (command instanceof List) {
                     commandList = (ArrayList<Object>) command;

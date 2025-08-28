@@ -2,7 +2,7 @@ package me.general_breddok.blockdisplaycreator.listener.player;
 
 import com.google.common.base.Preconditions;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
+import me.general_breddok.blockdisplaycreator.common.BDCDependentPluginsManager;
 import me.general_breddok.blockdisplaycreator.custom.ConfiguredInteraction;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
@@ -10,16 +10,17 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPermission
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockInteractEvent;
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
-import me.general_breddok.blockdisplaycreator.file.config.value.StringConfigValue;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.InteractionPlaceholder;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
-import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
-import me.general_breddok.blockdisplaycreator.world.guard.WorldGuardChecker;
+import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -51,7 +52,6 @@ public class PlayerInteractEntityListener implements Listener {
         Player player = event.getPlayer();
         EquipmentSlot hand = event.getHand();
 
-
         if (!(event.getRightClicked() instanceof Interaction interaction))
             return;
 
@@ -62,20 +62,12 @@ public class PlayerInteractEntityListener implements Listener {
 
         if (!BooleanConfigValue.BLOCKS_INTERACTION) {
             if (!player.hasPermission(DefaultPermissions.BDC.CustomBlock.BLOCKS_INTERACTION)) {
-                ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_INTERACT);
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
                 return;
             }
         }
 
-        String serviceClassName = CustomBlockKey.holder(interaction).getServiceClass();
-
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
-        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
-
-        if (customBlockService == null) {
-            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
-        }
+        CustomBlockService customBlockService = CustomBlockService.getService(serviceManager, interaction);
 
         CustomBlock customBlock = customBlockService.getCustomBlock(interaction);
 
@@ -84,10 +76,9 @@ public class PlayerInteractEntityListener implements Listener {
             return;
         }
 
-        event.setCancelled(true);
-
-        if (checkAccess(customBlock, player))
+        if (!checkAccess(customBlock, player)) {
             return;
+        }
 
         ConfiguredInteraction configuredInteraction = customBlock.getConfiguredInteraction(interaction);
 
@@ -100,6 +91,8 @@ public class PlayerInteractEntityListener implements Listener {
         if (!EventUtil.call(customBlockInteractEvent)) {
             return;
         }
+
+        event.setCancelled(true);
 
         customBlock.handleClick(configuredInteraction, interaction, player, new CustomBlockPlaceholder(customBlock), new InteractionPlaceholder(interaction));
 
@@ -134,21 +127,32 @@ public class PlayerInteractEntityListener implements Listener {
 
 
     private static boolean checkAccess(CustomBlock customBlock, Player player) {
-        if (BlockDisplayCreator.getWorldGuard() != null) {
-            if (!WorldGuardChecker.checkWGAccess(customBlock.getLocation(), BDCRegionFlags.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringConfigValue.REGION_DENIED_INTERACT);
-                return true;
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, CBRegionFlags.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
+                return false;
             }
         }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSIslandAccessChecker.checkIslandAccess(customBlockLocation, CBIslandPrivileges.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
+                return false;
+            }
+        }
+
 
         CustomBlockPermissions permissions = customBlock.getPermissions();
 
         if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
-            ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_INTERACT);
-            return true;
+            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
+            return false;
         }
 
-        return false;
+        return true;
     }
 
 

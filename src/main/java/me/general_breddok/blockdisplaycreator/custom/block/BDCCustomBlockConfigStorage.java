@@ -112,7 +112,9 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     public AbstractCustomBlock getAbstractCustomBlock(@NotNull String name, Object... data) {
         for (AbstractCustomBlock abstractCustomBlock : abstractCustomBlocks) {
             if (abstractCustomBlock.getName().equals(name)) {
-                return abstractCustomBlock.clone();
+                AbstractCustomBlock cloned = abstractCustomBlock.clone();
+                cloned.getItem().setAmount(1);
+                return cloned;
             }
         }
         return null;

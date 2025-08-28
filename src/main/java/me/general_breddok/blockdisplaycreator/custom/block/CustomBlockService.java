@@ -1,10 +1,14 @@
 package me.general_breddok.blockdisplaycreator.custom.block;
 
+import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
+import me.general_breddok.blockdisplaycreator.service.ServiceManager;
+import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataHolder;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -87,5 +91,27 @@ public interface CustomBlockService {
                 .setName(customBlockName);
 
         itemStack.setItemMeta(itemMeta);
+    }
+
+    /**
+     * Retrieves the appropriate CustomBlockService based on the provided item.
+     *
+     * @param serviceManager the service manager to retrieve services from.
+     * @param item the item containing metadata to identify the service.
+     * @return the corresponding CustomBlockService.
+     * @throws UnregisteredServiceException if the service is not registered.
+     */
+    @NotNull
+    static CustomBlockService getService(ServiceManager<String, CustomBlockService> serviceManager, PersistentDataHolder holder) {
+        String serviceClassName = CustomBlockKey.holder(holder).getServiceClass();
+
+        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
+
+        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
+
+        if (customBlockService == null) {
+            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
+        }
+        return customBlockService;
     }
 }

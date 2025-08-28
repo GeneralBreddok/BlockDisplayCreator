@@ -66,10 +66,8 @@ public class BlockDisplayCreatorCAPICommand {
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
                 .withRequirement(sender ->
-                        sender.hasPermission(DefaultPermissions.BDC.Command.BASE)
-                                || sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)
+                                   sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.ERASE_CB_DATA)
-                                || sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.BREAK_CB)
@@ -97,13 +95,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
                                                         if (storage.containsAbstractCustomBlock(block)) {
                                                             storage.reload(block);
-                                                            ChatUtil.sendMessage(sender, "&a%s block has been reloaded!", block);
+                                                            ChatUtil.sendMessage(sender, "&aBlock %s has been reloaded!", block);
                                                         } else {
                                                             ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
                                                         }
                                                     } else {
                                                         this.plugin.getYamlConfiguration().reload();
-                                                        this.plugin.getMessagesFile().reload();
+                                                        this.plugin.getMessagesFile().reload(true);
                                                         this.plugin.getCustomBlockService().getStorage().reloadAll(() -> ChatUtil.sendMessage(sender, "&aConfig has been reloaded!"));
                                                         this.plugin.initializeConfigValues();
                                                     }
@@ -128,8 +126,7 @@ public class BlockDisplayCreatorCAPICommand {
                 ).then(
                         new LiteralArgument("custom-block")
                                 .withRequirement(sender ->
-                                        sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)
-                                                || sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
+                                                   sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.BREAK_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.EDITFILE_CB))
@@ -1124,7 +1121,7 @@ public class BlockDisplayCreatorCAPICommand {
 
     public void applyPlaceholdersForItem(ItemStack item, Player player) {
         ItemMeta itemMeta = item.getItemMeta();
-        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
 
         if (placeholderApi == null) {
             return;
@@ -1143,7 +1140,7 @@ public class BlockDisplayCreatorCAPICommand {
     }
 
     public void applyPlaceholdersForCommand(AbstractCustomBlock abstractCustomBlock, ItemStack item, Player player) {
-        Plugin placeholderApi = BlockDisplayCreator.getPlaceholderApi();
+        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
         if (placeholderApi == null) {
             return;
         }

@@ -4,6 +4,7 @@ public interface DefaultPermissions {
     interface BDC {
 
         String WG_BYPASS = "bdc.bypass.wg";
+        String SKYBLOCK_BYPASS = "bdc.bypass.skyblock";
         String QUICKSELECT_CREATIVE = "bdc.quickselect.creative";
 
         interface CustomBlock {
@@ -13,15 +14,17 @@ public interface DefaultPermissions {
         }
 
         interface Command {
-            String BASE = "bdc.command";
             String ERASE_CB_DATA = "bdc.command.erasecbdata";
             String RELOAD = "bdc.command.reload";
-            String CUSTOM_BLOCK = "bdc.command.custom-block";
             String GIVE_CB = "bdc.command.custom-block.give";
             String BREAK_CB = "bdc.command.custom-block.break";
             String PLACE_CB = "bdc.command.custom-block.place";
             String EDITFILE_CB = "bdc.command.custom-block.editfile";
         }
+    }
+
+    interface Superior {
+        String SKYBLOCK_BYPASS = "superior.skyblock.bypass";
     }
 
     interface Vanilla {

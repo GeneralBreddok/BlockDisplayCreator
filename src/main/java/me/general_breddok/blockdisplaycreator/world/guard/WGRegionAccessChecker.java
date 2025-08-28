@@ -18,24 +18,17 @@ import org.bukkit.entity.Player;
 
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class WorldGuardChecker {
+public class WGRegionAccessChecker {
     WorldGuardPlugin worldGuardPlugin;
     WorldGuard worldGuard;
     WorldGuardPlatform platform;
     RegionContainer regionContainer;
 
-    public WorldGuardChecker() {
+    public WGRegionAccessChecker() {
         worldGuardPlugin = WorldGuardPlugin.inst();
         worldGuard = WorldGuard.getInstance();
         platform = worldGuard.getPlatform();
         regionContainer = platform.getRegionContainer();
-    }
-
-
-    public boolean canAccess(Player player, ProtectedRegion region) {
-        LocalPlayer localPlayer = worldGuardPlugin.wrapPlayer(player);
-
-        return region.isMember(localPlayer);
     }
 
     public ProtectedRegion getRegion(Location location) {
@@ -70,25 +63,25 @@ public class WorldGuardChecker {
         return flagValue == StateFlag.State.ALLOW;
     }
 
-    public static boolean checkWGAccess(Location location, StateFlag flag, Player player) {
-        if (flag != null) {
-            WorldGuardChecker worldGuardChecker = new WorldGuardChecker();
+    public static boolean checkRegionAccess(Location location, StateFlag flag, Player player) {
+        if (flag == null)
+            return true;
 
-            ProtectedRegion region = worldGuardChecker.getRegion(location);
+        WGRegionAccessChecker regionAccessChecker = new WGRegionAccessChecker();
 
-            if (region == null)
-                return true;
+        ProtectedRegion region = regionAccessChecker.getRegion(location);
 
-            LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+        if (region == null)
+            return true;
 
-            if (region.isMember(localPlayer))
-                return true;
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
 
-            if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS))
-                return true;
+        if (region.isMember(localPlayer))
+            return true;
 
-            return worldGuardChecker.isFlagAllowed(flag, region);
-        }
-        return true;
+        if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS))
+            return true;
+
+        return regionAccessChecker.isFlagAllowed(flag, region);
     }
 }

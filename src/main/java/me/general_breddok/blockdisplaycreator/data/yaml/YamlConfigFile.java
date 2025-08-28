@@ -98,8 +98,17 @@ public class YamlConfigFile extends CachedFile implements ConfigurationSection {
 
     @Override
     public void reload() {
-        if (!configFile.exists()) {
-            throw new IllegalArgumentException("Configuration file does not exist: " + configFile.getAbsolutePath());
+        reload(false);
+    }
+
+    @Override
+    public void reload(boolean loadNew) {
+        if (!this.configFile.exists()) {
+            if (loadNew) {
+                load(this.configFile.toPath(), true);
+            } else {
+                throw new IllegalArgumentException("Configuration file does not exist: " + configFile.getAbsolutePath());
+            }
         }
         loadConfiguration();
     }

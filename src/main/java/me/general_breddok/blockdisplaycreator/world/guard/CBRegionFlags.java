@@ -1,14 +1,11 @@
 package me.general_breddok.blockdisplaycreator.world.guard;
 
 import com.sk89q.worldguard.WorldGuard;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
-import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
 import org.jetbrains.annotations.Nullable;
 
-public class BDCRegionFlags {
+public class CBRegionFlags {
     @Nullable
     public static StateFlag PLACE_CB;
     @Nullable

@@ -6,11 +6,14 @@ api-version: 1.19
 description: Plugin for creating and fully customizing custom blocks
 website: https://www.spigotmc.org/resources/blockdisplaycreator.114877/
 
-softdepend: [ PlaceholderAPI, WorldGuard, PacketEvents ]
+softdepend: [ PlaceholderAPI, WorldGuard, PacketEvents, SuperiorSkyblock2 ]
+
+loadbefore:
+  - SuperiorSkyblock2
 
 commands:
   blockdisplaycreator:
-    description: Main command for BlockDisplayCreator
+    description: Main command for BlockDisplayCreator (1.19.4 only)
     usage: /bdc <custom-block|reload|erase>
     aliases: [bdc]
 
@@ -29,15 +32,26 @@ permissions:
     description: Allows players to interact with custom blocks even if blocks-interaction is set to false
     default: op
 
+  bdc.bypass.*:
+    description: Allows players to bypass region and island checks for custom blocks
+    default: op
+    children:
+      bdc.bypass.wg: true
+      bdc.bypass.skyblock: true
+
   bdc.bypass.wg:
     description: Allows players to bypass WorldGuard region checks for custom blocks
+    default: op
+
+  bdc.bypass.skyblock:
+    description: Allows players to bypass SuperiorSkyblock2 island checks for custom blocks
     default: op
 
   bdc.quickselect.creative:
     description: Allows players in creative to get custom blocks that they don't have in their inventory using quick select
     default: op
 
-  bdc.command:
+  bdc.command.*:
     description: Allows players to use all BlockDisplayCreator commands
     default: op
     children:
@@ -46,7 +60,7 @@ permissions:
       bdc.command.erasecbdata: true
 
 
-  bdc.command.custom-block:
+  bdc.command.custom-block.*:
     description: Allows players to use /bdc custom-block command
     default: op
     children:

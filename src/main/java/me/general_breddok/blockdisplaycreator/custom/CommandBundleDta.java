@@ -54,7 +54,7 @@ public class CommandBundleDta implements CommandBundle {
 
         for (CommandLine command : this.commands) {
             if (command instanceof MCCommandLine mcl) {
-                command = mcl.setPlaceholders(player, BlockDisplayCreator.getPlaceholderApi() == null ? null : PlaceholderAPIPlugin.getInstance());
+                command = mcl.setPlaceholders(player, BlockDisplayCreator.getInstance().getDependentPluginsManager().isPlaceholderApiAvailable() ? PlaceholderAPIPlugin.getInstance() : null);
             }
 
             if (this.commandSource == CommandBundle.CommandSource.PLAYER) {

@@ -1,7 +1,8 @@
 package me.general_breddok.blockdisplaycreator.listener.entity;
 
+import com.bgsoftware.superiorskyblock.api.events.PlayerChangeLanguageEvent;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
-import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
+import me.general_breddok.blockdisplaycreator.common.BDCDependentPluginsManager;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPermissions;
@@ -9,14 +10,16 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockBreakOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
-import me.general_breddok.blockdisplaycreator.file.config.value.StringConfigValue;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
-import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
-import me.general_breddok.blockdisplaycreator.world.guard.WorldGuardChecker;
+import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Interaction;
 import org.bukkit.entity.Player;
@@ -52,54 +55,27 @@ public class EntityDamageByEntityListener implements Listener {
         if (blockName == null)
             return;
 
+        event.setCancelled(true);
+
         if (!BooleanConfigValue.BLOCKS_DESTRUCTION) {
             if (!player.hasPermission(DefaultPermissions.BDC.CustomBlock.BLOCKS_DESTRUCTION)) {
-                ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_BREAK);
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
                 return;
             }
         }
 
-        String serviceClassName = CustomBlockKey.holder(entity).getServiceClass();
+        CustomBlockService customBlockService = CustomBlockService.getService(serviceManager, entity);
 
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
-        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
-
-        if (customBlockService == null) {
-            throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
-        }
-
-
-        CustomBlock customBlock = null;
-
-        if (entity instanceof Interaction interaction) {
-            customBlock = customBlockService.getCustomBlock(interaction);
-        } else if (entity instanceof Shulker collision) {
-            customBlock = customBlockService.getCustomBlock(collision);
-        }
+        CustomBlock customBlock = customBlockService.getCustomBlock(entity);
 
         if (customBlock == null) {
             ChatUtil.sendMessage(player, "&cError, custom block %s not found.", blockName);
             return;
         }
 
-        if (BlockDisplayCreator.getWorldGuard() != null) {
-            if (!WorldGuardChecker.checkWGAccess(customBlock.getLocation(), BDCRegionFlags.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringConfigValue.REGION_DENIED_BREAK);
-                return;
-            }
+        if (!checkAccess(player, customBlock)) {
+            return;
         }
-
-
-        CustomBlockPermissions permissions = customBlock.getPermissions();
-
-        if (permissions != null) {
-            if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
-                ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_BREAK);
-                return;
-            }
-        }
-
 
         CustomBlockOption[] options = new CustomBlockOption[5];
 
@@ -111,5 +87,34 @@ public class EntityDamageByEntityListener implements Listener {
             customBlockService.breakBlock(customBlock, player, options);
         } catch (IllegalArgumentException ignore) {
         }
+    }
+
+    private static boolean checkAccess(Player player, CustomBlock customBlock) {
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, CBRegionFlags.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSIslandAccessChecker.checkIslandAccess(customBlockLocation, CBIslandPrivileges.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
+                return false;
+            }
+        }
+
+        CustomBlockPermissions permissions = customBlock.getPermissions();
+
+        if (permissions != null) {
+            if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
+                return false;
+            }
+        }
+        return true;
     }
 }

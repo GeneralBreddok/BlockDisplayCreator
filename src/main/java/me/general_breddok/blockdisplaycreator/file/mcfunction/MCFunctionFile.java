@@ -98,9 +98,15 @@ public class MCFunctionFile extends CachedFile implements MCFunction {
     }
 
     @Override
-    public void reload() {
-        this.load(this.path, false);
+    public void reload(boolean loadNew) {
+        this.load(this.path, loadNew);
     }
+
+    @Override
+    public void reload() {
+        reload(false);
+    }
+
 
     private static boolean isMCFunctionFormat(@NotNull Path file) {
         return file.getFileName().endsWith(".mcfunction");

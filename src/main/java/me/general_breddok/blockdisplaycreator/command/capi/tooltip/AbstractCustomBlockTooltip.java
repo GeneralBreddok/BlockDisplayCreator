@@ -7,6 +7,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
+import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import org.bukkit.inventory.ItemStack;
 
 
@@ -23,11 +24,15 @@ public class AbstractCustomBlockTooltip implements IStringTooltip {
 
     @Override
     public String getSuggestion() {
-        return abstractCustomBlock.getName();
+        return this.abstractCustomBlock.getName();
     }
 
     @Override
     public Message getTooltip() {
-        return Tooltip.messageFromString(item.getItemMeta().getDisplayName());
+        return Tooltip.messageFromString(
+                ChatUtil.color(
+                        this.item.getItemMeta().getDisplayName()
+                )
+        );
     }
 }

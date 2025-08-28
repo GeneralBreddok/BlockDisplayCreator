@@ -2,6 +2,7 @@ package me.general_breddok.blockdisplaycreator.listener.block;
 
 import com.jeff_media.customblockdata.CustomBlockData;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
+import me.general_breddok.blockdisplaycreator.common.BDCDependentPluginsManager;
 import me.general_breddok.blockdisplaycreator.common.DeprecatedFeatureAdapter;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
@@ -10,13 +11,15 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockBreakOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
-import me.general_breddok.blockdisplaycreator.file.config.value.StringConfigValue;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.BDCRegionFlags;
-import me.general_breddok.blockdisplaycreator.world.guard.WorldGuardChecker;
+import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -48,10 +51,11 @@ public class BlockBreakListener implements Listener {
 
         if (!BooleanConfigValue.BLOCKS_DESTRUCTION) {
             if (!player.hasPermission(DefaultPermissions.BDC.CustomBlock.BLOCKS_DESTRUCTION)) {
-                ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_BREAK);
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
                 return;
             }
         }
+
 
         String serviceClassName = customBlockData.get(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING);
 
@@ -63,6 +67,7 @@ public class BlockBreakListener implements Listener {
             throw new UnregisteredServiceException("Custom block service " + serviceClassName + " is not registered", serviceClassName);
         }
 
+
         CustomBlock customBlock = customBlockService.getCustomBlock(blockLocation);
 
         if (customBlock == null) {
@@ -71,7 +76,9 @@ public class BlockBreakListener implements Listener {
             return;
         }
 
-        if (checkAccess(player, customBlock)) return;
+        if (!checkAccess(player, customBlock)) {
+            return;
+        }
 
 
         event.setDropItems(false);
@@ -89,19 +96,31 @@ public class BlockBreakListener implements Listener {
     }
 
     private static boolean checkAccess(Player player, CustomBlock customBlock) {
-        if (BlockDisplayCreator.getWorldGuard() != null) {
-            if (!WorldGuardChecker.checkWGAccess(customBlock.getLocation(), BDCRegionFlags.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringConfigValue.REGION_DENIED_BREAK);
-                return true;
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, CBRegionFlags.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSIslandAccessChecker.checkIslandAccess(customBlockLocation, CBIslandPrivileges.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
+                return false;
             }
         }
 
         CustomBlockPermissions permissions = customBlock.getPermissions();
 
-        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
-            ChatUtil.sendMessage(player, StringConfigValue.PERMISSION_DENIED_BREAK);
-            return true;
+        if (permissions != null) {
+            if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
+                return false;
+            }
         }
-        return false;
+        return true;
     }
 }

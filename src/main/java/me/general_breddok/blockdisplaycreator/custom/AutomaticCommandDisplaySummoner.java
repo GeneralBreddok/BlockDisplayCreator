@@ -54,7 +54,7 @@ public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>
     @Override
     @SuppressWarnings("all")
     public List<Display> summon(@NotNull Location location, @NotNull Entity commandSender, @Nullable Predicate<Display> filter) {
-        prepareDisplayCommands(location, commands);
+        prepareDisplayCommands(location, this.commands);
 
         World world = location.getWorld();
 
@@ -98,10 +98,10 @@ public class AutomaticCommandDisplaySummoner implements CommandSummoner<Display>
                 .collect(OperationUtil.toArrayList());
     }
 
-    private void prepareDisplayCommands(Location location, List<CommandLine> displayCommand) {
+    private void prepareDisplayCommands(Location location, List<CommandLine> displayCommands) {
         CommandRegistry registry = new CommandRegistry();
 
-        ListIterator<CommandLine> iterator = displayCommand.listIterator();
+        ListIterator<CommandLine> iterator = displayCommands.listIterator();
         while (iterator.hasNext()) {
             CommandLine line = iterator.next();
 
