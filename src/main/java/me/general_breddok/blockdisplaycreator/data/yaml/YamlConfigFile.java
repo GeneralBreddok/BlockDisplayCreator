@@ -102,9 +102,9 @@ public class YamlConfigFile extends CachedFile implements ConfigurationSection {
     }
 
     @Override
-    public void reload(boolean loadNew) {
+    public void reload(boolean createNewIfNotExist) {
         if (!this.configFile.exists()) {
-            if (loadNew) {
+            if (createNewIfNotExist) {
                 load(this.configFile.toPath(), true);
             } else {
                 throw new IllegalArgumentException("Configuration file does not exist: " + configFile.getAbsolutePath());

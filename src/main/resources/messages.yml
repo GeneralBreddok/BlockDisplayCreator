@@ -1,16 +1,81 @@
+#Message displayed when placing a block in a chunk that exceeds the max-entities-per-chunk limit
 max-entities-per-chunk: "&cYou cannot place a custom block in this chunk!"
 
+#Messages displayed when a player performs an action for which he does not have permission specified in the permissions section of the block file
 permission-denied:
   place: "&cYou do not have permission to place this block."
   break: "&cYou do not have permission to break this block."
   interact: "&cYou do not have permission to interact with this block."
 
+#Messages displayed when a player performs an action in a WorldGuard region and that action is denied (due to lack of access)
 region-denied:
   place: "&c&lHey! &r&7Sorry, but you can`t place that custom block here."
   break: "&c&lHey! &r&7Sorry, but you can`t break that custom block here."
   interact: "&c&lHey! &r&7Sorry, but you can`t interact with that custom block here."
 
+#Messages displayed when a player performs an action on a Skyblock island and that action is denied (due to lack of access)
 island-denied:
   place: "&c&lError | &7This island is protected. You cannot place custom blocks here."
   break: "&c&lError | &7This island is protected. You cannot break custom blocks here."
   interact: "&c&lError | &7This island is protected. You cannot interact with custom blocks here."
+
+
+custom-block:
+  place:
+    fail-reason:
+
+      solid-block: "Material at location %x% %y% %z% in world %world% is solid and break_solid_material option is not set."
+      chunk-not-loaded: "Location %x% %y% %z% in world %world% is not loaded and load_chunk option is not set."
+      custom-block-present: "A custom block is already present at location %x% %y% %z% in world %world% and replace_custom_block option is not set."
+
+  break:
+    fail-reason:
+      no-custom-block: "There is no custom block to break at location %x% %y% %z% in world %world%."
+
+  not-found: "&cCustom block %customblock_name% not found! Perhaps it was deleted or was not loaded correctly."
+
+command:
+  block-not-exists: "&cBlock &4%customblock_name% &cdoes not exist!"
+
+  reload: "&aConfig has been reloaded!"
+  reload-block: "&aBlock %customblock_name% has been reloaded!"
+
+  custom-block:
+
+    give:
+      player-receive: "&aYou have received the &b%customblock_name%&ox&b%amount%&a block"
+      give-player: "&aBlock &b%customblock_name%&ox&b%amount%&a was successfully given to the player &b%player%&a!"
+      give-players: "&aBlock &b%customblock_name%&ox&b%amount%&a was successfully given!"
+
+      no-player: "&cYou have not specified the block receiver!"
+
+    place:
+      placed: "&aSuccessfully placed the block &b%customblock_name%&r&a at location &b%x% %y% %z% &ain the world &b%world%&a!"
+
+      invalid-attached-face: "&cInvalid attached face: %face%. Valid values are: &bnorth, south, east, west, up, down"
+
+      failed: "&cFailed to place the block %customblock_name%: %reason%"
+
+      failed-without-reason: "&cFailed to place the block &b%customblock_name%&r&c at &b%x% %y% %z% &cin the world &b%world%&c!"
+
+      option-description:
+        replace-custom-block: "&eReplaces an existing custom block at the target location"
+        load-chunk: "&eLoads the chunk before placing the block, if needed"
+        break-solid-material: "&eDestroys a solid vanilla block at the target location, if present"
+        silent-place: "&eSuppresses block placement sounds"
+
+    break:
+      broken: "&aSuccessfully broke the block &b%customblock_name%&r&a at location &b%x% %y% %z% &ain the world &b%world%"
+
+      no-custom-block: "&cNo custom block found at &4%x% %y% %z% &cin the world &4%world%&c!"
+
+      option-description:
+        drop-item: "&eDrops the corresponding item when breaking the block"
+        silent-break: "&eSuppresses block breaking sounds"
+
+    editfile:
+      set: "&aBlock &b%s&a parameter &b%s&a was successfully set to \"&b%s&a\"."
+
+
+
+

@@ -13,6 +13,7 @@ import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOpt
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
@@ -39,7 +40,6 @@ public class BlockBreakListener implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void onBlockBreak(BlockBreakEvent event) {
-
         Player player = event.getPlayer();
         Block block = event.getBlock();
         Location blockLocation = block.getLocation();
@@ -71,7 +71,7 @@ public class BlockBreakListener implements Listener {
         CustomBlock customBlock = customBlockService.getCustomBlock(blockLocation);
 
         if (customBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, custom block %s not found.", blockName);
+            ChatUtil.sendMessage(player, StringMessagesValue.CUSTOM_BLOCK_NOT_FOUND.replace("%customblock_name%", blockName));
             event.setCancelled(true);
             return;
         }

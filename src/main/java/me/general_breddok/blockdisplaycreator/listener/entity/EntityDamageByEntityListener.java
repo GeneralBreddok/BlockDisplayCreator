@@ -12,6 +12,7 @@ import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOpt
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
@@ -69,7 +70,7 @@ public class EntityDamageByEntityListener implements Listener {
         CustomBlock customBlock = customBlockService.getCustomBlock(entity);
 
         if (customBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, custom block %s not found.", blockName);
+            ChatUtil.sendMessage(player, StringMessagesValue.CUSTOM_BLOCK_NOT_FOUND.replace("%customblock_name%", blockName));
             return;
         }
 

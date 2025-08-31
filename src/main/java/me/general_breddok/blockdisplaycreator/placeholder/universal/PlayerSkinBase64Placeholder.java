@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.Base64;
 
 public record PlayerSkinBase64Placeholder(Player context) implements UniversalPlaceholder<Player> {
+
     public static String encodeSkinUrl(String skinUrl) {
         JsonObject root = new JsonObject();
         JsonObject textures = new JsonObject();
@@ -28,8 +29,12 @@ public record PlayerSkinBase64Placeholder(Player context) implements UniversalPl
     }
 
     @Override
-    public String applyPlaceholders(String template) {
+    public String apply(String template) {
         if (this.context == null) {
+            return template;
+        }
+
+        if (template.isEmpty()) {
             return template;
         }
 

@@ -1,6 +1,4 @@
 package me.general_breddok.blockdisplaycreator.commandparser;
-
-import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
@@ -12,7 +10,7 @@ public class CommandRegistry {
 
     {
         registry.put("minecraft:summon", SummonCommandLine::new);
-        registry.put("minecraft:function", MCFunctionCommandLine::new);
+        registry.put("minecraft:function", FunctionCommandLine::new);
         registry.put("minecraft:execute", ExecuteCommandLine::new);
     }
 

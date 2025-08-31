@@ -5,8 +5,12 @@ import org.bukkit.entity.Interaction;
 
 public record InteractionPlaceholder(Interaction context) implements UniversalPlaceholder<Interaction> {
     @Override
-    public String applyPlaceholders(String template) {
+    public String apply(String template) {
         if (context == null) {
+            return template;
+        }
+
+        if (template.isEmpty()) {
             return template;
         }
 

@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.experimental.UtilityClass;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
-import me.general_breddok.blockdisplaycreator.commandparser.MCFunctionCommandLine;
+import me.general_breddok.blockdisplaycreator.commandparser.FunctionCommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.SummonDisplayCommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.argument.NbtCommandArgument;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.CommandParseException;
@@ -19,7 +19,6 @@ import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
-import me.general_breddok.blockdisplaycreator.entity.Summoner;
 import me.general_breddok.blockdisplaycreator.entity.interaction.InteractionSummoner;
 import me.general_breddok.blockdisplaycreator.entity.living.ShulkerSummoner;
 import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadException;
@@ -42,7 +41,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Display;
-import org.bukkit.entity.Interaction;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -337,10 +335,10 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
     private SpawnCommandFormat processCommand(Object command, List<CommandLine> displaySummonCommands, String valueName) {
         if (command instanceof String s) {
             if (s.trim().contains("function")) {
-                MCFunctionCommandLine mcFunctionCommandLine = new MCFunctionCommandLine(s);
+                FunctionCommandLine functionCommandLine = new FunctionCommandLine(s);
 
                 try {
-                    displaySummonCommands.add(mcFunctionCommandLine);
+                    displaySummonCommands.add(functionCommandLine);
 
                 } catch (CommandParseException e) {
                     throw new CustomBlockLoadException(e,

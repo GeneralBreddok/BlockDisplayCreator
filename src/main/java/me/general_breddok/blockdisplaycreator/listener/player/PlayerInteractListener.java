@@ -14,6 +14,8 @@ import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigVal
 import me.general_breddok.blockdisplaycreator.file.config.value.LongConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.AbstractCustomBlockPlaceholder;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
@@ -49,12 +51,6 @@ public class PlayerInteractListener implements Listener {
     }
 
     @EventHandler
-    public void onPlayerCommandSend(AsyncPlayerChatEvent event) {
-        event.setMessage(new PlayerSkinBase64Placeholder(event.getPlayer()).applyPlaceholders(event.getMessage()));
-    }
-
-
-    @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
         ItemStack item = event.getItem();
@@ -62,13 +58,10 @@ public class PlayerInteractListener implements Listener {
         Block clickedBlock = event.getClickedBlock();
         CustomBlockRotation customBlockRotation = new BDCCustomBlockRotation(blockFace, EntityRotation.toOppositeYaw(player.getLocation().getYaw()));
 
-        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
-            return;
-
         if (player.getGameMode() == GameMode.ADVENTURE)
             return;
 
-        if (clickedBlock.getType().isInteractable() && !player.isSneaking())
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK || clickedBlock == null)
             return;
 
         if (item == null || item.getItemMeta() == null)
@@ -80,6 +73,9 @@ public class PlayerInteractListener implements Listener {
         if (!(WorldSelection.isEphemeral(clickedBlock) || WorldSelection.isSingleLayerSnow(clickedBlock))) {
             blockLocation.add(blockFace.getDirection());
         }
+
+        if (WorldSelection.isInteractable(clickedBlock) && !player.isSneaking())
+            return;
 
 
         String blockName = CustomBlockKey.holder(item.getItemMeta()).getName();
@@ -109,7 +105,7 @@ public class PlayerInteractListener implements Listener {
         AbstractCustomBlock abstractCustomBlock = customBlockService.getStorage().getAbstractCustomBlock(blockName);
 
         if (abstractCustomBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, no custom block %s in storage.", blockName);
+            ChatUtil.sendMessage(player, StringMessagesValue.CUSTOM_BLOCK_NOT_FOUND.replace("%customblock_name%", blockName));
             return;
         }
 

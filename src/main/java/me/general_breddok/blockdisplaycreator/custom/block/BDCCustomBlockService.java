@@ -15,7 +15,10 @@ import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.entity.display.TranslationVectorAdjustable;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockBreakEvent;
 import me.general_breddok.blockdisplaycreator.event.custom.block.CustomBlockPlaceEvent;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.LocationPlaceholder;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.PlaceholderEngine;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
@@ -35,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Getter
 public class BDCCustomBlockService implements CustomBlockService {
@@ -183,6 +187,7 @@ public class BDCCustomBlockService implements CustomBlockService {
         World world = location.getWorld();
         int chunkX = location.getBlockX() >> 4;
         int chunkZ = location.getBlockZ() >> 4;
+        LocationPlaceholder locationPlaceholder = new LocationPlaceholder(location);
 
         if (world == null) {
             throw new IllegalArgumentException("Location's world cannot be null");
@@ -214,7 +219,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (loadChunk) {
                 location.getChunk().load();
             } else {
-                throw new IllegalArgumentException("Location " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + world.getName() + " is not loaded. Use load_chunk option to load it automatically.");
+                throw new IllegalArgumentException(locationPlaceholder.apply(StringMessagesValue.CUSTOM_BLOCK_PLACE_FAIL_REASON_CHUNK_NOT_LOADED));
             }
         }
 
@@ -225,7 +230,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (breakSolidMaterial) {
                 block.setType(centralMaterial);
             } else {
-                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world \"" + world.getName() + "\" because the block is solid and break_solid_material option is not set.");
+                throw new IllegalArgumentException(locationPlaceholder.apply(StringMessagesValue.CUSTOM_BLOCK_PLACE_FAIL_REASON_SOLID_BLOCK));
             }
         } else {
             block.setType(centralMaterial);
@@ -236,7 +241,7 @@ public class BDCCustomBlockService implements CustomBlockService {
             if (replaceCustomBlock) {
                 this.breakBlock(this.getCustomBlock(location), player);
             } else {
-                throw new IllegalArgumentException("Cannot place custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + world.getName() + " because a custom block is already present at this location. Use replace_custom_block option to replace it.");
+                throw new IllegalArgumentException(locationPlaceholder.apply(StringMessagesValue.CUSTOM_BLOCK_PLACE_FAIL_REASON_CUSTOM_BLOCK_PRESENT));
             }
         }
 
@@ -390,9 +395,10 @@ public class BDCCustomBlockService implements CustomBlockService {
     @Override
     public boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException {
         Location location = customBlock.getLocation();
+        LocationPlaceholder locationPlaceholder = new LocationPlaceholder(location);
 
         if (!isCustomBlockOnLocation(location)) {
-            throw new IllegalArgumentException("Cannot break custom block at " + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + " in world " + location.getWorld().getName() + " because no custom block is present at this location.");
+            throw new IllegalArgumentException(locationPlaceholder.apply(StringMessagesValue.CUSTOM_BLOCK_BREAK_FAIL_REASON_NO_CUSTOM_BLOCK));
         }
 
         boolean dropItem = false;

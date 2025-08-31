@@ -12,6 +12,7 @@ import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
@@ -86,11 +87,6 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
         switch (arg1) {
             case "custom-block" -> {
 
-                /*if (!sender.hasPermission(DefaultPermissions.BDC.Command.CUSTOM_BLOCK)) {
-                    ChatUtil.sendMessage(sender, "&cYou do not have permission to use this command");
-                    return true;
-                }*/
-
                 if (arg2 == null) {
                     return false;
                 }
@@ -110,7 +106,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                         }
 
                         if (!service.getStorage().containsAbstractCustomBlock(arg3)) {
-                            ChatUtil.sendMessage(sender, "&cThis block does not exist!");
+                            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_BLOCK_NOT_EXISTS.replace("%customblock_name%", arg3));
                             return true;
                         }
 
@@ -137,11 +133,15 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
                         if (arg4 == null) {
                             if (player == null) {
-                                ChatUtil.sendMessage(sender, "&cYou didn't specify the block recipients!");
+                                ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_NO_PLAYER);
                                 return true;
                             } else {
                                 ItemUtil.distributeItem(player, customBlockItem);
-                                ChatUtil.sendMessage(sender, "&bYou have received the &l%s&ox%s&r&b block", arg3, amount);
+                                ChatUtil.sendMessage(player,
+                                        StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYER_RECEIVE
+                                                .replace("%customblock_name%", arg3)
+                                                .replace("%amount%", String.valueOf(amount))
+                                );
                             }
                         } else {
                             switch (arg4) {
@@ -780,7 +780,7 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                     .map(commandLine ->
                             {
                                 String lineString = commandLine.toString();
-                                String base64Formatted = new PlayerSkinBase64Placeholder(player).applyPlaceholders(lineString);
+                                String base64Formatted = new PlayerSkinBase64Placeholder(player).apply(lineString);
 
                                 return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
                                         player,

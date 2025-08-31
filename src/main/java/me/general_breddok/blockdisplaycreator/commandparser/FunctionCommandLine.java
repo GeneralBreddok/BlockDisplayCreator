@@ -4,15 +4,14 @@ import lombok.Getter;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.CommandParseException;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.InvalidCommandNameException;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.InvalidNumberOfCommandArgumentsException;
-import org.apache.logging.log4j.message.MessageCollectionMessage;
 import org.jetbrains.annotations.NotNull;
 
 @Getter
-public class MCFunctionCommandLine extends MCCommandLine {
+public class FunctionCommandLine extends MCCommandLine {
     String modulePackName;
     String functionPath;
 
-    public MCFunctionCommandLine(@NotNull String commandLine) throws CommandParseException {
+    public FunctionCommandLine(@NotNull String commandLine) throws CommandParseException {
         super(commandLine);
 
         if (!getName().equals("function")) {

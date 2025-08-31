@@ -72,7 +72,7 @@ public class PlayerInteractEntityListener implements Listener {
         CustomBlock customBlock = customBlockService.getCustomBlock(interaction);
 
         if (customBlock == null) {
-            ChatUtil.sendMessage(player, "&cError, custom block %s not found.", blockName);
+            ChatUtil.sendMessage(player, StringMessagesValue.CUSTOM_BLOCK_NOT_FOUND.replace("%customblock_name%", blockName));
             return;
         }
 

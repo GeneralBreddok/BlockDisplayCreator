@@ -2,23 +2,26 @@ package me.general_breddok.blockdisplaycreator.listener.packet;
 
 import com.github.retrooper.packetevents.event.PacketListener;
 import com.github.retrooper.packetevents.event.PacketReceiveEvent;
+import com.github.retrooper.packetevents.event.PacketSendEvent;
 import com.github.retrooper.packetevents.protocol.packettype.PacketType;
 import com.github.retrooper.packetevents.protocol.packettype.PacketTypeCommon;
+import com.github.retrooper.packetevents.protocol.sound.Sound;
+import com.github.retrooper.packetevents.resources.ResourceLocation;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPickItemFromBlock;
 import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientPickItemFromEntity;
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerSoundEffect;
 import com.jeff_media.customblockdata.CustomBlockData;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockService;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EntityUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.util.LocationUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -61,8 +64,6 @@ public final class PacketReceiveListener {
                     handleSync(event, () -> customBlockService.getCustomBlock(blockLocation), new CustomBlockData(blockLocation.getBlock(), BlockDisplayCreator.getInstance()));
                 }
             }
-
-
 
             private void handleSync(PacketReceiveEvent event, Supplier<CustomBlock> blockSupplier, PersistentDataContainer blockContainer) {
                 if (blockContainer.has(CustomBlockKey.NAME, PersistentDataType.STRING)) {

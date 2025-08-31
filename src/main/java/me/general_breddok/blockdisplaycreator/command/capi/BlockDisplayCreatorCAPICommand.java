@@ -24,7 +24,9 @@ import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
 import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
+import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.placeholder.universal.LocationPlaceholder;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
@@ -66,7 +68,7 @@ public class BlockDisplayCreatorCAPICommand {
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
                 .withRequirement(sender ->
-                                   sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)
+                        sender.hasPermission(DefaultPermissions.BDC.Command.RELOAD)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.ERASE_CB_DATA)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
                                 || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
@@ -89,20 +91,22 @@ public class BlockDisplayCreatorCAPICommand {
                                                 .replaceSuggestions(getCustomBlockSuggestions())
                                                 .setOptional(true)
                                                 .executes((sender, args) -> {
-                                                    String block = (String) args.get("block");
+                                                    String blockName = (String) args.get("block");
 
-                                                    if (block != null) {
+                                                    if (blockName != null) {
                                                         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
-                                                        if (storage.containsAbstractCustomBlock(block)) {
-                                                            storage.reload(block);
-                                                            ChatUtil.sendMessage(sender, "&aBlock %s has been reloaded!", block);
-                                                        } else {
-                                                            ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
+
+                                                        if (!storage.containsAbstractCustomBlock(blockName)) {
+                                                            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_BLOCK_NOT_EXISTS.replace("%customblock_name%", blockName));
+                                                            return;
                                                         }
+
+                                                        storage.reload(blockName);
+                                                        ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD_BLOCK, blockName);
                                                     } else {
-                                                        this.plugin.getYamlConfiguration().reload();
+                                                        this.plugin.getYamlConfiguration().reload(true);
                                                         this.plugin.getMessagesFile().reload(true);
-                                                        this.plugin.getCustomBlockService().getStorage().reloadAll(() -> ChatUtil.sendMessage(sender, "&aConfig has been reloaded!"));
+                                                        this.plugin.getCustomBlockService().getStorage().reloadAll(() -> ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD));
                                                         this.plugin.initializeConfigValues();
                                                     }
                                                 })
@@ -126,7 +130,7 @@ public class BlockDisplayCreatorCAPICommand {
                 ).then(
                         new LiteralArgument("custom-block")
                                 .withRequirement(sender ->
-                                                   sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
+                                        sender.hasPermission(DefaultPermissions.BDC.Command.GIVE_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.PLACE_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.BREAK_CB)
                                                 || sender.hasPermission(DefaultPermissions.BDC.Command.EDITFILE_CB))
@@ -143,19 +147,19 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                         new IntegerArgument("amount", 1, 127)
                                                                                                 .setOptional(true)
                                                                                                 .executes((sender, args) -> {
-                                                                                                    String block = (String) args.get("block");
+                                                                                                    String blockName = (String) args.get("block");
                                                                                                     int amount = (int) args.getOrDefault("amount", 1);
 
                                                                                                     Collection<Player> receivers = (Collection<Player>) args.get("receiver");
 
                                                                                                     CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
-                                                                                                    if (!storage.containsAbstractCustomBlock(block)) {
-                                                                                                        ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
+                                                                                                    if (!storage.containsAbstractCustomBlock(blockName)) {
+                                                                                                        ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_BLOCK_NOT_EXISTS.replace("%customblock_name%", blockName));
                                                                                                         return;
                                                                                                     }
 
-                                                                                                    AbstractCustomBlock abstractCustomBlock = storage.getAbstractCustomBlock(block);
+                                                                                                    AbstractCustomBlock abstractCustomBlock = storage.getAbstractCustomBlock(blockName);
 
                                                                                                     ItemStack item = abstractCustomBlock.getItem();
                                                                                                     item.setAmount(amount);
@@ -167,9 +171,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                             applyPlaceholdersForCommand(abstractCustomBlock, item, player);
 
                                                                                                             ItemUtil.distributeItem(player, item);
-                                                                                                            ChatUtil.sendMessage(player, "&aYou have received the &b%s&ox&b%s&a block", block, amount);
+                                                                                                            ChatUtil.sendMessage(player,
+                                                                                                                    StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYER_RECEIVE
+                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                            .replace("%amount%", String.valueOf(amount))
+                                                                                                            );
                                                                                                         } else {
-                                                                                                            throw CommandAPI.failWithString("You have not specified the block receiver!");
+                                                                                                            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_NO_PLAYER);
                                                                                                         }
                                                                                                     } else {
                                                                                                         for (Player receiver : receivers) {
@@ -177,14 +185,28 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                             applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
 
                                                                                                             ItemUtil.distributeItem(receiver, item);
-                                                                                                            ChatUtil.sendMessage(receiver, "&aYou have received the &b%s&ox&b%s&a block", block, amount);
+                                                                                                            ChatUtil.sendMessage(receiver,
+                                                                                                                    StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYER_RECEIVE
+                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                            .replace("%amount%", String.valueOf(amount))
+                                                                                                            );
                                                                                                         }
 
                                                                                                         if (receivers.size() == 1) {
                                                                                                             Player receiver = receivers.stream().findFirst().get();
-                                                                                                            ChatUtil.sendMessage(sender, "&aBlock &b%s&ox&b%s&a was successfully given to the player &b%s!", block, amount, receiver.getName());
+                                                                                                            ChatUtil.sendMessage(sender,
+                                                                                                                    StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYER
+                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                            .replace("%amount%", String.valueOf(amount))
+                                                                                                                            .replace("%player%", receiver.getName())
+                                                                                                            );
                                                                                                         } else {
-                                                                                                            ChatUtil.sendMessage(sender, "&aBlock &b%s&ox&b%s&a was successfully given!", block, amount);
+                                                                                                            ChatUtil.sendMessage(sender,
+                                                                                                                    StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYERS
+                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                            .replace("%amount%", String.valueOf(amount)
+                                                                                                                            )
+                                                                                                            );
                                                                                                         }
                                                                                                     }
 
@@ -213,13 +235,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                 .withStringTooltipMapper(option -> {
                                                                                                                                     String tooltip = switch (option) {
                                                                                                                                         case REPLACE_CUSTOM_BLOCK ->
-                                                                                                                                                "Replaces an existing custom block at the target location";
+                                                                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_OPTION_DESCRIPTION_REPLACE_CUSTOM_BLOCK);
                                                                                                                                         case LOAD_CHUNK ->
-                                                                                                                                                "Loads the chunk before placing the block, if needed";
+                                                                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_OPTION_DESCRIPTION_LOAD_CHUNK);
                                                                                                                                         case BREAK_SOLID_MATERIAL ->
-                                                                                                                                                "Destroys a solid vanilla block at the target location, if present";
+                                                                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_OPTION_DESCRIPTION_BREAK_SOLID_MATERIAL);
                                                                                                                                         case SILENT_PLACE ->
-                                                                                                                                                "Suppresses block placement sounds";
+                                                                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_OPTION_DESCRIPTION_SILENT_PLACE);
                                                                                                                                     };
                                                                                                                                     return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
                                                                                                                                 })
@@ -227,8 +249,9 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                 .setOptional(true)
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                     Bukkit.getScheduler().runTask(this.plugin, () -> {
-                                                                                                                                        String block = (String) args.get("block");
+                                                                                                                                        String blockName = (String) args.get("block");
                                                                                                                                         Location location = (Location) args.get("location");
+                                                                                                                                        LocationPlaceholder locationPlaceholder = new LocationPlaceholder(location);
                                                                                                                                         String attachedFaceStr = (String) args.getOrDefault("attached-face", "up");
                                                                                                                                         int direction = (int) args.getOrDefault("direction", 0);
                                                                                                                                         List<CustomBlockPlaceOption> options = (List<CustomBlockPlaceOption>) args.getOrDefault("options", Collections.emptyList());
@@ -237,20 +260,19 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
-                                                                                                                                        if (!storage.containsAbstractCustomBlock(block)) {
-                                                                                                                                            ChatUtil.sendMessage(sender, "&cBlock %s does not exist!", block);
+                                                                                                                                        if (!storage.containsAbstractCustomBlock(blockName)) {
+                                                                                                                                            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_BLOCK_NOT_EXISTS.replace("%customblock_name%", blockName));
                                                                                                                                             return;
                                                                                                                                         }
 
                                                                                                                                         try {
                                                                                                                                             attachedFace = BlockFace.valueOf(attachedFaceStr.toUpperCase());
-                                                                                                                                        } catch (
-                                                                                                                                                IllegalArgumentException e) {
-                                                                                                                                            ChatUtil.sendMessage(sender, "&cInvalid attached face: %s. Valid values are: north, south, east, west, up, down", attachedFaceStr);
+                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_INVALID_ATTACHED_FACE.replace("%face%", attachedFaceStr));
                                                                                                                                             return;
                                                                                                                                         }
 
-                                                                                                                                        AbstractCustomBlock abstractCustomBlock = storage.getAbstractCustomBlock(block);
+                                                                                                                                        AbstractCustomBlock abstractCustomBlock = storage.getAbstractCustomBlock(blockName);
 
                                                                                                                                         CustomBlockRotation rotation = new BDCCustomBlockRotation(attachedFace, direction);
 
@@ -259,16 +281,26 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             customBlock = this.plugin.getCustomBlockService().placeBlock(abstractCustomBlock, location.clone().add(0.5, 0, 0.5), rotation, null, options.toArray(CustomBlockPlaceOption[]::new));
                                                                                                                                         } catch (
                                                                                                                                                 IllegalArgumentException e) {
-                                                                                                                                            ChatUtil.sendMessage(sender, "&cFailed to place the block %s: %s", block, e.getMessage());
+                                                                                                                                            ChatUtil.sendMessage(sender,
+                                                                                                                                                    locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_FAILED)
+                                                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                                                            .replace("%reason%", e.getMessage())
+                                                                                                                                                    );
                                                                                                                                             return;
                                                                                                                                         }
 
                                                                                                                                         if (customBlock == null) {
-                                                                                                                                            ChatUtil.sendMessage(sender, "&cFailed to place the block %s at " + location.getX() + ", " + location.getY() + ", " + location.getZ() + " " + " in world " + location.getWorld().getName(), block);
+                                                                                                                                            ChatUtil.sendMessage(sender,
+                                                                                                                                                    locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_FAILED_WITHOUT_REASON)
+                                                                                                                                                            .replace("%customblock_name%", blockName)
+                                                                                                                                            );
                                                                                                                                             return;
                                                                                                                                         }
 
-                                                                                                                                        ChatUtil.sendMessage(sender, "&aSuccessfully placed the block &l%s&r&a at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + " &a!", block);
+                                                                                                                                        ChatUtil.sendMessage(sender,
+                                                                                                                                                locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_PLACED)
+                                                                                                                                                        .replace("%customblock_name%", blockName)
+                                                                                                                                        );
                                                                                                                                     });
                                                                                                                                 })
                                                                                                                 )
@@ -280,7 +312,7 @@ public class BlockDisplayCreatorCAPICommand {
                                         new LiteralArgument("break")
                                                 .withPermission(DefaultPermissions.BDC.Command.BREAK_CB)
                                                 .then(
-                                                        new LocationArgument("location")
+                                                        new LocationArgument("location", LocationType.BLOCK_POSITION)
                                                                 .replaceSuggestions((info, builder) -> {
                                                                     Player player = (Player) info.sender();
 
@@ -290,7 +322,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                         Location customBlockLocation = CustomBlockKey.holder(entity).getLocation();
 
                                                                         if (customBlockLocation != null) {
-                                                                            builder.suggest(customBlockLocation.getX() + " " + customBlockLocation.getY() + " " + customBlockLocation.getZ());
+                                                                            builder.suggest((int) customBlockLocation.getX() + " " + (int) customBlockLocation.getY() + " " + (int) customBlockLocation.getZ());
                                                                             return builder.buildFuture();
                                                                         }
                                                                     }
@@ -301,7 +333,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                             : null;
 
                                                                     if (blockLoc != null && blockLoc.getBlock().getType().isSolid()) {
-                                                                        builder.suggest(blockLoc.getX() + " " + blockLoc.getY() + " " + blockLoc.getZ());
+                                                                        builder.suggest((int) blockLoc.getX() + " " + (int) blockLoc.getY() + " " + (int) blockLoc.getZ());
                                                                         return builder.buildFuture();
                                                                     }
 
@@ -315,9 +347,9 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 .withStringTooltipMapper(option -> {
                                                                                     String tooltip = switch (option) {
                                                                                         case DROP_ITEM ->
-                                                                                                "Drops the corresponding item upon breaking";
+                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_BREAK_OPTION_DESCRIPTION_DROP_ITEM);
                                                                                         case SILENT_BREAK ->
-                                                                                                "Suppresses block breaking sounds";
+                                                                                                ChatUtil.color(StringMessagesValue.COMMAND_CUSTOM_BLOCK_BREAK_OPTION_DESCRIPTION_SILENT_BREAK);
                                                                                     };
                                                                                     return new StringTooltip(option.name().toLowerCase(), Tooltip.messageFromString(tooltip));
                                                                                 })
@@ -326,12 +358,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 .executes((sender, args) -> {
                                                                                             Bukkit.getScheduler().runTask(this.plugin, () -> {
                                                                                                 Location location = (Location) args.get("location");
+                                                                                                LocationPlaceholder locationPlaceholder = new LocationPlaceholder(location);
                                                                                                 List<CustomBlockBreakOption> options = (List<CustomBlockBreakOption>) args.getOrDefault("options", Collections.emptyList());
 
                                                                                                 CustomBlock customBlock = this.plugin.getCustomBlockService().getCustomBlock(location);
 
                                                                                                 if (customBlock == null) {
-                                                                                                    ChatUtil.sendMessage(sender, "&cNo custom block found at &4" + location.getX() + ", " + location.getY() + ", " + location.getZ() + " &cin world &4" + location.getWorld().getName());
+                                                                                                    ChatUtil.sendMessage(sender, locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_BREAK_NO_CUSTOM_BLOCK));
                                                                                                     return;
                                                                                                 }
 
@@ -342,7 +375,9 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                     return;
                                                                                                 }
 
-                                                                                                ChatUtil.sendMessage(sender, "&aSuccessfully broke the block at &b" + location.getX() + " " + location.getY() + " " + location.getZ() + "&a in the world &b" + location.getWorld().getName() + "&a!");
+                                                                                                ChatUtil.sendMessage(sender, locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_BREAK_BROKEN)
+                                                                                                        .replace("%customblock_name%", customBlock.getName())
+                                                                                                );
                                                                                             });
                                                                                         }
                                                                                 )
@@ -397,7 +432,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                     String saveSystemType = (String) args.get("save-system-type");
 
                                                                                                     if (!saveSystemType.equals("yaml-file") && !saveSystemType.equals("item")) {
-                                                                                                        throw CommandAPI.failWithString("Invalid save system type: " + saveSystemType);
+                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid save system type: " + saveSystemType);
                                                                                                     }
 
                                                                                                     setCbConfigValue(block, "save-system", saveSystemType, sender);
@@ -462,9 +497,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                     try {
                                                                                                                         Display.Billboard.valueOf(billboardType.toUpperCase());
-                                                                                                                    } catch (
-                                                                                                                            IllegalArgumentException e) {
-                                                                                                                        throw CommandAPI.failWithString("Invalid billboard type: " + billboardType);
+                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid billboard type: " + billboardType);
                                                                                                                     }
 
                                                                                                                     setCbConfigValue(block, "display.billboard", billboardType, sender);
@@ -566,7 +600,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                     Material actualMaterial = Material.getMaterial(material.toUpperCase());
                                                                                                                     if (actualMaterial == null || !actualMaterial.isItem()) {
-                                                                                                                        throw CommandAPI.failWithString("Invalid material: " + material);
+                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid material: " + material);
                                                                                                                     }
 
                                                                                                                     setCbConfigValue(block, "item.material", material, sender);
@@ -719,9 +753,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                     try {
                                                                                                                                         CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
-                                                                                                                                    } catch (
-                                                                                                                                            IllegalArgumentException e) {
-                                                                                                                                        throw CommandAPI.failWithString("Invalid command source: " + commandSource);
+                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
                                                                                                                                     }
 
                                                                                                                                     setCbConfigValue(block, "interactions." + interactionName + ".command-source", commandSource, sender);
@@ -820,9 +853,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     try {
                                                                                                                                         DyeColor dyeColor = DyeColor.valueOf(color.toUpperCase());
                                                                                                                                         setCbConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
-                                                                                                                                    } catch (
-                                                                                                                                            IllegalArgumentException e) {
-                                                                                                                                        throw CommandAPI.failWithString("Invalid color: " + color);
+                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid color: " + color);
                                                                                                                                     }
                                                                                                                                 })
 
@@ -871,9 +903,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                     try {
                                                                                                                                         CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
-                                                                                                                                    } catch (
-                                                                                                                                            IllegalArgumentException e) {
-                                                                                                                                        throw CommandAPI.failWithString("Invalid command source: " + commandSource);
+                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
                                                                                                                                     }
 
                                                                                                                                     setCbConfigValue(block, "stage-settings." + stage + ".command-source", commandSource, sender);
@@ -922,7 +953,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             String soundName = (String) args.get("sound-name");
 
                                                                                                                                             if (!VersionCompat.getSoundNames().contains(soundName.toUpperCase())) {
-                                                                                                                                                throw CommandAPI.failWithString("Invalid sound type: " + soundName);
+                                                                                                                                                ChatUtil.sendMessage(sender, "&cInvalid sound type: " + soundName);
                                                                                                                                             }
 
                                                                                                                                             if (sender instanceof Player player) {
@@ -963,7 +994,7 @@ public class BlockDisplayCreatorCAPICommand {
             for (var tooltip : this.abstractCustomBlockTooltips) {
                 String name = tooltip.getAbstractCustomBlock().getName();
 
-                if (name.toLowerCase(Locale.ROOT).startsWith(remaining)) {
+                if (name.toLowerCase(Locale.ROOT).contains(remaining)) {
                     String suggestion = tooltip.getSuggestion();
 
                     if (!isValidStringArgument(suggestion)) {
@@ -994,7 +1025,7 @@ public class BlockDisplayCreatorCAPICommand {
         return remaining;
     }
 
-    public static boolean isValidStringArgument(String input) {
+    private boolean isValidStringArgument(String input) {
         return input != null && !input.isEmpty() && input.matches("[A-Za-z0-9_+\\-.]+");
     }
 
@@ -1040,17 +1071,17 @@ public class BlockDisplayCreatorCAPICommand {
     }
 
 
-    private void setCbConfigValue(String block, String path, Object value, CommandSender sender) {
+    private void setCbConfigValue(String blockName, String path, Object value, CommandSender sender) {
         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
 
         if (!(storage instanceof BDCCustomBlockConfigStorage configStorage)) {
             return;
         }
 
-        CustomBlockConfigurationFile file = configStorage.getCustomBlockRepository().getFile(block);
+        CustomBlockConfigurationFile file = configStorage.getCustomBlockRepository().getFile(blockName);
 
         if (file == null) {
-            ChatUtil.sendMessage(sender, "&cBlock &l%s&r&c does not exist!", block);
+            ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_BLOCK_NOT_EXISTS.replace("%customblock_name%", blockName));
             return;
         }
 
@@ -1089,7 +1120,13 @@ public class BlockDisplayCreatorCAPICommand {
         }
 
         file.set(path, value);
-        ChatUtil.sendMessage(sender, "&aBlock &l%s&r&a parameter &l%s&r&a was successfully set to \"&r%s&r&a\".", block, path, valueName);
+        ChatUtil.sendMessage(
+                sender,
+                StringMessagesValue.COMMAND_CUSTOM_BLOCK_EDITFILE_SET
+                        .replace("%customblock_name%", blockName)
+                        .replace("%parameter%", path)
+                        .replace("%value%", valueName)
+        );
     }
 
 
@@ -1158,7 +1195,7 @@ public class BlockDisplayCreatorCAPICommand {
                     .map(commandLine ->
                             {
                                 String lineString = commandLine.toString();
-                                String base64Formatted = new PlayerSkinBase64Placeholder(player).applyPlaceholders(lineString);
+                                String base64Formatted = new PlayerSkinBase64Placeholder(player).apply(lineString);
 
                                 return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
                                         player,

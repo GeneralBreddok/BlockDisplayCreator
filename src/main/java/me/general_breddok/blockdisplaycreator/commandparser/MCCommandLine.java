@@ -12,6 +12,7 @@ import me.general_breddok.blockdisplaycreator.commandparser.exception.CommandPar
 import me.general_breddok.blockdisplaycreator.commandparser.exception.InvalidCommandNameException;
 import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.UniversalPlaceholder;
+import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -132,7 +133,7 @@ public class  MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine>
 
     @Override
     public MCCommandLine clone() {
-        return new MCCommandLine(this.arguments.stream().map(DeepCloneable::tryClone).collect(Collectors.toCollection(ArrayList::new)), this.name, this.namespace);
+        return new MCCommandLine(this.arguments.stream().map(DeepCloneable::tryClone).collect(OperationUtil.toArrayList()), this.name, this.namespace);
     }
 
     @Override
@@ -144,7 +145,7 @@ public class  MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine>
         String stringCommand = this.toString();
 
         for (UniversalPlaceholder<?> placeholder : placeholders) {
-            stringCommand = placeholder.applyPlaceholders(stringCommand);
+            stringCommand = placeholder.apply(stringCommand);
         }
 
         Bukkit.dispatchCommand(sender, stringCommand);
