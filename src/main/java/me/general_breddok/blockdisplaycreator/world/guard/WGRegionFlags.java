@@ -5,7 +5,7 @@ import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.FlagRegistry;
 import org.jetbrains.annotations.Nullable;
 
-public class CBRegionFlags {
+public class WGRegionFlags {
     @Nullable
     public static StateFlag PLACE_CB;
     @Nullable

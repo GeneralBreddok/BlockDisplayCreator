@@ -15,6 +15,7 @@ import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
@@ -63,7 +64,10 @@ public class WGRegionAccessChecker {
         return flagValue == StateFlag.State.ALLOW;
     }
 
-    public static boolean checkRegionAccess(Location location, StateFlag flag, Player player) {
+    public static boolean checkRegionAccess(@NotNull Location location, StateFlag flag, Player player) {
+        if (location.getWorld() == null || player == null)
+            return true;
+
         if (flag == null)
             return true;
 
@@ -79,7 +83,7 @@ public class WGRegionAccessChecker {
         if (region.isMember(localPlayer))
             return true;
 
-        if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS))
+        if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS) || player.hasPermission(DefaultPermissions.WorldGuard.WORLD_REGION_BYPASS + location.getWorld().getName()))
             return true;
 
         return regionAccessChecker.isFlagAllowed(flag, region);

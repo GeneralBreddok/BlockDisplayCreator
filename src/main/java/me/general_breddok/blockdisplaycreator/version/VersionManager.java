@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.Server;
 
+/**
+ * Manages and checks the Minecraft server version.
+ */
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VersionManager {

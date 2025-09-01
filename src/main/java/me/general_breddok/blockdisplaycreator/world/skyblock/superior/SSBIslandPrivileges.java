@@ -1,11 +1,9 @@
-package me.general_breddok.blockdisplaycreator.world.skyblock;
+package me.general_breddok.blockdisplaycreator.world.skyblock.superior;
 
-import com.bgsoftware.superiorskyblock.api.island.IslandFlag;
 import com.bgsoftware.superiorskyblock.api.island.IslandPrivilege;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import org.jetbrains.annotations.Nullable;
 
-public class CBIslandPrivileges {
+public class SSBIslandPrivileges {
     @Nullable
     public static IslandPrivilege PLACE_CB;
     @Nullable

@@ -14,17 +14,14 @@ import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigVal
 import me.general_breddok.blockdisplaycreator.file.config.value.LongConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.AbstractCustomBlockPlaceholder;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
-import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
-import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
-import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandAccessChecker;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -34,7 +31,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -156,14 +152,14 @@ public class PlayerInteractListener implements Listener {
         BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, CBRegionFlags.PLACE_CB, player)) {
+            if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, WGRegionFlags.PLACE_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSIslandAccessChecker.checkIslandAccess(blockLocation, CBIslandPrivileges.PLACE_CB, player)) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(blockLocation, SSBIslandPrivileges.PLACE_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
                 return false;
             }

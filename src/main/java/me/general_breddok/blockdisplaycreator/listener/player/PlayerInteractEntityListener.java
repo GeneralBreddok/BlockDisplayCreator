@@ -17,10 +17,10 @@ import me.general_breddok.blockdisplaycreator.placeholder.universal.InteractionP
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
-import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
-import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandAccessChecker;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -131,14 +131,14 @@ public class PlayerInteractEntityListener implements Listener {
         Location customBlockLocation = customBlock.getLocation();
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, CBRegionFlags.INTERACT_CB, player)) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSIslandAccessChecker.checkIslandAccess(customBlockLocation, CBIslandPrivileges.INTERACT_CB, player)) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
                 return false;
             }

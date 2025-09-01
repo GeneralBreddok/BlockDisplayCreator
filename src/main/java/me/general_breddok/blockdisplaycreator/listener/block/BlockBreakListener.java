@@ -13,14 +13,13 @@ import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOpt
 import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.CustomBlockPlaceholder;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.service.exception.UnregisteredServiceException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
-import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
-import me.general_breddok.blockdisplaycreator.world.skyblock.SSIslandAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandAccessChecker;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -100,14 +99,14 @@ public class BlockBreakListener implements Listener {
         Location customBlockLocation = customBlock.getLocation();
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, CBRegionFlags.BREAK_CB, player)) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.BREAK_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSIslandAccessChecker.checkIslandAccess(customBlockLocation, CBIslandPrivileges.BREAK_CB, player)) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.BREAK_CB, player)) {
                 ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
                 return false;
             }

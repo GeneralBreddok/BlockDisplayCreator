@@ -7,8 +7,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.listener.packet.PacketReceiveListener;
-import me.general_breddok.blockdisplaycreator.world.guard.CBRegionFlags;
-import me.general_breddok.blockdisplaycreator.world.skyblock.CBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 
@@ -69,14 +69,14 @@ public class BDCDependentPluginsManager {
 
     public void registerWorldGuardFlags() {
         if (this.isWorldGuardAvailable()) {
-            CBRegionFlags regionFlags = new CBRegionFlags();
+            WGRegionFlags regionFlags = new WGRegionFlags();
             regionFlags.registerFlags();
         }
     }
 
     public void registerSkyblockFlags() {
         if (this.isSuperiorSkyblockAvailable()) {
-            CBIslandPrivileges islandFlags = new CBIslandPrivileges();
+            SSBIslandPrivileges islandFlags = new SSBIslandPrivileges();
             islandFlags.registerFlags();
         }
     }

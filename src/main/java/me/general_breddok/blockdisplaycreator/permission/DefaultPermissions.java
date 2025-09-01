@@ -23,8 +23,12 @@ public interface DefaultPermissions {
         }
     }
 
-    interface Superior {
-        String SKYBLOCK_BYPASS = "superior.skyblock.bypass";
+    interface SuperiorSkyBlock {
+        String BYPASS = "superior.skyblock.bypass";
+    }
+
+    interface WorldGuard {
+        String WORLD_REGION_BYPASS = "worldguard.region.bypass.";
     }
 
     interface Vanilla {
