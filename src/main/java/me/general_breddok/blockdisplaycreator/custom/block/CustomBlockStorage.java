@@ -42,9 +42,17 @@ public interface CustomBlockStorage {
      * Reloads a specific abstract custom block by its name.
      *
      * @param name the name of the custom block to reload
+     * @param onComplete an optional callback to execute after reloading is complete
      */
-    void reload(@NotNull String name);
-
+    void reload(@NotNull String name, @Nullable Runnable onComplete);
+    /**
+     * Reloads a specific abstract custom block by its name.
+     *
+     * @param name the name of the custom block to reload
+     */
+    default void reload(@NotNull String name) {
+        reload(name, null);
+    }
     /**
      * Adds a new abstract custom block to storage.
      *

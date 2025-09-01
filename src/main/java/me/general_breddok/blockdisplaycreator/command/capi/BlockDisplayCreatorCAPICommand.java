@@ -101,12 +101,16 @@ public class BlockDisplayCreatorCAPICommand {
                                                             return;
                                                         }
 
-                                                        storage.reload(blockName);
-                                                        ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD_BLOCK, blockName);
+                                                        storage.reload(
+                                                                blockName,
+                                                                () -> ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD_BLOCK.replace("%customblock_name%", blockName))
+                                                        );
                                                     } else {
                                                         this.plugin.getYamlConfiguration().reload(true);
                                                         this.plugin.getMessagesFile().reload(true);
-                                                        this.plugin.getCustomBlockService().getStorage().reloadAll(() -> ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD));
+                                                        this.plugin.getCustomBlockService().getStorage().reloadAll(
+                                                                () -> ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_RELOAD)
+                                                        );
                                                         this.plugin.initializeConfigValues();
                                                     }
                                                 })

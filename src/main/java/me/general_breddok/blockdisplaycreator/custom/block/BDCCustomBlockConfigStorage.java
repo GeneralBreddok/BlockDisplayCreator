@@ -36,9 +36,7 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
             ChatUtil.log("&6[BlockDisplayCreator] &eInitializing blocks...");
 
-            BlockDisplayCreator plugin = BlockDisplayCreator.getInstance();
-
-            CustomBlockRepository tempCustomBlockRepository = new CustomBlockFileRepository(plugin);
+            CustomBlockRepository tempCustomBlockRepository = new CustomBlockFileRepository(this.plugin);
             List<AbstractCustomBlock> tempAbstractCustomBlocks = new ArrayList<>();
 
             for (CustomBlockConfigurationFile configurationFile : tempCustomBlockRepository.getFiles()) {
@@ -69,26 +67,34 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     }
 
     @Override
-    public void reload(@NotNull String name) {
+    public void reload(@NotNull String name, @Nullable Runnable onComplete) throws NoSuchElementException {
         if (!getNames().contains(name)) {
             throw new NoSuchElementException("Block \"" + name + "\" is not in storage");
         }
 
-        this.abstractCustomBlocks.removeIf(abstractCustomBlock -> abstractCustomBlock.getName().equals(name));
+        Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
+            this.abstractCustomBlocks.removeIf(abstractCustomBlock -> abstractCustomBlock.getName().equals(name));
 
-        try {
-            CustomBlockConfigurationFile file = this.customBlockRepository.getFile(name);
-            file.reload();
+            try {
+                CustomBlockConfigurationFile file = this.customBlockRepository.getFile(name);
+                file.reload();
 
-            this.abstractCustomBlocks.add(file.getAbstractCustomBlock());
-        } catch (CustomBlockLoadException | IllegalArgumentException e) {
-            ChatUtil.log("&c" + e.getMessage());
-        }
+                this.abstractCustomBlocks.add(file.getAbstractCustomBlock());
+            } catch (CustomBlockLoadException | IllegalArgumentException e) {
+                ChatUtil.log("&c" + e.getMessage());
+            }
 
-        BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
-        if (bdcCommand != null) {
-            bdcCommand.reloadSuggestions();
-        }
+            Bukkit.getScheduler().runTask(this.plugin, () -> {
+                BlockDisplayCreatorCAPICommand bdcCommand = BlockDisplayCreator.getInstance().getBdcCommand();
+                if (bdcCommand != null) {
+                    bdcCommand.reloadSuggestions();
+                }
+
+                if (onComplete != null) {
+                    onComplete.run();
+                }
+            });
+        });
     }
 
     @Override

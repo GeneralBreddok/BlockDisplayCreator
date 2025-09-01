@@ -122,7 +122,6 @@ public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> 
 
     private String getInteractionIdentifier(@NotNull Interaction interaction) {
         String identifier = CustomBlockKey.holder(interaction).getInteractionIdentifier();
-        identifier = DeprecatedFeatureAdapter.checkMissingInteractionIdentifier(identifier);
 
         return identifier;
     }
