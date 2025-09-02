@@ -14,6 +14,7 @@ import me.general_breddok.blockdisplaycreator.file.config.value.BooleanConfigVal
 import me.general_breddok.blockdisplaycreator.file.config.value.LongConfigValue;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
+import me.general_breddok.blockdisplaycreator.rotation.BlockRotation;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
@@ -52,7 +53,6 @@ public class PlayerInteractListener implements Listener {
         ItemStack item = event.getItem();
         BlockFace blockFace = event.getBlockFace();
         Block clickedBlock = event.getClickedBlock();
-        CustomBlockRotation customBlockRotation = new BDCCustomBlockRotation(blockFace, EntityRotation.toOppositeYaw(player.getLocation().getYaw()));
 
         if (player.getGameMode() == GameMode.ADVENTURE)
             return;
@@ -110,11 +110,18 @@ public class PlayerInteractListener implements Listener {
             return;
         }
 
+        CustomBlockPlacementMode placementMode = abstractCustomBlock.getPlacementMode();
+        blockFace = resolvePlacementFace(placementMode, blockFace);
+
+        if (blockFace == null) {
+            return;
+        }
+
         if (abstractCustomBlock.getSaveSystem().equals("item")) {
             configureDataFromItem(item, blockLocation, abstractCustomBlock);
         }
 
-
+        CustomBlockRotation customBlockRotation = new BDCCustomBlockRotation(blockFace, EntityRotation.toOppositeYaw(player.getLocation().getYaw()));
         CustomBlock customBlock = null;
         try {
             customBlock = customBlockService.placeBlock(abstractCustomBlock, blockLocation, customBlockRotation, player);
@@ -172,5 +179,35 @@ public class PlayerInteractListener implements Listener {
             return false;
         }
         return true;
+    }
+
+    private BlockFace resolvePlacementFace(CustomBlockPlacementMode placementMode, BlockFace blockFace) {
+        if (placementMode == null) {
+            return blockFace;
+        }
+
+        switch (placementMode) {
+            case WALLS_ONLY:
+                if (BlockRotation.isVerticalFace(blockFace)) {
+                    return null;
+                }
+                break;
+
+            case VERTICAL_ONLY:
+                if (!BlockRotation.isVerticalFace(blockFace)) {
+                    return null;
+                }
+                break;
+
+            case VERTICAL_WITH_WALLS:
+                if (!BlockRotation.isVerticalFace(blockFace)) {
+                    return BlockFace.UP;
+                }
+                break;
+            default:
+                break;
+        }
+
+        return blockFace;
     }
 }

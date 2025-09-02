@@ -105,8 +105,6 @@ public interface CustomBlockService {
     static CustomBlockService getService(ServiceManager<String, CustomBlockService> serviceManager, PersistentDataHolder holder) {
         String serviceClassName = CustomBlockKey.holder(holder).getServiceClass();
 
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
         CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
 
         if (customBlockService == null) {

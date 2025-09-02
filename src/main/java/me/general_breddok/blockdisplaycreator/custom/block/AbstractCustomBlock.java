@@ -34,6 +34,13 @@ public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> 
 
     void setName(String name);
 
+    /**
+     * Gets the class name of the service that handles the custom block's behavior.
+     *
+     * @return Class name of the service as a String.
+     *
+     * <p> <b> Note: </b> {@link Class#getName()} is used to get the class name of the service </p>
+     */
     @NotNull
     String getServiceClassName();
 
@@ -82,7 +89,15 @@ public interface AbstractCustomBlock extends DeepCloneable<AbstractCustomBlock> 
     void setStageSettings(CustomBlockStageSettings stageSettings);
 
     String getSaveSystem();
+
     void setSaveSystem(String saveSystem);
+
+    @Nullable
+    CustomBlockPlacementMode getPlacementMode();
+
+    void setPlacementMode(CustomBlockPlacementMode placementMode);
+
+
 
     default List<Display> spawnDisplay(@NotNull Location location, @Nullable Predicate<Display> iteration) {
         return getDisplaySummoner().summon(location, iteration);

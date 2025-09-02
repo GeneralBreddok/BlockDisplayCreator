@@ -5,6 +5,7 @@ import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundleDta;
 import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockRotation;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPlacementMode;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.data.exception.IllegalEnumNameException;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
@@ -34,6 +35,12 @@ import java.util.*;
 public interface PersistentDataTypes {
 
     PersistentDataType<String, Material> MATERIAL = PersistentDataTypeStore.newEnumPersistentDataType(Material.class);
+    PersistentDataType<String, CustomBlockPlacementMode> CUSTOM_BLOCK_PLACEMENT_MODE = PersistentDataTypeStore.newPersistentDataType(
+            String.class,
+            CustomBlockPlacementMode.class,
+            (complex, context) -> complex.getKey(),
+            (primitive, context) -> CustomBlockPlacementMode.getByKey(primitive)
+    );
     PersistentDataType<String, DyeColor> DYE_COLOR = PersistentDataTypeStore.newEnumPersistentDataType(DyeColor.class);
     PersistentDataType<String, Sound> SOUND = PersistentDataTypeStore.newPersistentDataType(
             String.class,
@@ -177,9 +184,7 @@ public interface PersistentDataTypes {
     PersistentDataType<String, CustomBlockRotation> CUSTOM_BLOCK_ROTATION = PersistentDataTypeStore.newPersistentDataType(
             String.class,
             CustomBlockRotation.class,
-
             (complex, context) -> complex.getAttachedFace().name() + ":" + complex.getDirection(),
-
             (primitive, context) -> {
                 String[] parts = primitive.split(":");
                 if (parts.length != 2) {

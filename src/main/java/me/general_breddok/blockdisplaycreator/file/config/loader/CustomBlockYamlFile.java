@@ -75,14 +75,14 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         CustomBlockStageSettings customBlockStageSettings = this.getCustomBlockStageSettings();
 
 
-        if (WorldSelection.isEmptyBlock(centralMaterial) && configuredInteractions.isEmpty()  && configuredCollisions.isEmpty()) {
+        if (WorldSelection.isEmptyBlock(centralMaterial) && configuredInteractions.isEmpty() && configuredCollisions.isEmpty()) {
             configuredInteractions.add(new ConfiguredInteractionDta(
                     new InteractionSummoner(0.1f, 0.1f),
                     "interaction"
             ));
         }
 
-        return new BDCAbstractCustomBlock(this.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem(), BDCCustomBlockService.class.getName());
+        return new BDCAbstractCustomBlock(this.getName(),  BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem(), getPlacementMode());
     }
 
     @Override
@@ -254,13 +254,9 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
         int cooldown;
 
-        try {
-            String cooldownPath = path + ".cooldown";
+        String cooldownPath = path + ".cooldown";
 
-            cooldown = intYD.get(cooldownPath, 0);
-        } catch (ConfigurationDataTypeMismatchException e) {
-            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&r&c, parameter %s.cooldown: &4%s&r&c is not a &7integer!", getName(), path, e.getReceivedValue());
-        }
+        cooldown = intYD.get(cooldownPath, 0);
 
         return cooldown;
     }
@@ -635,8 +631,6 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             centralMaterial = file.get(ParameterLocators.CENTRAL_MATERIAL, Material.BARRIER);
         } catch (IllegalEnumNameException e) {
             throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&r&c, central-material: &4%s&r&c is not a &7Material", getName(), e.getInvalidName());
-        } catch (ConfigurationDataTypeMismatchException e) {
-            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&r&c, central-material: &4%s&r&c is not a &7Material", getName(), e.getReceivedValue());
         }
 
         if (!centralMaterial.isBlock()) {
@@ -644,6 +638,18 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         }
 
         return centralMaterial;
+    }
+
+    public CustomBlockPlacementMode getPlacementMode() {
+        CustomBlockPlacementMode placementMode;
+
+        try {
+            placementMode = file.get(ParameterLocators.PLACEMENT_MODE);
+        } catch (IllegalArgumentException e) {
+            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&c, parameter placement-mode: %s", getName(), e.getMessage());
+        }
+
+        return placementMode;
     }
 
     public String getSaveSystem() {
@@ -684,6 +690,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         ConfigLocator<Material> CENTRAL_MATERIAL = new ConfigLocator<>(("central-material"), TypeTokens.MATERIAL);
         ConfigLocator<Short> SIDES_COUNT = new ConfigLocator<>("sides-count", TypeTokens.SHORT);
         ConfigLocator<String> SAVE_SYSTEM = new ConfigLocator<>("save-system", TypeTokens.STRING);
+        ConfigLocator<CustomBlockPlacementMode> PLACEMENT_MODE = new ConfigLocator<>("placement-mode", TypeTokens.CUSTOM_BLOCK_PLACEMENT_MODE);
 
         String INTERACTION_PATH = "interactions";
         String COLLISION_PATH = "collisions";

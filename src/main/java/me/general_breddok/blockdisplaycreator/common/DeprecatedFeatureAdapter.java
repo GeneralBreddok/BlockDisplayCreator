@@ -13,13 +13,6 @@ import java.util.UUID;
 @UtilityClass
 @Deprecated
 public final class DeprecatedFeatureAdapter {
-    public String checkMissingServiceClass(String serviceClass) {
-        if (serviceClass == null) {
-            return BlockDisplayCreator.getInstance().getCustomBlockService().getClass().getName();
-        }
-        return serviceClass;
-    }
-
     public UUID checkMissingCustomBlockUUID(UUID uuid) {
         if (uuid == null) {
             return UUID.randomUUID();

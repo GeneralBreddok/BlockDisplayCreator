@@ -3,6 +3,7 @@ package me.general_breddok.blockdisplaycreator.data.manager;
 import com.google.common.reflect.TypeToken;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPlacementMode;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
@@ -62,6 +63,7 @@ public interface TypeTokens {
     TypeToken<Map<Integer, Object>> INTEGER_OBJECT_MAP = new TypeToken<>() {};
 
     TypeToken<Material> MATERIAL = TypeToken.of(Material.class);
+    TypeToken<CustomBlockPlacementMode> CUSTOM_BLOCK_PLACEMENT_MODE = TypeToken.of(CustomBlockPlacementMode.class);
     TypeToken<Location> LOCATION = TypeToken.of(Location.class);
     TypeToken<ItemFlag> ITEM_FLAG = TypeToken.of(ItemFlag.class);
     TypeToken<Sound> SOUND = TypeToken.of(Sound.class);

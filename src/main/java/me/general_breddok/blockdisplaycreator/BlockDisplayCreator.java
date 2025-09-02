@@ -182,6 +182,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
         yamlStore.register(TypeTokens.COMMAND_BUNDLE, PersistentDataTypes.COMMAND_BUNDLE);
         yamlStore.register(TypeTokens.DYE_COLOR, PersistentDataTypes.DYE_COLOR);
         yamlStore.register(TypeTokens.DIRECTED_VECTOR, PersistentDataTypes.DIRECTED_VECTOR);
+        yamlStore.register(TypeTokens.CUSTOM_BLOCK_PLACEMENT_MODE, PersistentDataTypes.CUSTOM_BLOCK_PLACEMENT_MODE);
     }
 
     @Override

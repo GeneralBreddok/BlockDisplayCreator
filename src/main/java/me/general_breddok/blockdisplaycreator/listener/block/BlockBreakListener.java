@@ -58,8 +58,6 @@ public class BlockBreakListener implements Listener {
 
         String serviceClassName = customBlockData.get(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING);
 
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
         CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
 
         if (customBlockService == null) {

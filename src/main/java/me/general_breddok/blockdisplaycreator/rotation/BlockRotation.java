@@ -92,6 +92,13 @@ public class BlockRotation {
         };
     }
 
+    public static boolean isVerticalFace(BlockFace face) {
+        return switch (face) {
+            case UP, DOWN -> true;
+            default -> false;
+        };
+    }
+
     @Override
     @SuppressWarnings("CloneDoesntCallSuperClone")
     public BlockRotation clone() {

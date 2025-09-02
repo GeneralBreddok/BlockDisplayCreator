@@ -14,6 +14,7 @@ import org.bukkit.entity.Display;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 
 
@@ -25,6 +26,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PROTECTED)
 public class BDCAbstractCustomBlock implements AbstractCustomBlock {
     String name;
+    String serviceClassName;
     GroupSummoner<Display> displaySummoner;
     List<ConfiguredInteraction> configuredInteractions;
     List<ConfiguredCollision> configuredCollisions;
@@ -38,23 +40,24 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
     @Nullable
     CustomBlockStageSettings stageSettings;
     String saveSystem;
-
-    String serviceClassName;
+    @Nullable
+    CustomBlockPlacementMode placementMode;
 
     public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions) {
         this(name, displaySummoner, configuredInteractions, List.of());
     }
 
     public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions) {
-        this(name, displaySummoner, configuredInteractions, configuredCollisions,null, BDCCustomBlockService.class.getName());
+        this(name, BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions,null);
     }
 
-    public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, String serviceClassName) {
-        this(name, displaySummoner, configuredInteractions, configuredCollisions,null, serviceClassName);
+    public BDCAbstractCustomBlock(String name, String serviceClassName, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions) {
+        this(name, serviceClassName, displaySummoner, configuredInteractions, configuredCollisions,null);
     }
 
-    public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, ItemStack item, String serviceClassName) {
+    public BDCAbstractCustomBlock(String name, String serviceClassName, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, ItemStack item) {
         this(name,
+                serviceClassName,
                 displaySummoner,
                 configuredInteractions,
                 configuredCollisions,
@@ -63,13 +66,13 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 (short) 4,
                 null,
                 new BDCCustomBlockSoundGroup(new SimplePlayableSound(Sound.BLOCK_LODESTONE_PLACE), new SimplePlayableSound(Sound.ITEM_LODESTONE_COMPASS_LOCK)),
-                null,
-                serviceClassName
+                null
         );
     }
 
     public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, ItemStack item) {
         this(name,
+                BDCCustomBlockService.class.getName(),
                 displaySummoner,
                 configuredInteractions,
                 configuredCollisions,
@@ -78,13 +81,13 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 (short) 4,
                 null,
                 new BDCCustomBlockSoundGroup(new SimplePlayableSound(Sound.BLOCK_LODESTONE_PLACE), new SimplePlayableSound(Sound.ITEM_LODESTONE_COMPASS_LOCK)),
-                null,
-                BDCCustomBlockService.class.getName()
+                null
         );
     }
 
-    public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, ItemStack item, Material centralMaterial, short sidesCount, CustomBlockPermissions permissions, CustomBlockSoundGroup soundGroup, CustomBlockStageSettings stageSettings, String serviceClassName) {
+    public BDCAbstractCustomBlock(String name, String serviceClassName, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions, List<ConfiguredCollision> configuredCollisions, ItemStack item, Material centralMaterial, short sidesCount, CustomBlockPermissions permissions, CustomBlockSoundGroup soundGroup, CustomBlockStageSettings stageSettings) {
         this(name,
+                serviceClassName,
                 displaySummoner,
                 configuredInteractions,
                 configuredCollisions,
@@ -94,8 +97,8 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 permissions,
                 soundGroup,
                 stageSettings,
-                serviceClassName,
-                "yaml-file"
+                "yaml-file",
+                CustomBlockPlacementMode.DEFAULT
         );
     }
 
@@ -107,6 +110,7 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
         List<ConfiguredCollision> clonedConfiguredCollisions = DeepCloneable.tryCloneList(this.configuredCollisions);
         return new BDCAbstractCustomBlock(
                 this.name,
+                this.serviceClassName,
                 DeepCloneable.tryClone(this.displaySummoner),
                 clonedConfiguredInteractions,
                 clonedConfiguredCollisions,
@@ -117,7 +121,7 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 this.soundGroup,
                 this.stageSettings,
                 this.saveSystem,
-                this.serviceClassName
+                this.placementMode
         );
     }
 }
