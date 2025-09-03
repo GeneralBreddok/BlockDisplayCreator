@@ -39,7 +39,7 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
 
     public BDCCustomBlock(AbstractCustomBlock acb, Location location, CustomBlockRotation rotation, List<Display> displays, List<Interaction> interactions, List<Shulker> collisions, UUID uuid) {
-        super(acb.getName(), acb.getServiceClassName(), acb.getDisplaySummoner(), acb.getConfiguredInteractions(), acb.getConfiguredCollisions(), acb.getItem(), acb.getCentralMaterial(), acb.getSidesCount(), acb.getPermissions(), acb.getSoundGroup(), acb.getStageSettings(), acb.getSaveSystem(), acb.getPlacementMode());
+        super(acb.getName(), acb.getServiceClassName(), acb.getDisplaySummoner(), acb.getConfiguredInteractions(), acb.getConfiguredCollisions(), acb.getItem(), acb.getCentralMaterial(), acb.getSidesCount(), acb.getPermissions(), acb.getSoundGroup(), acb.getStageSettings(), acb.getSaveSystem());
         this.location = location;
         this.rotation = rotation;
         this.displays = displays;

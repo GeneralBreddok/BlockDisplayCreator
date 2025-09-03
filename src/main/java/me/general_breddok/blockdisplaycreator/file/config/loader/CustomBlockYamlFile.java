@@ -82,7 +82,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             ));
         }
 
-        return new BDCAbstractCustomBlock(this.getName(),  BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem(), getPlacementMode());
+        return new BDCAbstractCustomBlock(this.getName(),  BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem());
     }
 
     @Override
@@ -486,12 +486,32 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
     public CustomBlockStageSettings getCustomBlockStageSettings() {
         CommandBundle placeCommandBundle;
+        CustomBlockPlaceSettings.PlacementMode placementMode;
+
         CommandBundle breakCommandBundle;
+        CustomBlockBreakSettings.DropMode dropMode;
+
 
         placeCommandBundle = getCommandBundle(ParameterLocators.StageSettings.PLACE_COMMAND_BUNDLE.getPath());
         breakCommandBundle = getCommandBundle(ParameterLocators.StageSettings.BREAK_COMMAND_BUNDLE.getPath());
 
-        return new BDCCustomBlockStageSettings(placeCommandBundle, breakCommandBundle);
+        try {
+            placementMode = file.get(ParameterLocators.StageSettings.PLACEMENT_MODE, CustomBlockPlaceSettings.PlacementMode.DEFAULT);
+        } catch (IllegalEnumNameException e) {
+            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&c, parameter stage-settings.placement-mode: &4%s&r&c is not a &3PlacementMode!", getName(), e.getInvalidName());
+        }
+
+        try {
+            dropMode = file.get(ParameterLocators.StageSettings.DROP_MODE, CustomBlockBreakSettings.DropMode.ON_GROUND);
+        } catch (IllegalEnumNameException e) {
+            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&c, parameter stage-settings.drop-mode: &4%s&r&c is not a &3DropMode!", getName(), e.getInvalidName());
+        }
+
+
+        return new BDCCustomBlockStageSettings(
+                new BDCCustomBlockPlaceSettings(placementMode, placeCommandBundle),
+                new BDCCustomBlockBreakSettings(dropMode, breakCommandBundle)
+        );
     }
 
     public CustomBlockPermissions getCustomBlockPermissions() {
@@ -640,18 +660,6 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         return centralMaterial;
     }
 
-    public CustomBlockPlacementMode getPlacementMode() {
-        CustomBlockPlacementMode placementMode;
-
-        try {
-            placementMode = file.get(ParameterLocators.PLACEMENT_MODE);
-        } catch (IllegalArgumentException e) {
-            throw new CustomBlockLoadException(e, "&cUnable to load block &6%s&c, parameter placement-mode: %s", getName(), e.getMessage());
-        }
-
-        return placementMode;
-    }
-
     public String getSaveSystem() {
         return file.get(ParameterLocators.SAVE_SYSTEM, "yaml-file");
     }
@@ -690,7 +698,6 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
         ConfigLocator<Material> CENTRAL_MATERIAL = new ConfigLocator<>(("central-material"), TypeTokens.MATERIAL);
         ConfigLocator<Short> SIDES_COUNT = new ConfigLocator<>("sides-count", TypeTokens.SHORT);
         ConfigLocator<String> SAVE_SYSTEM = new ConfigLocator<>("save-system", TypeTokens.STRING);
-        ConfigLocator<CustomBlockPlacementMode> PLACEMENT_MODE = new ConfigLocator<>("placement-mode", TypeTokens.CUSTOM_BLOCK_PLACEMENT_MODE);
 
         String INTERACTION_PATH = "interactions";
         String COLLISION_PATH = "collisions";
@@ -746,7 +753,10 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             String STAGE_SETTINGS_PATH = "stage-settings";
 
             ConfigLocator<CommandBundle> PLACE_COMMAND_BUNDLE = new ConfigLocator<>(STAGE_SETTINGS_PATH + ".place", TypeTokens.COMMAND_BUNDLE);
+            ConfigLocator<CustomBlockPlaceSettings.PlacementMode> PLACEMENT_MODE = new ConfigLocator<>(STAGE_SETTINGS_PATH + ".place.placement-mode", TypeTokens.CUSTOM_BLOCK_PLACEMENT_MODE);
+
             ConfigLocator<CommandBundle> BREAK_COMMAND_BUNDLE = new ConfigLocator<>(STAGE_SETTINGS_PATH + ".break", TypeTokens.COMMAND_BUNDLE);
+            ConfigLocator<CustomBlockBreakSettings.DropMode> DROP_MODE = new ConfigLocator<>(STAGE_SETTINGS_PATH + ".break.drop-mode", TypeTokens.CUSTOM_BLOCK_DROP_MODE);
         }
     }
 }

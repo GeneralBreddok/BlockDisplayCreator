@@ -23,8 +23,8 @@ public class BlockRotation {
     }
 
     public static BlockRotation fromEntityRotation(EntityRotation entityRotation) {
-        BlockFace directionFace = getDirectionFaceFromYaw(entityRotation.getYaw());
-        BlockFace attachedFace = getAttachedFaceFromPitch(entityRotation.getPitch());
+        BlockFace directionFace = getFaceFromYaw(entityRotation.getYaw());
+        BlockFace attachedFace = getFaceFromPitch(entityRotation.getPitch());
         return new BlockRotation(attachedFace, directionFace);
     }
 
@@ -50,7 +50,7 @@ public class BlockRotation {
         };
     }
 
-    public static BlockFace getDirectionFaceFromYaw(float yaw) {
+    public static BlockFace getFaceFromYaw(float yaw) {
         if (yaw >= 337.5 || yaw < 22.5) {
             return BlockFace.SOUTH;
         } else if (yaw >= 22.5 && yaw < 67.5) {
@@ -70,7 +70,19 @@ public class BlockRotation {
         }
     }
 
-    public static BlockFace getAttachedFaceFromPitch(float pitch) {
+    public static BlockFace getCardinalFaceFromYaw(float yaw) {
+        if (yaw >= 45 && yaw < 135) {
+            return BlockFace.WEST;
+        } else if (yaw >= 135 && yaw < 225) {
+            return BlockFace.NORTH;
+        } else if (yaw >= 225 && yaw < 315) {
+            return BlockFace.EAST;
+        } else {
+            return BlockFace.SOUTH;
+        }
+    }
+
+    public static BlockFace getFaceFromPitch(float pitch) {
         if (pitch < -67.5) {
             return BlockFace.UP;
         } else if (pitch > 67.5) {

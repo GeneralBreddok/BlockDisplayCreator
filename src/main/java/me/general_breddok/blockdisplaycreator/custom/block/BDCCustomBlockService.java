@@ -23,6 +23,7 @@ import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
+import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
@@ -364,7 +365,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         CustomBlockStageSettings stageSettings = abstractCustomBlock.getStageSettings();
         if (stageSettings != null) {
-            CommandBundle placeCommandBundle = stageSettings.getPlaceCommandBundle();
+            CommandBundle placeCommandBundle = stageSettings.getPlaceSettings().getCommandBundle();
             if (placeCommandBundle != null) {
                 CommandBundle.CommandSource commandSource = placeCommandBundle.getCommandSource();
                 if (commandSource == CommandBundle.CommandSource.PLAYER && player != null) {
@@ -395,7 +396,12 @@ public class BDCCustomBlockService implements CustomBlockService {
     @Override
     public boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException {
         Location location = customBlock.getLocation();
+        World world = location.getWorld();
         LocationPlaceholder locationPlaceholder = new LocationPlaceholder(location);
+
+        if (world == null) {
+            throw new IllegalArgumentException("Location's world cannot be null");
+        }
 
         if (!isCustomBlockOnLocation(location)) {
             throw new IllegalArgumentException(locationPlaceholder.apply(StringMessagesValue.CUSTOM_BLOCK_BREAK_FAIL_REASON_NO_CUSTOM_BLOCK));
@@ -419,7 +425,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
         CustomBlockStageSettings stageSettings = customBlock.getStageSettings();
         if (stageSettings != null) {
-            CommandBundle breakCommandBundle = stageSettings.getBreakCommandBundle();
+            CommandBundle breakCommandBundle = stageSettings.getBreakSettings().getCommandBundle();
             if (breakCommandBundle != null) {
                 breakCommandBundle.execute(player, new CustomBlockPlaceholder[]{new CustomBlockPlaceholder(customBlock)});
             }
@@ -448,7 +454,23 @@ public class BDCCustomBlockService implements CustomBlockService {
         clearCustomBlockData(customBlockData);
 
         if (dropItem) {
-            location.getWorld().dropItemNaturally(location, customBlock.getItem());
+            ItemStack customBlockItem = customBlock.getItem();
+            customBlockItem.setAmount(1);
+
+
+            if (stageSettings != null) {
+
+                CustomBlockBreakSettings.DropMode dropMode = stageSettings.getBreakSettings().getDropMode();
+                if (dropMode == CustomBlockBreakSettings.DropMode.INVENTORY && player != null) {
+
+                    ItemUtil.distributeItem(player, customBlockItem);
+                } else if (dropMode == CustomBlockBreakSettings.DropMode.ON_GROUND) {
+
+                    world.dropItemNaturally(location, customBlockItem);
+                }
+            } else {
+                world.dropItemNaturally(location, customBlockItem);
+            }
         }
 
         if (!silentBreak) {
@@ -461,6 +483,7 @@ public class BDCCustomBlockService implements CustomBlockService {
     public static CustomBlockData createCustomBlockData(CustomBlock customBlock, List<UUID> displayVehicleUuids) {
         CustomBlockData customBlockData = new CustomBlockData(customBlock.getLocation().getBlock(), BlockDisplayCreator.getInstance());
         customBlockData.set(CustomBlockKey.NAME, PersistentDataType.STRING, customBlock.getName());
+        customBlockData.set(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING, BDCCustomBlockService.class.getName());
         customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, displayVehicleUuids.toArray(UUID[]::new));
         customBlockData.set(CustomBlockKey.INTERACTION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getInteractions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
         customBlockData.set(CustomBlockKey.COLLISION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getCollisions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
@@ -495,6 +518,7 @@ public class BDCCustomBlockService implements CustomBlockService {
 
     public static void clearCustomBlockData(CustomBlockData customBlockData) {
         customBlockData.remove(CustomBlockKey.NAME);
+        customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
         customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
         customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
         customBlockData.remove(CustomBlockKey.COLLISION_UUID);

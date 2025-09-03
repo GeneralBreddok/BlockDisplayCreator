@@ -110,11 +110,14 @@ public class PlayerInteractListener implements Listener {
             return;
         }
 
-        CustomBlockPlacementMode placementMode = abstractCustomBlock.getPlacementMode();
-        blockFace = resolvePlacementFace(placementMode, blockFace);
+        CustomBlockStageSettings stageSettings = abstractCustomBlock.getStageSettings();
+        if (stageSettings != null) {
+            CustomBlockPlaceSettings.PlacementMode placementMode = stageSettings.getPlaceSettings().getPlacementMode();
+            blockFace = resolvePlacementFace(placementMode, blockFace, player);
 
-        if (blockFace == null) {
-            return;
+            if (blockFace == null) {
+                return;
+            }
         }
 
         if (abstractCustomBlock.getSaveSystem().equals("item")) {
@@ -181,13 +184,13 @@ public class PlayerInteractListener implements Listener {
         return true;
     }
 
-    private BlockFace resolvePlacementFace(CustomBlockPlacementMode placementMode, BlockFace blockFace) {
+    private BlockFace resolvePlacementFace(CustomBlockPlaceSettings.PlacementMode placementMode, BlockFace blockFace, Player player) {
         if (placementMode == null) {
             return blockFace;
         }
 
         switch (placementMode) {
-            case WALLS_ONLY:
+            case HORIZONTAL_ONLY:
                 if (BlockRotation.isVerticalFace(blockFace)) {
                     return null;
                 }
@@ -199,9 +202,18 @@ public class PlayerInteractListener implements Listener {
                 }
                 break;
 
-            case VERTICAL_WITH_WALLS:
+            case VERTICAL_WITH_HORIZONTAL:
                 if (!BlockRotation.isVerticalFace(blockFace)) {
                     return BlockFace.UP;
+                }
+                break;
+            case HORIZONTAL_WITH_VERTICAL:
+                if (BlockRotation.isVerticalFace(blockFace)) {
+                    return BlockRotation.getCardinalFaceFromYaw(
+                            EntityRotation.toOppositeYaw(
+                                    player.getLocation().getYaw()
+                            )
+                    );
                 }
                 break;
             default:

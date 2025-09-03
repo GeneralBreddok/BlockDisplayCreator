@@ -12,6 +12,18 @@ import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class BDCCustomBlockStageSettings implements CustomBlockStageSettings {
-    CommandBundle placeCommandBundle;
-    CommandBundle breakCommandBundle;
+    CustomBlockPlaceSettings placeSettings;
+    CustomBlockBreakSettings breakSettings;
+
+    public BDCCustomBlockStageSettings() {
+        this(new BDCCustomBlockPlaceSettings(), new BDCCustomBlockBreakSettings());
+    }
+
+    public BDCCustomBlockStageSettings(CustomBlockPlaceSettings placeSettings) {
+        this(placeSettings, new BDCCustomBlockBreakSettings());
+    }
+
+    public BDCCustomBlockStageSettings(CustomBlockBreakSettings breakSettings) {
+        this(new BDCCustomBlockPlaceSettings(), breakSettings);
+    }
 }

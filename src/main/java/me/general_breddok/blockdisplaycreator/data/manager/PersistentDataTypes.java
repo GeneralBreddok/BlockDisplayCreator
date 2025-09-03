@@ -5,7 +5,8 @@ import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundleDta;
 import me.general_breddok.blockdisplaycreator.custom.block.BDCCustomBlockRotation;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPlacementMode;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockBreakSettings;
+import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockPlaceSettings;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockRotation;
 import me.general_breddok.blockdisplaycreator.data.exception.IllegalEnumNameException;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
@@ -35,12 +36,8 @@ import java.util.*;
 public interface PersistentDataTypes {
 
     PersistentDataType<String, Material> MATERIAL = PersistentDataTypeStore.newEnumPersistentDataType(Material.class);
-    PersistentDataType<String, CustomBlockPlacementMode> CUSTOM_BLOCK_PLACEMENT_MODE = PersistentDataTypeStore.newPersistentDataType(
-            String.class,
-            CustomBlockPlacementMode.class,
-            (complex, context) -> complex.getKey(),
-            (primitive, context) -> CustomBlockPlacementMode.getByKey(primitive)
-    );
+    PersistentDataType<String, CustomBlockPlaceSettings.PlacementMode> CUSTOM_BLOCK_PLACEMENT_MODE = PersistentDataTypeStore.newEnumPersistentDataType(CustomBlockPlaceSettings.PlacementMode.class);
+    PersistentDataType<String, CustomBlockBreakSettings.DropMode> CUSTOM_BLOCK_DROP_MODE = PersistentDataTypeStore.newEnumPersistentDataType(CustomBlockBreakSettings.DropMode.class);
     PersistentDataType<String, DyeColor> DYE_COLOR = PersistentDataTypeStore.newEnumPersistentDataType(DyeColor.class);
     PersistentDataType<String, Sound> SOUND = PersistentDataTypeStore.newPersistentDataType(
             String.class,

@@ -58,6 +58,8 @@ public class BlockBreakListener implements Listener {
 
         String serviceClassName = customBlockData.get(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING);
 
+        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
+
         CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
 
         if (customBlockService == null) {
@@ -82,7 +84,7 @@ public class BlockBreakListener implements Listener {
 
         CustomBlockOption[] options = new CustomBlockOption[5];
 
-        if (player.getGameMode() != GameMode.CREATIVE) {
+        if (!(player.getGameMode() == GameMode.CREATIVE || player.getGameMode() == GameMode.SPECTATOR)) {
             options[0] = CustomBlockBreakOption.DROP_ITEM;
         }
 

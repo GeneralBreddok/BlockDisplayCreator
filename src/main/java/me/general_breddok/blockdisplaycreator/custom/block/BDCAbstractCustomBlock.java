@@ -40,8 +40,6 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
     @Nullable
     CustomBlockStageSettings stageSettings;
     String saveSystem;
-    @Nullable
-    CustomBlockPlacementMode placementMode;
 
     public BDCAbstractCustomBlock(String name, GroupSummoner<Display> displaySummoner, List<ConfiguredInteraction> configuredInteractions) {
         this(name, displaySummoner, configuredInteractions, List.of());
@@ -97,8 +95,7 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 permissions,
                 soundGroup,
                 stageSettings,
-                "yaml-file",
-                CustomBlockPlacementMode.DEFAULT
+                "yaml-file"
         );
     }
 
@@ -120,8 +117,7 @@ public class BDCAbstractCustomBlock implements AbstractCustomBlock {
                 this.permissions,
                 this.soundGroup,
                 this.stageSettings,
-                this.saveSystem,
-                this.placementMode
+                this.saveSystem
         );
     }
 }
