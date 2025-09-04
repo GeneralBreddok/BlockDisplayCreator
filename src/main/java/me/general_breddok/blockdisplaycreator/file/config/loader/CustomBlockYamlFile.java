@@ -580,9 +580,15 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
                 .setServiceClass(BDCCustomBlockService.class.getName());
 
         String name = this.file.get(ParameterLocators.Item.NAME, getName());
-        Map<Enchantment, Integer> enchantments = this.file.get(ParameterLocators.Item.ENCHANTMENTS);
+        Map<Enchantment, Integer> enchantments = Map.of();
         List<String> lore = this.file.get(ParameterLocators.Item.LORE);
         List<ItemFlag> itemFlags = this.file.get(ParameterLocators.Item.ITEM_FLAGS);
+
+        try {
+            enchantments = this.file.get(ParameterLocators.Item.ENCHANTMENTS);
+        } catch (ConfigurationDataTypeMismatchException ignore) {
+        }
+
 
         OperationUtil.doIfNotNull(name, displayName -> itemMeta.setDisplayName(ChatUtil.color(displayName)));
         OperationUtil.doIfNotNull(lore, itemLore -> itemMeta.setLore(itemLore.stream().map(ChatUtil::color).toList()));

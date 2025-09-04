@@ -1,7 +1,5 @@
 package me.general_breddok.blockdisplaycreator.file.config.loader;
 
-import com.sk89q.worldedit.util.Direction;
-import com.sk89q.worldguard.WorldGuard;
 import lombok.Getter;
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
@@ -18,6 +16,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CustomBlockFileRepository implements CustomBlockRepository {
@@ -42,18 +41,23 @@ public class CustomBlockFileRepository implements CustomBlockRepository {
             }
         }
 
-        try (Stream<Path> stream = Files.list(repository)) {
-            files.addAll(stream
+
+        this.files = loadYamlFiles(repository);
+    }
+
+    public static List<CustomBlockConfigurationFile> loadYamlFiles(Path repository) {
+        try (Stream<Path> stream = Files.walk(repository)) {
+            return stream
+                    .filter(Files::isRegularFile)
                     .map(path -> {
-                        CustomBlockConfigurationFile file = null;
                         try {
-                           file = new CustomBlockYamlFile(new YamlConfigFile(path));
+                            return new CustomBlockYamlFile(new YamlConfigFile(path));
                         } catch (InvalidFileFormatException ignore) {
+                            return null;
                         }
-                        return file;
                     })
                     .filter(Objects::nonNull)
-                    .collect(OperationUtil.toArrayList()));
+                    .collect(Collectors.toCollection(ArrayList::new));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

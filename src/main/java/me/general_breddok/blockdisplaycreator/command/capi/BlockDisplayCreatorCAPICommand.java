@@ -225,7 +225,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                         new TextArgument("block")
                                                                 .replaceSuggestions(getCustomBlockSuggestions())
                                                                 .then(
-                                                                        new LocationArgument("location", LocationType.BLOCK_POSITION)
+                                                                        new LocationArgument("location")
                                                                                 .then(
                                                                                         new MultiLiteralArgument("attached-face", "north", "south", "east", "west", "up", "down")
                                                                                                 .setOptional(true)
@@ -282,7 +282,7 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                         CustomBlock customBlock;
                                                                                                                                         try {
-                                                                                                                                            customBlock = this.plugin.getCustomBlockService().placeBlock(abstractCustomBlock, location.clone().add(0.5, 0, 0.5), rotation, null, options.toArray(CustomBlockPlaceOption[]::new));
+                                                                                                                                            customBlock = this.plugin.getCustomBlockService().placeBlock(abstractCustomBlock, location, rotation, null, options.toArray(CustomBlockPlaceOption[]::new));
                                                                                                                                         } catch (
                                                                                                                                                 IllegalArgumentException e) {
                                                                                                                                             ChatUtil.sendMessage(sender,
@@ -316,7 +316,7 @@ public class BlockDisplayCreatorCAPICommand {
                                         new LiteralArgument("break")
                                                 .withPermission(DefaultPermissions.BDC.Command.BREAK_CB)
                                                 .then(
-                                                        new LocationArgument("location", LocationType.BLOCK_POSITION)
+                                                        new LocationArgument("location")
                                                                 .replaceSuggestions((info, builder) -> {
                                                                     Player player = (Player) info.sender();
 
