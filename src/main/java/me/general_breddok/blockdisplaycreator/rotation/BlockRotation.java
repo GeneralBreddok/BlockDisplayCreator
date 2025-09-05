@@ -16,38 +16,10 @@ public class BlockRotation {
     BlockFace attachedFace;
     BlockFace directionFace;
 
-    public EntityRotation toEntityRotation() {
-        float yaw = getYawFromDirectionFace();
-        float pitch = getPitchFromAttachedFace();
-        return new EntityRotation(yaw, pitch);
-    }
-
     public static BlockRotation fromEntityRotation(EntityRotation entityRotation) {
         BlockFace directionFace = getFaceFromYaw(entityRotation.getYaw());
         BlockFace attachedFace = getFaceFromPitch(entityRotation.getPitch());
         return new BlockRotation(attachedFace, directionFace);
-    }
-
-    public float getYawFromDirectionFace() {
-        return switch (this.directionFace) {
-            case NORTH -> 180;
-            case SOUTH -> 0;
-            case EAST -> 90;
-            case WEST -> 270;
-            case NORTH_EAST -> 135;
-            case NORTH_WEST -> 225;
-            case SOUTH_EAST -> 45;
-            case SOUTH_WEST -> 315;
-            default -> 180;
-        };
-    }
-
-    public float getPitchFromAttachedFace() {
-        return switch (this.attachedFace) {
-            case UP -> -90;
-            case DOWN -> 90;
-            default -> -90;
-        };
     }
 
     public static BlockFace getFaceFromYaw(float yaw) {
@@ -92,11 +64,6 @@ public class BlockRotation {
         }
     }
 
-    public void toOppositeFace() {
-        this.attachedFace = this.attachedFace.getOppositeFace();
-        this.directionFace = this.directionFace.getOppositeFace();
-    }
-
     public static boolean isSideFace(BlockFace face) {
         return switch (face) {
             case SOUTH, WEST, NORTH, EAST -> true;
@@ -109,6 +76,39 @@ public class BlockRotation {
             case UP, DOWN -> true;
             default -> false;
         };
+    }
+
+    public EntityRotation toEntityRotation() {
+        float yaw = getYawFromDirectionFace();
+        float pitch = getPitchFromAttachedFace();
+        return new EntityRotation(yaw, pitch);
+    }
+
+    public float getYawFromDirectionFace() {
+        return switch (this.directionFace) {
+            case NORTH -> 180;
+            case SOUTH -> 0;
+            case EAST -> 90;
+            case WEST -> 270;
+            case NORTH_EAST -> 135;
+            case NORTH_WEST -> 225;
+            case SOUTH_EAST -> 45;
+            case SOUTH_WEST -> 315;
+            default -> 180;
+        };
+    }
+
+    public float getPitchFromAttachedFace() {
+        return switch (this.attachedFace) {
+            case UP -> -90;
+            case DOWN -> 90;
+            default -> -90;
+        };
+    }
+
+    public void toOppositeFace() {
+        this.attachedFace = this.attachedFace.getOppositeFace();
+        this.directionFace = this.directionFace.getOppositeFace();
     }
 
     @Override

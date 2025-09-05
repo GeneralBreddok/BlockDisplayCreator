@@ -1,6 +1,5 @@
 package me.general_breddok.blockdisplaycreator.listener.inventory;
 
-import com.google.common.reflect.TypeToken;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;

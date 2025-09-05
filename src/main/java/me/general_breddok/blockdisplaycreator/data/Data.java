@@ -29,6 +29,7 @@ public interface Data<C, K> {
      */
     @Nullable
     C get(@NotNull K key);
+
     /**
      * Removes the element associated with the given key.
      *

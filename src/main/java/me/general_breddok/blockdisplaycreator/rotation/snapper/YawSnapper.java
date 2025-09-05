@@ -1,8 +1,5 @@
 package me.general_breddok.blockdisplaycreator.rotation.snapper;
 
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import org.bukkit.Location;
-
 public class YawSnapper extends AngleSnapper {
 
     public YawSnapper(int steps) {
@@ -18,7 +15,7 @@ public class YawSnapper extends AngleSnapper {
     protected float[] calculatePossibleAngles() {
         float[] yaws = new float[this.steps];
         for (int i = 0; i < this.steps; i++) {
-            yaws[i] = (i + 1) * this.stepWidth;
+            yaws[i] = i * this.stepWidth;
         }
         return yaws;
     }
@@ -26,11 +23,10 @@ public class YawSnapper extends AngleSnapper {
     @Override
     public float getClosestAngle(float yaw) {
         float closestYaw = this.possibleAngles[0];
-        float minDifference = Math.abs(yaw - closestYaw);
+        float minDifference = this.circularDifference(yaw, closestYaw);
 
         for (float possibleYaw : this.possibleAngles) {
-            float difference = Math.abs(yaw - possibleYaw);
-            ChatUtil.log("Comparing yaw: " + yaw + " with possibleYaw: " + possibleYaw + " | difference: " + difference + " | minDifference: " + minDifference);
+            float difference = this.circularDifference(yaw, possibleYaw);
             if (difference < minDifference) {
                 minDifference = difference;
                 closestYaw = possibleYaw;
@@ -38,5 +34,10 @@ public class YawSnapper extends AngleSnapper {
         }
 
         return closestYaw;
+    }
+
+    private float circularDifference(float a, float b) {
+        float diff = Math.abs(a - b) % 360f;
+        return Math.min(diff, 360f - diff);
     }
 }

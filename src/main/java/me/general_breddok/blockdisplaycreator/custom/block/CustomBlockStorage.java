@@ -20,6 +20,7 @@ public interface CustomBlockStorage {
      */
     @Nullable
     AbstractCustomBlock getAbstractCustomBlock(@NotNull String name, Object... data);
+
     /**
      * Checks if an abstract custom block with the given name exists in storage.
      *
@@ -27,24 +28,29 @@ public interface CustomBlockStorage {
      * @return true if the custom block exists, false otherwise
      */
     boolean containsAbstractCustomBlock(@NotNull String name);
+
     /**
      * Reloads all abstract custom blocks from storage.
+     *
      * @param onComplete an optional callback to execute after reloading is complete
      */
     void reloadAll(@Nullable Runnable onComplete);
+
     /**
      * Reloads all abstract custom blocks from storage.
      */
     default void reloadAll() {
         reloadAll(null);
     }
+
     /**
      * Reloads a specific abstract custom block by its name.
      *
-     * @param name the name of the custom block to reload
+     * @param name       the name of the custom block to reload
      * @param onComplete an optional callback to execute after reloading is complete
      */
     void reload(@NotNull String name, @Nullable Runnable onComplete);
+
     /**
      * Reloads a specific abstract custom block by its name.
      *
@@ -53,6 +59,7 @@ public interface CustomBlockStorage {
     default void reload(@NotNull String name) {
         reload(name, null);
     }
+
     /**
      * Adds a new abstract custom block to storage.
      *

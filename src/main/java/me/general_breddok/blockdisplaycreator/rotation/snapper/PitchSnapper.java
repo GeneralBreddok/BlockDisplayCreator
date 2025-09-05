@@ -1,7 +1,5 @@
 package me.general_breddok.blockdisplaycreator.rotation.snapper;
 
-import org.bukkit.Location;
-
 public class PitchSnapper extends AngleSnapper {
 
     public PitchSnapper(int steps) {

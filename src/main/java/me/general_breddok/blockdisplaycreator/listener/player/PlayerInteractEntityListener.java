@@ -17,10 +17,10 @@ import me.general_breddok.blockdisplaycreator.placeholder.universal.InteractionP
 import me.general_breddok.blockdisplaycreator.service.ServiceManager;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.EventUtil;
-import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.guard.WGRegionAccessChecker;
-import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
+import me.general_breddok.blockdisplaycreator.world.guard.WGRegionFlags;
 import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandAccessChecker;
+import me.general_breddok.blockdisplaycreator.world.skyblock.superior.SSBIslandPrivileges;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockFace;
@@ -41,10 +41,39 @@ import java.util.function.Predicate;
 
 public class PlayerInteractEntityListener implements Listener {
 
-    private ServiceManager<String, CustomBlockService> serviceManager;
+    private final ServiceManager<String, CustomBlockService> serviceManager;
 
     public PlayerInteractEntityListener(ServiceManager<String, CustomBlockService> serviceManager) {
         this.serviceManager = serviceManager;
+    }
+
+    private static boolean checkAccess(CustomBlock customBlock, Player player) {
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
+                return false;
+            }
+        }
+
+
+        CustomBlockPermissions permissions = customBlock.getPermissions();
+
+        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
+            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
+            return false;
+        }
+
+        return true;
     }
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
@@ -124,37 +153,6 @@ public class PlayerInteractEntityListener implements Listener {
         PlayerInteractEvent playerInteractEvent = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getInventory().getItem(hand), world.getBlockAt(hitPosition.getBlockX(), hitPosition.getBlockY(), hitPosition.getBlockZ()), blockFace, hand);
         EventUtil.call(playerInteractEvent);*/
     }
-
-
-    private static boolean checkAccess(CustomBlock customBlock, Player player) {
-        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
-        Location customBlockLocation = customBlock.getLocation();
-
-        if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
-                return false;
-            }
-        }
-
-        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
-                return false;
-            }
-        }
-
-
-        CustomBlockPermissions permissions = customBlock.getPermissions();
-
-        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
-            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
-            return false;
-        }
-
-        return true;
-    }
-
 
     public BlockFace determineEntityFace(Interaction entity, Vector hitPos) {
         BoundingBox box = entity.getBoundingBox();

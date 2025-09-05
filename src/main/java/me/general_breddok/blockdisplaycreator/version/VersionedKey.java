@@ -15,13 +15,11 @@ import java.util.regex.Pattern;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class VersionedKey {
+    private static final Pattern VERSIONED_PATTERN =
+            Pattern.compile("^(?<key>.+?)-(?<from>\\d+_\\d+(?:_\\d+)?)(?:-(?<to>\\d+_\\d+(?:_\\d+)?))?$");
     String baseName;
     MinecraftVersion minVersion;
     MinecraftVersion maxVersion;
-
-    private static final Pattern VERSIONED_PATTERN =
-            Pattern.compile("^(?<key>.+?)-(?<from>\\d+_\\d+(?:_\\d+)?)(?:-(?<to>\\d+_\\d+(?:_\\d+)?))?$");
-
 
     public static VersionedKey parse(String input) {
         Matcher matcher = VERSIONED_PATTERN.matcher(input);

@@ -1,7 +1,6 @@
 package me.general_breddok.blockdisplaycreator.util;
 
 import lombok.experimental.UtilityClass;
-import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Item;
@@ -43,7 +42,7 @@ public class ItemUtil {
 
     public String itemToBase64(ItemStack item) throws IllegalStateException {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-            BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
+             BukkitObjectOutputStream dataOutput = new BukkitObjectOutputStream(outputStream)) {
 
             dataOutput.writeObject(item);
 
@@ -55,7 +54,7 @@ public class ItemUtil {
 
     public ItemStack itemFromBase64(String data) throws IllegalStateException {
         try (ByteArrayInputStream inputStream = new ByteArrayInputStream(Base64Coder.decodeLines(data));
-            BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
+             BukkitObjectInputStream dataInput = new BukkitObjectInputStream(inputStream)) {
 
             return (ItemStack) dataInput.readObject();
         } catch (ClassNotFoundException | IOException e) {

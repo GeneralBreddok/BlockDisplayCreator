@@ -1,8 +1,6 @@
 package me.general_breddok.blockdisplaycreator.custom.block;
 
 import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
-import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 

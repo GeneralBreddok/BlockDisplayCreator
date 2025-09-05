@@ -65,7 +65,6 @@ public class CommandBundleDta implements CommandBundle {
         }
 
 
-
         if (!disablePermissions.isEmpty()) {
             for (String disablePermission : disablePermissions) {
                 sender.addAttachment(BlockDisplayCreator.getInstance(), disablePermission, false);

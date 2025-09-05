@@ -20,11 +20,10 @@ import java.io.Serializable;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EntityRotation implements Serializable {
 
-    float yaw;
-    float pitch;
-
     @Serial
     private static final long serialVersionUID = 1L;
+    float yaw;
+    float pitch;
 
     public EntityRotation(@NotNull Entity entity) {
         this(entity.getLocation().getYaw(), entity.getLocation().getPitch());
@@ -35,49 +34,12 @@ public class EntityRotation implements Serializable {
         this.pitch = Location.normalizePitch(pitch);
     }
 
-    public void toOppositeRotation() {
-        this.yaw = getOppositeYaw();
-        this.pitch = getOppositePitch();
-    }
-
-    public void addYaw(float yaw) {
-        this.yaw = Location.normalizeYaw(this.yaw + yaw);
-    }
-
-    public void addPitch(float pitch) {
-        this.pitch = Location.normalizePitch(this.pitch + pitch);
-    }
-
-    public void addRotation(float yaw, float pitch) {
-        this.yaw = Location.normalizeYaw(this.yaw + yaw);
-        this.pitch = Location.normalizePitch(this.pitch + pitch);
-    }
-
-    public EntityRotation getOppositeRotation() {
-        return new EntityRotation(getOppositeYaw(), getOppositePitch());
-    }
-
-    public float getOppositeYaw() {
-        return (this.yaw + 180) % 360;
-    }
-
-    public float getOppositePitch() {
-        return -this.pitch;
-    }
-
     public static float toOppositeYaw(float yaw) {
         return (yaw + 180) % 360;
     }
 
     public static float toOppositePitch(float pitch) {
         return -pitch;
-    }
-
-    public BlockRotation toBlockRotation() {
-        BlockFace directionFace = getDirectionFace();
-        BlockFace attachedFace = getAttachedFace();
-
-        return new BlockRotation(attachedFace, directionFace);
     }
 
     public static EntityRotation fromBlockRotation(@NotNull BlockRotation blockRotation) {
@@ -111,6 +73,58 @@ public class EntityRotation implements Serializable {
             case SOUTH_WEST -> 315;
             default -> 180;
         };
+    }
+
+    public static EntityRotation fromVector(@NotNull Vector vector) {
+        double yaw = Math.toDegrees(Math.atan2(-vector.getX(), vector.getZ()));
+        double pitch = Math.toDegrees(Math.asin(-vector.getY()));
+
+        return new EntityRotation((float) yaw, (float) pitch);
+    }
+
+    public static void setYaw(@NotNull Entity entity, float yaw) {
+        entity.setRotation(yaw, entity.getLocation().getPitch());
+    }
+
+    public static void setPitch(@NotNull Entity entity, float pitch) {
+        entity.setRotation(entity.getLocation().getYaw(), pitch);
+    }
+
+    public void toOppositeRotation() {
+        this.yaw = getOppositeYaw();
+        this.pitch = getOppositePitch();
+    }
+
+    public void addYaw(float yaw) {
+        this.yaw = Location.normalizeYaw(this.yaw + yaw);
+    }
+
+    public void addPitch(float pitch) {
+        this.pitch = Location.normalizePitch(this.pitch + pitch);
+    }
+
+    public void addRotation(float yaw, float pitch) {
+        this.yaw = Location.normalizeYaw(this.yaw + yaw);
+        this.pitch = Location.normalizePitch(this.pitch + pitch);
+    }
+
+    public EntityRotation getOppositeRotation() {
+        return new EntityRotation(getOppositeYaw(), getOppositePitch());
+    }
+
+    public float getOppositeYaw() {
+        return (this.yaw + 180) % 360;
+    }
+
+    public float getOppositePitch() {
+        return -this.pitch;
+    }
+
+    public BlockRotation toBlockRotation() {
+        BlockFace directionFace = getDirectionFace();
+        BlockFace attachedFace = getAttachedFace();
+
+        return new BlockRotation(attachedFace, directionFace);
     }
 
     public BlockFace getDirectionFace() {
@@ -160,13 +174,6 @@ public class EntityRotation implements Serializable {
         return new Vector(x, y, z).normalize();
     }
 
-    public static EntityRotation fromVector(@NotNull Vector vector) {
-        double yaw = Math.toDegrees(Math.atan2(-vector.getX(), vector.getZ()));
-        double pitch = Math.toDegrees(Math.asin(-vector.getY()));
-
-        return new EntityRotation((float) yaw, (float) pitch);
-    }
-
     public void applyToEntity(@NotNull Entity entity) {
         entity.setRotation(this.yaw, this.pitch);
     }
@@ -188,14 +195,6 @@ public class EntityRotation implements Serializable {
         double z = radius * Math.sin(zenithRadians) * Math.sin(azimuthRadians);
 
         return new Vector(x, y, z);
-    }
-
-    public static void setYaw(@NotNull Entity entity, float yaw) {
-        entity.setRotation(yaw, entity.getLocation().getPitch());
-    }
-
-    public static void setPitch(@NotNull Entity entity, float pitch) {
-        entity.setRotation(entity.getLocation().getYaw(), pitch);
     }
 
     @Override

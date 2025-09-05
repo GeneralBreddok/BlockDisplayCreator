@@ -24,7 +24,7 @@ import java.util.NoSuchElementException;
 public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     List<AbstractCustomBlock> abstractCustomBlocks;
     CustomBlockRepository customBlockRepository;
-    JavaPlugin plugin;
+    final JavaPlugin plugin;
 
     public BDCCustomBlockConfigStorage(@NotNull JavaPlugin plugin) {
         this.plugin = plugin;

@@ -14,7 +14,7 @@ import java.util.List;
 
 @UtilityClass
 public class VersionCompat {
-    private boolean soundEnum = BlockDisplayCreator.getInstance().getVersionManager().isVersionBefore1_21_3();
+    private final boolean soundEnum = BlockDisplayCreator.getInstance().getVersionManager().isVersionBelow1_21_3();
     @Getter
     private List<String> soundNames;
 
@@ -29,9 +29,9 @@ public class VersionCompat {
     public Attribute getScaleAttribute() {
         VersionManager versionManager = BlockDisplayCreator.getInstance().getVersionManager();
 
-        if (versionManager.isVersionBefore1_20_5()) {
+        if (versionManager.isVersionBelow1_20_5()) {
             return null;
-        } else if (versionManager.isVersionBefore1_21_3()) {
+        } else if (versionManager.isVersionBelow1_21_3()) {
             return Attribute.valueOf("GENERIC_SCALE");
         } else {
             return Registry.ATTRIBUTE.get(NamespacedKey.minecraft("scale"));

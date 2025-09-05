@@ -7,10 +7,14 @@ import java.util.List;
 
 public interface CommandLine extends CommandContainer {
     String getName();
+
     @Nullable
     String getNamespace();
+
     CommandArgument getArgument(int index);
+
     List<CommandArgument> getArguments();
+
     @Override
     String toString();
 }

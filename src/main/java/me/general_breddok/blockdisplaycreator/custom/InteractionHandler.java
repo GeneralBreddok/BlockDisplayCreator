@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 public interface InteractionHandler {
     CommandBundle getCommandBundle();
+
     long getCooldown();
+
     /**
      * Handles the click interaction.
      *

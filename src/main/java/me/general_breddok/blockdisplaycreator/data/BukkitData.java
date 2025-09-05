@@ -24,18 +24,18 @@ public abstract class BukkitData<S, C, K> implements PersistentDataTypeManagerPr
      */
     protected static final PersistentDataAdapterContext ignore = () -> null;
     /**
-     * The data source.
-     */
-    protected S dataSource;
-    /**
      * The token representing the data type.
      */
     protected final TypeToken<C> dataTypeToken;
+    /**
+     * The data source.
+     */
+    protected S dataSource;
 
     /**
      * Constructs a BukkitData object with the specified data source and data type token.
      *
-     * @param dataSource The data source to be used.
+     * @param dataSource    The data source to be used.
      * @param dataTypeToken The token of the data type.
      * @throws UnregisteredDataTypeException If the data type is not registered with the data manager.
      */

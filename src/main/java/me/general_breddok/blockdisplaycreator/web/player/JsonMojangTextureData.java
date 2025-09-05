@@ -5,7 +5,6 @@ import com.google.gson.JsonObject;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
-import org.bukkit.Material;
 import org.bukkit.profile.PlayerTextures;
 
 import java.net.MalformedURLException;

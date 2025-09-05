@@ -20,12 +20,11 @@ import java.util.List;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NetworkPlayerSession implements MojangSession {
+    private static final String SESSION_SERVER = "https://sessionserver.mojang.com/session/minecraft/profile/";
     String name;
     String id;
     List<MojangSessionProperty> properties;
     List<String> profileActions;
-
-    private static final String SESSION_SERVER = "https://sessionserver.mojang.com/session/minecraft/profile/";
 
     public NetworkPlayerSession(String mojangUuid) throws InvalidResponseException {
         try {
@@ -53,6 +52,23 @@ public class NetworkPlayerSession implements MojangSession {
         }
     }
 
+    private static void processNotFound(HttpResponse<String> response) throws ProfileNotFoundException {
+        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+        String path = jsonObject.get("path").getAsString();
+        String error = jsonObject.get("error").getAsString();
+        String errorMessage = jsonObject.get("errorMessage").getAsString();
+
+        throw new ProfileNotFoundException(path, error, errorMessage);
+    }
+
+    private static void processBadRequest(HttpResponse<String> response) throws ProfileNotFoundException {
+        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+        String path = jsonObject.get("path").getAsString();
+        String errorMessage = jsonObject.get("errorMessage").getAsString();
+
+        throw new ProfileNotFoundException(path, errorMessage);
+    }
+
     private void processSuccessResponse(HttpResponse<String> response) {
         JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
         this.name = jsonObject.get("name").getAsString();
@@ -70,22 +86,5 @@ public class NetworkPlayerSession implements MojangSession {
         if (profileActionsJsonArray != null && !profileActionsJsonArray.isEmpty()) {
             profileActionsJsonArray.forEach(action -> this.profileActions.add(action.getAsString()));
         }
-    }
-
-    private static void processNotFound(HttpResponse<String> response) throws ProfileNotFoundException {
-        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-        String path = jsonObject.get("path").getAsString();
-        String error = jsonObject.get("error").getAsString();
-        String errorMessage = jsonObject.get("errorMessage").getAsString();
-
-        throw new ProfileNotFoundException(path, error, errorMessage);
-    }
-
-    private static void processBadRequest(HttpResponse<String> response) throws ProfileNotFoundException {
-        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-        String path = jsonObject.get("path").getAsString();
-        String errorMessage = jsonObject.get("errorMessage").getAsString();
-
-        throw new ProfileNotFoundException(path, errorMessage);
     }
 }

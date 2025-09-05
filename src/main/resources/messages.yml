@@ -32,32 +32,45 @@ custom-block:
     fail-reason:
       no-custom-block: "There is no custom block to break at location %x% %y% %z% in world %world%."
 
+  # Message displayed when a player tries to use a custom block that does not exist (for example, if the block was deleted or was not loaded correctly)
   not-found: "&cCustom block %customblock_name% not found! Perhaps it was deleted or was not loaded correctly."
 
+
 command:
+  # Message displayed when a sender tries to execute a command that requires a custom block name, but does not provide one
   block-not-exists: "&cBlock &4%customblock_name% &cdoes not exist!"
 
+  # Message displayed after executing the /bdc reload command
   reload: "&aConfig has been reloaded!"
+  # Message displayed after executing the /bdc reload <block_name> command
   reload-block: "&aBlock %customblock_name% has been reloaded!"
 
   custom-block:
 
     give:
+      # Message displayed when player receives a custom block
       player-receive: "&aYou have received the &b%customblock_name%&ox&b%amount%&a block"
+      # Message displayed when console or a command block gives a custom block to a certain player
       give-player: "&aBlock &b%customblock_name%&ox&b%amount%&a was successfully given to the player &b%player%&a!"
+      # Message displayed when console or a command block gives a custom block to several players at once
       give-players: "&aBlock &b%customblock_name%&ox&b%amount%&a was successfully given!"
 
+      # Message displayed when no block receiver is specified
       no-player: "&cYou have not specified the block receiver!"
 
     place:
+      # Message displayed when a block is successfully placed
       placed: "&aSuccessfully placed the block &b%customblock_name%&r&a at location &b%x% %y% %z% &ain the world &b%world%&a!"
 
+      # Message displayed when no target location is specified
       invalid-attached-face: "&cInvalid attached face: %face%. Valid values are: &bnorth, south, east, west, up, down"
 
+      # Message displayed when block placement fails for any reason
       failed: "&cFailed to place the block %customblock_name%: %reason%"
-
+      # Message displayed when block placement fails for an unknown reason (no specific reason provided)
       failed-without-reason: "&cFailed to place the block &b%customblock_name%&r&c at &b%x% %y% %z% &cin the world &b%world%&c!"
 
+      # Descriptions of the options that can be used when placing a block. Displayed in the argument tooltip.
       option-description:
         replace-custom-block: "&eReplaces an existing custom block at the target location"
         load-chunk: "&eLoads the chunk before placing the block, if needed"
@@ -65,16 +78,20 @@ command:
         silent-place: "&eSuppresses block placement sounds"
 
     break:
+      # Message displayed when a block is successfully broken
       broken: "&aSuccessfully broke the block &b%customblock_name%&r&a at location &b%x% %y% %z% &ain the world &b%world%"
 
+      # Message displayed when no custom block is found at the specified location
       no-custom-block: "&cNo custom block found at &4%x% %y% %z% &cin the world &4%world%&c!"
 
+      # Descriptions of the options that can be used when breaking a block. Displayed in the argument tooltip.
       option-description:
         drop-item: "&eDrops the corresponding item when breaking the block"
         silent-break: "&eSuppresses block breaking sounds"
 
     editfile:
-      set: "&aBlock &b%s&a parameter &b%s&a was successfully set to \"&b%s&a\"."
+      # Message displayed when a certain block parameter has been set to a certain value.
+      set: "&aBlock &b%customblock_name%&a parameter &b%parameter%&a was successfully set to \"&b%value%&a\"."
 
 
 

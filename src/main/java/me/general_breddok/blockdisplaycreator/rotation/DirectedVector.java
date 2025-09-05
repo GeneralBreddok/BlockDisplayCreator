@@ -47,6 +47,10 @@ public class DirectedVector extends Vector implements DeepCloneable<DirectedVect
         this.pitch = pitch;
     }
 
+    public static DirectedVector fromLocation(Location loc) {
+        return new DirectedVector(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
+    }
+
     public void setYaw(double yaw) {
         this.yaw = (float) yaw;
     }
@@ -67,10 +71,6 @@ public class DirectedVector extends Vector implements DeepCloneable<DirectedVect
         return new Location(world, getX(), getY(), getZ(), yaw, pitch);
     }
 
-    public static DirectedVector fromLocation(Location loc) {
-        return new DirectedVector(loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-    }
-
     public DirectedVector clone() {
         return (DirectedVector) super.clone();
     }
@@ -78,9 +78,8 @@ public class DirectedVector extends Vector implements DeepCloneable<DirectedVect
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
-        if (!(obj instanceof DirectedVector)) return false;
+        if (!(obj instanceof DirectedVector other)) return false;
 
-        DirectedVector other = (DirectedVector) obj;
         return super.equals(other) && this.yaw == other.yaw && this.pitch == other.pitch;
     }
 

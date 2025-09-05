@@ -1,9 +1,9 @@
 package me.general_breddok.blockdisplaycreator.placeholder.universal;
 
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
-import me.general_breddok.blockdisplaycreator.custom.block.CustomBlock;
 
-public record AbstractCustomBlockPlaceholder(AbstractCustomBlock context) implements UniversalPlaceholder<AbstractCustomBlock> {
+public record AbstractCustomBlockPlaceholder(
+        AbstractCustomBlock context) implements UniversalPlaceholder<AbstractCustomBlock> {
     @Override
     public String apply(String template) {
         if (this.context == null) {

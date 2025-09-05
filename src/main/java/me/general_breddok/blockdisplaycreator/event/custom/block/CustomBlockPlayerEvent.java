@@ -17,8 +17,8 @@ public abstract class CustomBlockPlayerEvent extends CustomBlockEvent {
     /**
      * Constructs a new instance of CustomBlockEvent.
      *
-     * @param customBlock  The custom customBlock involved in this event.
-     * @param player The player involved in this event.
+     * @param customBlock The custom customBlock involved in this event.
+     * @param player      The player involved in this event.
      */
     public CustomBlockPlayerEvent(@NotNull CustomBlock customBlock, Player player) {
         super(customBlock);

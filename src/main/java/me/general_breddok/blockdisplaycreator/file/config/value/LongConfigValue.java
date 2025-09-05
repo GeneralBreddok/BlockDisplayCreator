@@ -8,6 +8,6 @@ public final class LongConfigValue implements ConstantConfigValue<Long> {
 
     @Override
     public void initialize(YamlData<Long> configuration) {
-        MAX_ENTITIES_PER_CHUNK = configuration.get("max-entities-per-chunk", -1l);
+        MAX_ENTITIES_PER_CHUNK = configuration.get("max-entities-per-chunk", -1L);
     }
 }

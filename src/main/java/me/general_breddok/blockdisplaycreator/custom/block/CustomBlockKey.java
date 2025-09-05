@@ -28,14 +28,23 @@ public interface CustomBlockKey {
 
     NamespacedKey DISPLAY_SPAWN_COMMAND = new NamespacedKey(BlockDisplayCreator.getInstance(), "custom-block-display-spawn-command");
     NamespacedKey ITEM = new NamespacedKey(BlockDisplayCreator.getInstance(), "custom-block-item");
+
     static DataHolder holder(PersistentDataHolder holder) {
         return new DataHolder(holder);
     }
 
     class DataHolder {
         private final PersistentDataHolder holder;
+
         private DataHolder(PersistentDataHolder holder) {
             this.holder = holder;
+        }
+
+        @Nullable
+        public String getServiceClass() {
+            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
+
+            return persistentData.get(SERVICE_CLASS);
         }
 
         public DataHolder setServiceClass(@NotNull String serviceClass) {
@@ -45,82 +54,18 @@ public interface CustomBlockKey {
             return this;
         }
 
-        public DataHolder setName(@NotNull String name) {
-            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
-
-            persistentData.set(NAME, name);
-            return this;
-        }
-
-        public DataHolder setLocation(@NotNull Location location) {
-            PersistentData<Location> persistentData = new PersistentData<>(holder, TypeTokens.LOCATION);
-
-            persistentData.set(LOCATION, location);
-            return this;
-        }
-
-        public DataHolder setRotation(@NotNull CustomBlockRotation rotation) {
-            PersistentData<CustomBlockRotation> persistentData = new PersistentData<>(holder, TypeTokens.CUSTOM_BLOCK_ROTATION);
-
-            persistentData.set(BLOCK_ROTATION, rotation);
-            return this;
-        }
-
-        public DataHolder setDisplayUUID(@NotNull UUID[] vehiclesUUID) {
-            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
-
-            persistentData.set(DISPLAY_UUID, vehiclesUUID);
-            return this;
-        }
-
-        public DataHolder setInteractionUUID(@NotNull UUID[] interactionUUID) {
-            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
-
-            persistentData.set(INTERACTION_UUID, interactionUUID);
-            return this;
-        }
-
-        public DataHolder setCollisionUUID(@NotNull UUID[] collisionUUID) {
-            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
-
-            persistentData.set(COLLISION_UUID, collisionUUID);
-            return this;
-        }
-
-        public DataHolder setCustomBlockUUID(@NotNull UUID uuid) {
-            PersistentData<UUID> persistentData = new PersistentData<>(holder, TypeTokens.UUID);
-
-            persistentData.set(CUSTOM_BLOCK_UUID, uuid);
-            return this;
-        }
-
-        public DataHolder setInteractionIdentifier(@NotNull String identifier) {
-            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
-
-            persistentData.set(INTERACTION_IDENTIFIER, identifier);
-            return this;
-        }
-
-        public DataHolder setCollisionIdentifier(@NotNull String identifier) {
-            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
-
-            persistentData.set(COLLISION_IDENTIFIER, identifier);
-            return this;
-        }
-
-
-        @Nullable
-        public String getServiceClass() {
-            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
-
-            return persistentData.get(SERVICE_CLASS);
-        }
-
         @Nullable
         public String getName() {
             PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
 
             return persistentData.get(NAME);
+        }
+
+        public DataHolder setName(@NotNull String name) {
+            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
+
+            persistentData.set(NAME, name);
+            return this;
         }
 
         @Nullable
@@ -130,11 +75,25 @@ public interface CustomBlockKey {
             return persistentData.get(LOCATION);
         }
 
+        public DataHolder setLocation(@NotNull Location location) {
+            PersistentData<Location> persistentData = new PersistentData<>(holder, TypeTokens.LOCATION);
+
+            persistentData.set(LOCATION, location);
+            return this;
+        }
+
         @Nullable
         public CustomBlockRotation getRotation() {
             PersistentData<CustomBlockRotation> persistentData = new PersistentData<>(holder, TypeTokens.CUSTOM_BLOCK_ROTATION);
 
             return persistentData.get(BLOCK_ROTATION);
+        }
+
+        public DataHolder setRotation(@NotNull CustomBlockRotation rotation) {
+            PersistentData<CustomBlockRotation> persistentData = new PersistentData<>(holder, TypeTokens.CUSTOM_BLOCK_ROTATION);
+
+            persistentData.set(BLOCK_ROTATION, rotation);
+            return this;
         }
 
         @Nullable
@@ -144,11 +103,25 @@ public interface CustomBlockKey {
             return persistentData.get(DISPLAY_UUID);
         }
 
+        public DataHolder setDisplayUUID(@NotNull UUID[] vehiclesUUID) {
+            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
+
+            persistentData.set(DISPLAY_UUID, vehiclesUUID);
+            return this;
+        }
+
         @Nullable
         public UUID[] getInteractionUUID() {
             PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
 
             return persistentData.get(INTERACTION_UUID);
+        }
+
+        public DataHolder setInteractionUUID(@NotNull UUID[] interactionUUID) {
+            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
+
+            persistentData.set(INTERACTION_UUID, interactionUUID);
+            return this;
         }
 
         @Nullable
@@ -158,11 +131,25 @@ public interface CustomBlockKey {
             return persistentData.get(COLLISION_UUID);
         }
 
+        public DataHolder setCollisionUUID(@NotNull UUID[] collisionUUID) {
+            PersistentData<UUID[]> persistentData = new PersistentData<>(holder, TypeTokens.UUID_ARRAY);
+
+            persistentData.set(COLLISION_UUID, collisionUUID);
+            return this;
+        }
+
         @Nullable
         public UUID getCustomBlockUUID() {
             PersistentData<UUID> persistentData = new PersistentData<>(holder, TypeTokens.UUID);
 
             return persistentData.get(CUSTOM_BLOCK_UUID);
+        }
+
+        public DataHolder setCustomBlockUUID(@NotNull UUID uuid) {
+            PersistentData<UUID> persistentData = new PersistentData<>(holder, TypeTokens.UUID);
+
+            persistentData.set(CUSTOM_BLOCK_UUID, uuid);
+            return this;
         }
 
         @Nullable
@@ -172,6 +159,13 @@ public interface CustomBlockKey {
             return persistentData.get(INTERACTION_IDENTIFIER);
         }
 
+        public DataHolder setInteractionIdentifier(@NotNull String identifier) {
+            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
+
+            persistentData.set(INTERACTION_IDENTIFIER, identifier);
+            return this;
+        }
+
         @Nullable
         public String getCollisionIdentifier() {
             PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
@@ -179,8 +173,12 @@ public interface CustomBlockKey {
             return persistentData.get(COLLISION_IDENTIFIER);
         }
 
+        public DataHolder setCollisionIdentifier(@NotNull String identifier) {
+            PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
 
-
+            persistentData.set(COLLISION_IDENTIFIER, identifier);
+            return this;
+        }
 
         public DataHolder removeServiceClass() {
             PersistentData<String> persistentData = new PersistentData<>(holder, TypeTokens.STRING);
@@ -251,8 +249,6 @@ public interface CustomBlockKey {
             persistentData.remove(COLLISION_IDENTIFIER);
             return this;
         }
-
-
 
 
         public boolean hasServiceClass() {

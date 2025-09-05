@@ -2,13 +2,7 @@ package me.general_breddok.blockdisplaycreator.placeholder.universal;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
-import me.clip.placeholderapi.expansion.PlaceholderExpansion;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.UniversalPlaceholder;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.util.Base64;

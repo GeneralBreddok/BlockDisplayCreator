@@ -17,10 +17,9 @@ import java.net.http.HttpResponse;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NetworkPlayerProfile implements MojangProfile {
+    private static final String MOJANG_API = "https://api.mojang.com/users/profiles/minecraft/";
     String name;
     String id;
-
-    private static final String MOJANG_API = "https://api.mojang.com/users/profiles/minecraft/";
 
     public NetworkPlayerProfile(String playerName) throws InvalidResponseException {
         HttpClient client = HttpClient.newHttpClient();
@@ -49,13 +48,6 @@ public class NetworkPlayerProfile implements MojangProfile {
         }
     }
 
-    private void processSuccessResponse(HttpResponse<String> response) {
-        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-
-        this.name = jsonObject.get("name").getAsString();
-        this.id = jsonObject.get("id").getAsString();
-    }
-
     private static void processNotFound(HttpResponse<String> response) throws ProfileNotFoundException {
         JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
         String path = jsonObject.get("path").getAsString();
@@ -71,5 +63,12 @@ public class NetworkPlayerProfile implements MojangProfile {
         String errorMessage = jsonObject.get("errorMessage").getAsString();
 
         throw new ProfileNotFoundException(path, errorMessage);
+    }
+
+    private void processSuccessResponse(HttpResponse<String> response) {
+        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+
+        this.name = jsonObject.get("name").getAsString();
+        this.id = jsonObject.get("id").getAsString();
     }
 }

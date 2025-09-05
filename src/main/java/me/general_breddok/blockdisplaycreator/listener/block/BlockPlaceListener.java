@@ -1,9 +1,6 @@
 package me.general_breddok.blockdisplaycreator.listener.block;
 
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockKey;
-import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockPlaceEvent;

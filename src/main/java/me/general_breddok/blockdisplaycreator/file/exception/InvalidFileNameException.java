@@ -3,6 +3,7 @@ package me.general_breddok.blockdisplaycreator.file.exception;
 public class InvalidFileNameException extends IllegalArgumentException {
     public InvalidFileNameException() {
     }
+
     public InvalidFileNameException(String s) {
         super(s);
     }

@@ -23,8 +23,8 @@ public class CustomBlockBreakEvent extends CustomBlockPlayerEvent implements Can
     /**
      * Constructs a new CustomBlockBreakEvent.
      *
-     * @param player      The player who broke the custom block.
-     * @param block       The custom block that was broken.
+     * @param player The player who broke the custom block.
+     * @param block  The custom block that was broken.
      */
     public CustomBlockBreakEvent(@NotNull CustomBlock block, @Nullable Player player) {
         super(block, player);

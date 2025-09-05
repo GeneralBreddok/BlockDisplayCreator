@@ -1,6 +1,9 @@
 package me.general_breddok.blockdisplaycreator.commandparser;
 
-import me.general_breddok.blockdisplaycreator.commandparser.argument.*;
+import me.general_breddok.blockdisplaycreator.commandparser.argument.CommandArgument;
+import me.general_breddok.blockdisplaycreator.commandparser.argument.CommandCoordinate;
+import me.general_breddok.blockdisplaycreator.commandparser.argument.EntityArgument;
+import me.general_breddok.blockdisplaycreator.commandparser.argument.NbtCommandArgument;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.InvalidCommandArgumentException;
 import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import me.general_breddok.blockdisplaycreator.entity.display.DisplaySummoner;

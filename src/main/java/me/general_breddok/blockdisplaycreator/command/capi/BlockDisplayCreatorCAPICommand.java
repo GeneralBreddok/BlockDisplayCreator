@@ -52,18 +52,88 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
+/**
+ * Manages the registration and execution of BlockDisplayCreator commands using the CommandAPI.
+ * <p>
+ * This class sets up the command structure, permissions, and execution logic for various
+ * BlockDisplayCreator commands, including custom block management, configuration reloading,
+ * and data erasure.
+ */
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BlockDisplayCreatorCAPICommand {
     final BlockDisplayCreator plugin;
     @Getter
     List<AbstractCustomBlockTooltip> abstractCustomBlockTooltips = new ArrayList<>();
-    Map<String, List<String>> interactionSuggestions = new HashMap<>();
-    Map<String, List<String>> collisionSuggestions = new HashMap<>();
+    final Map<String, List<String>> interactionSuggestions = new HashMap<>();
+    final Map<String, List<String>> collisionSuggestions = new HashMap<>();
 
     public BlockDisplayCreatorCAPICommand(BlockDisplayCreator plugin) {
         this.plugin = plugin;
     }
 
+    private static String normalizeRemaining(String remaining) {
+        if (remaining == null || remaining.isEmpty()) {
+            return "";
+        }
+
+        if (remaining.startsWith("\"")) {
+            remaining = remaining.substring(1);
+        }
+
+        if (remaining.endsWith("\"") && remaining.length() > 1) {
+            remaining = remaining.substring(0, remaining.length() - 1);
+        }
+
+        return remaining;
+    }
+
+    public static List<String> parseQuotedStrings(String input) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        boolean inQuotes = false;
+        boolean escapeNext = false;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (escapeNext) {
+                current.append(c);
+                escapeNext = false;
+            } else if (c == '\\') {
+                escapeNext = true;
+            } else if (c == '"') {
+                if (inQuotes) {
+                    result.add(current.toString());
+                    current.setLength(0);
+                    inQuotes = false;
+                } else {
+                    inQuotes = true;
+                }
+            } else {
+                if (inQuotes) {
+                    current.append(c);
+                } else if (!Character.isWhitespace(c)) {
+                    throw new IllegalArgumentException("Unexpected character outside quotes at position " + i + ": " + c);
+                }
+            }
+        }
+
+        if (inQuotes) {
+            throw new IllegalArgumentException("Unclosed quote in input.");
+        }
+
+        return result;
+    }
+
+    /**
+     * Registers the BlockDisplayCreator commands with the CommandAPI.
+     * <p>
+     * This method defines the command structure, permissions, and execution logic
+     * for various commands such as reloading configurations, giving custom blocks,
+     * placing and breaking custom blocks, and erasing custom block data.
+     * </p>
+     */
     public void register() {
         new CommandTree("blockdisplaycreator")
                 .withAliases("bdc")
@@ -271,7 +341,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                         try {
                                                                                                                                             attachedFace = BlockFace.valueOf(attachedFaceStr.toUpperCase());
-                                                                                                                                        } catch (IllegalArgumentException e) {
+                                                                                                                                        } catch (
+                                                                                                                                                IllegalArgumentException e) {
                                                                                                                                             ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_INVALID_ATTACHED_FACE.replace("%face%", attachedFaceStr));
                                                                                                                                             return;
                                                                                                                                         }
@@ -289,7 +360,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                                     locationPlaceholder.apply(StringMessagesValue.COMMAND_CUSTOM_BLOCK_PLACE_FAILED)
                                                                                                                                                             .replace("%customblock_name%", blockName)
                                                                                                                                                             .replace("%reason%", e.getMessage())
-                                                                                                                                                    );
+                                                                                                                                            );
                                                                                                                                             return;
                                                                                                                                         }
 
@@ -757,7 +828,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                     try {
                                                                                                                                         CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
-                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
                                                                                                                                         ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
                                                                                                                                     }
 
@@ -857,7 +929,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                     try {
                                                                                                                                         DyeColor dyeColor = DyeColor.valueOf(color.toUpperCase());
                                                                                                                                         setCbConfigValue(block, "collisions." + collisionName + ".color", dyeColor.name(), sender);
-                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
                                                                                                                                         ChatUtil.sendMessage(sender, "&cInvalid color: " + color);
                                                                                                                                     }
                                                                                                                                 })
@@ -907,7 +980,8 @@ public class BlockDisplayCreatorCAPICommand {
 
                                                                                                                                     try {
                                                                                                                                         CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
-                                                                                                                                    } catch (IllegalArgumentException e) {
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
                                                                                                                                         ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
                                                                                                                                     }
 
@@ -1013,22 +1087,6 @@ public class BlockDisplayCreatorCAPICommand {
         };
     }
 
-    private static String normalizeRemaining(String remaining) {
-        if (remaining == null || remaining.isEmpty()) {
-            return "";
-        }
-
-        if (remaining.startsWith("\"")) {
-            remaining = remaining.substring(1);
-        }
-
-        if (remaining.endsWith("\"") && remaining.length() > 1) {
-            remaining = remaining.substring(0, remaining.length() - 1);
-        }
-
-        return remaining;
-    }
-
     private boolean isValidStringArgument(String input) {
         return input != null && !input.isEmpty() && input.matches("[A-Za-z0-9_+\\-.]+");
     }
@@ -1073,7 +1131,6 @@ public class BlockDisplayCreatorCAPICommand {
             return builder.buildFuture();
         };
     }
-
 
     private void setCbConfigValue(String blockName, String path, Object value, CommandSender sender) {
         CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
@@ -1133,7 +1190,6 @@ public class BlockDisplayCreatorCAPICommand {
         );
     }
 
-
     public void reloadSuggestions() {
         abstractCustomBlockTooltips.clear();
         interactionSuggestions.clear();
@@ -1158,7 +1214,6 @@ public class BlockDisplayCreatorCAPICommand {
             }
         }
     }
-
 
     public void applyPlaceholdersForItem(ItemStack item, Player player) {
         ItemMeta itemMeta = item.getItemMeta();
@@ -1270,44 +1325,5 @@ public class BlockDisplayCreatorCAPICommand {
         ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
         ChatUtil.sendMessage(sender, "&6Killed %d collision entities", collisions.size());
         ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
-    }
-
-    public static List<String> parseQuotedStrings(String input) {
-        List<String> result = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-
-        boolean inQuotes = false;
-        boolean escapeNext = false;
-
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            if (escapeNext) {
-                current.append(c);
-                escapeNext = false;
-            } else if (c == '\\') {
-                escapeNext = true;
-            } else if (c == '"') {
-                if (inQuotes) {
-                    result.add(current.toString());
-                    current.setLength(0);
-                    inQuotes = false;
-                } else {
-                    inQuotes = true;
-                }
-            } else {
-                if (inQuotes) {
-                    current.append(c);
-                } else if (!Character.isWhitespace(c)) {
-                    throw new IllegalArgumentException("Unexpected character outside quotes at position " + i + ": " + c);
-                }
-            }
-        }
-
-        if (inQuotes) {
-            throw new IllegalArgumentException("Unclosed quote in input.");
-        }
-
-        return result;
     }
 }

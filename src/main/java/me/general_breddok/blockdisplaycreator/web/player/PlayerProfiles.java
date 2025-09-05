@@ -5,7 +5,6 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import lombok.experimental.UtilityClass;
 import me.general_breddok.blockdisplaycreator.annotation.UMF;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.web.exception.InvalidResponseException;
 import org.bukkit.Bukkit;
 import org.bukkit.profile.PlayerProfile;

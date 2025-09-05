@@ -87,11 +87,13 @@ public class NbtEntityObject extends NbtObject implements NbtEntity {
 
         try {
             yaw = rotationArray[0];
-        } catch (ArrayIndexOutOfBoundsException ignore) {}
+        } catch (ArrayIndexOutOfBoundsException ignore) {
+        }
 
         try {
             pitch = rotationArray[1];
-        } catch (ArrayIndexOutOfBoundsException ignore) {}
+        } catch (ArrayIndexOutOfBoundsException ignore) {
+        }
 
 
         return new EntityRotation(yaw, pitch);

@@ -32,6 +32,31 @@ public class WGRegionAccessChecker {
         regionContainer = platform.getRegionContainer();
     }
 
+    public static boolean checkRegionAccess(@NotNull Location location, StateFlag flag, Player player) {
+        if (location.getWorld() == null || player == null)
+            return true;
+
+        if (flag == null)
+            return true;
+
+        WGRegionAccessChecker regionAccessChecker = new WGRegionAccessChecker();
+
+        ProtectedRegion region = regionAccessChecker.getRegion(location);
+
+        if (region == null)
+            return true;
+
+        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
+
+        if (region.isMember(localPlayer))
+            return true;
+
+        if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS) || player.hasPermission(DefaultPermissions.WorldGuard.WORLD_REGION_BYPASS + location.getWorld().getName()))
+            return true;
+
+        return regionAccessChecker.isFlagAllowed(flag, region);
+    }
+
     public ProtectedRegion getRegion(Location location) {
 
         if (location.getWorld() == null) {
@@ -62,30 +87,5 @@ public class WGRegionAccessChecker {
         }
 
         return flagValue == StateFlag.State.ALLOW;
-    }
-
-    public static boolean checkRegionAccess(@NotNull Location location, StateFlag flag, Player player) {
-        if (location.getWorld() == null || player == null)
-            return true;
-
-        if (flag == null)
-            return true;
-
-        WGRegionAccessChecker regionAccessChecker = new WGRegionAccessChecker();
-
-        ProtectedRegion region = regionAccessChecker.getRegion(location);
-
-        if (region == null)
-            return true;
-
-        LocalPlayer localPlayer = WorldGuardPlugin.inst().wrapPlayer(player);
-
-        if (region.isMember(localPlayer))
-            return true;
-
-        if (player.hasPermission(DefaultPermissions.BDC.WG_BYPASS) || player.hasPermission(DefaultPermissions.WorldGuard.WORLD_REGION_BYPASS + location.getWorld().getName()))
-            return true;
-
-        return regionAccessChecker.isFlagAllowed(flag, region);
     }
 }

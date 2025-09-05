@@ -12,7 +12,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.type.Snow;
 import org.bukkit.util.BoundingBox;
-import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -49,7 +48,7 @@ public class WorldSelection extends BoundingBox {
         this(corner1.getX(), corner1.getY(), corner1.getZ(), corner2.getX(), corner2.getY(), corner2.getZ(), world);
     }
 
-    public  WorldSelection(BoundingBox boundingBox, World world) {
+    public WorldSelection(BoundingBox boundingBox, World world) {
         this(boundingBox.getMin().toLocation(world), boundingBox.getMax().toLocation(world), world);
     }
 
@@ -67,28 +66,6 @@ public class WorldSelection extends BoundingBox {
 
     public static boolean isInteractable(Material material) {
         return interactableMaterials.contains(material);
-    }
-
-    public Location getMinLocation() {
-        return this.getMin().toLocation(world);
-    }
-
-    public Location getMaxLocation() {
-        return this.getMax().toLocation(world);
-    }
-
-    public List<Location> getLocations() {
-
-        List<Location> locations = new ArrayList<>();
-        for (int x = (int) Math.floor(this.getMinX()); x <= Math.floor(this.getMaxX()); x++) {
-            for (int y = (int) Math.floor(this.getMinY()); y <= Math.floor(this.getMaxY()); y++) {
-                for (int z = (int) Math.floor(this.getMinZ()); z <= Math.floor(this.getMaxZ()); z++) {
-                    Location location = new Location(world, x, y, z);
-                    locations.add(location);
-                }
-            }
-        }
-        return locations;
     }
 
     public static boolean isEmptyBlock(@NotNull Material material) {
@@ -145,7 +122,7 @@ public class WorldSelection extends BoundingBox {
         ephemeralMaterials.add(Material.FIRE);
         ephemeralMaterials.add(Material.SOUL_FIRE);
 
-        if (!versionManager.isVersionBefore1_21_5()) {
+        if (!versionManager.isVersionBelow1_21_5()) {
             ephemeralMaterials.add(Material.valueOf("LEAF_LITTER"));
             ephemeralMaterials.add(Material.valueOf("SHORT_DRY_GRASS"));
             ephemeralMaterials.add(Material.valueOf("TALL_DRY_GRASS"));
@@ -168,5 +145,27 @@ public class WorldSelection extends BoundingBox {
                 interactableMaterials.add(material);
             }
         }
+    }
+
+    public Location getMinLocation() {
+        return this.getMin().toLocation(world);
+    }
+
+    public Location getMaxLocation() {
+        return this.getMax().toLocation(world);
+    }
+
+    public List<Location> getLocations() {
+
+        List<Location> locations = new ArrayList<>();
+        for (int x = (int) Math.floor(this.getMinX()); x <= Math.floor(this.getMaxX()); x++) {
+            for (int y = (int) Math.floor(this.getMinY()); y <= Math.floor(this.getMaxY()); y++) {
+                for (int z = (int) Math.floor(this.getMinZ()); z <= Math.floor(this.getMaxZ()); z++) {
+                    Location location = new Location(world, x, y, z);
+                    locations.add(location);
+                }
+            }
+        }
+        return locations;
     }
 }

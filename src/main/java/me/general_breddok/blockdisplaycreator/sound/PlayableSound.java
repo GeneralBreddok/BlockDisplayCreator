@@ -37,6 +37,7 @@ public interface PlayableSound {
      * @return the pitch as a float
      */
     float getPitch();
+
     /**
      * Plays the sound at the specified location.
      *

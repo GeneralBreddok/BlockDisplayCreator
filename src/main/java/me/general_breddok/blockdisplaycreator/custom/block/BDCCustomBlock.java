@@ -17,7 +17,10 @@ import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Interaction;
+import org.bukkit.entity.Shulker;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
@@ -30,12 +33,12 @@ import java.util.UUID;
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PROTECTED)
 public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBlock {
+    final UUID uuid;
     List<Display> displays;
     List<Interaction> interactions;
     List<Shulker> collisions;
     Location location;
     CustomBlockRotation rotation;
-    final UUID uuid;
 
 
     public BDCCustomBlock(AbstractCustomBlock acb, Location location, CustomBlockRotation rotation, List<Display> displays, List<Interaction> interactions, List<Shulker> collisions, UUID uuid) {
@@ -165,6 +168,7 @@ public class BDCCustomBlock extends BDCAbstractCustomBlock implements CustomBloc
 
             if (option == CustomBlockChangeDataOption.SAVE_TO_STORAGE) {
                 saveToStorage = true;
+                break;
             }
         }
 

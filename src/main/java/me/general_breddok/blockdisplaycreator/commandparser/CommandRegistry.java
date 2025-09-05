@@ -1,4 +1,5 @@
 package me.general_breddok.blockdisplaycreator.commandparser;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;

@@ -5,6 +5,7 @@ import lombok.Getter;
 @Getter
 public class DataLoadException extends RuntimeException {
     final Object dataKey;
+
     public DataLoadException(Object dataKey) {
         this.dataKey = dataKey;
     }

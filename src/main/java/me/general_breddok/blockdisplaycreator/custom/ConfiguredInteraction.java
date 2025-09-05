@@ -7,5 +7,6 @@ import org.jetbrains.annotations.Nullable;
 public interface ConfiguredInteraction extends ConfiguredEntity<Interaction>, DeepCloneable<ConfiguredInteraction> {
     @Nullable
     InteractionHandler getInteractionHandler();
+
     void setInteractionHandler(InteractionHandler interactionHandler);
 }

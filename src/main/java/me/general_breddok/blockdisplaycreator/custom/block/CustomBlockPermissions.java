@@ -19,7 +19,6 @@ public interface CustomBlockPermissions {
     boolean removePermission(String permission, Type type);
 
 
-
     enum Type {
         PLACE,
         BREAK,

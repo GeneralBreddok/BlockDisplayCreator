@@ -1,6 +1,5 @@
 package me.general_breddok.blockdisplaycreator.nbt.entity;
 
-import me.general_breddok.blockdisplaycreator.entity.EntityCharacteristics;
 import me.general_breddok.blockdisplaycreator.entity.EntityDetails;
 import me.general_breddok.blockdisplaycreator.nbt.NbtContainer;
 import net.kyori.adventure.nbt.CompoundBinaryTag;

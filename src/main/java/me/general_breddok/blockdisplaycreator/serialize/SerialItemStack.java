@@ -1,6 +1,5 @@
 package me.general_breddok.blockdisplaycreator.serialize;
 
-import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;

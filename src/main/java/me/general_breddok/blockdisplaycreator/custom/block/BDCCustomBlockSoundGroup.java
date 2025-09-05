@@ -4,9 +4,6 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.common.DeepCloneable;
 import me.general_breddok.blockdisplaycreator.sound.PlayableSound;
-import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 @Getter
 @Setter

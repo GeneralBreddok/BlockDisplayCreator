@@ -19,7 +19,7 @@ import java.lang.annotation.Target;
  * <li>File system operation options</li>
  * <li>Network request handling flags</li>
  * </ul>
- *
+ * <p>
  * This annotation is used purely for documentation and organizational purposes,
  * allowing developers to easily distinguish option-related interfaces from
  * other types of interfaces.

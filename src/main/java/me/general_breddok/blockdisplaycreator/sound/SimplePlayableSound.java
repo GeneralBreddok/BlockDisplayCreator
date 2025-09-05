@@ -59,6 +59,26 @@ public class SimplePlayableSound implements ConfigurationSerializable, PlayableS
     }
 
     /**
+     * Deserializes a sound configuration from a map.
+     *
+     * @param serialized the map containing the serialized sound configuration
+     * @return a SimplePlayableSound instance or null if the sound type is missing
+     */
+    public static SimplePlayableSound deserialize(Map<String, Object> serialized) {
+        String soundTypeName = (String) serialized.get("sound-type");
+
+        if (soundTypeName == null) {
+            return null;
+        }
+
+        Sound soundType = Sound.valueOf(soundTypeName.toUpperCase());
+        float volume = ((Number) serialized.getOrDefault("volume", 1.0f)).floatValue();
+        float pitch = ((Number) serialized.getOrDefault("pitch", 1.0f)).floatValue();
+
+        return new SimplePlayableSound(soundType, volume, pitch);
+    }
+
+    /**
      * Plays the sound at the specified location.
      *
      * @param location the location where the sound will be played
@@ -119,25 +139,5 @@ public class SimplePlayableSound implements ConfigurationSerializable, PlayableS
         serialized.put("volume", volume);
         serialized.put("pitch", pitch);
         return serialized;
-    }
-
-    /**
-     * Deserializes a sound configuration from a map.
-     *
-     * @param serialized the map containing the serialized sound configuration
-     * @return a SimplePlayableSound instance or null if the sound type is missing
-     */
-    public static SimplePlayableSound deserialize(Map<String, Object> serialized) {
-        String soundTypeName = (String) serialized.get("sound-type");
-
-        if (soundTypeName == null) {
-            return null;
-        }
-
-        Sound soundType = Sound.valueOf(soundTypeName.toUpperCase());
-        float volume = ((Number) serialized.getOrDefault("volume", 1.0f)).floatValue();
-        float pitch = ((Number) serialized.getOrDefault("pitch", 1.0f)).floatValue();
-
-        return new SimplePlayableSound(soundType, volume, pitch);
     }
 }

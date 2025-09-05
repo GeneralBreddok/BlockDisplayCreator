@@ -20,11 +20,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CustomBlockFileRepository implements CustomBlockRepository {
+    private static final String REPOSITORY_NAME = "custom-blocks";
     private final JavaPlugin plugin;
     @Getter
     private List<CustomBlockConfigurationFile> files;
-
-    private static final String REPOSITORY_NAME = "custom-blocks";
 
     public CustomBlockFileRepository(@NotNull JavaPlugin plugin) {
         this.plugin = plugin;

@@ -11,7 +11,10 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
 
 @Getter
 @AllArgsConstructor
@@ -23,9 +26,6 @@ public enum TargetSelectorType {
     SELF("@s"),
     ALL_ENTITIES("@e");
 
-    String variable;
-
-
     private static final Map<String, TargetSelectorType> VARIABLES = Map.of(
             "@p", NEAREST_PLAYER,
             "@a", ALL_PLAYERS,
@@ -33,6 +33,7 @@ public enum TargetSelectorType {
             "@s", SELF,
             "@e", ALL_ENTITIES
     );
+    String variable;
 
     public static Player getNearestPlayer(Location location, @Nullable Player defaultPlayer) {
         Player nearestPlayer = defaultPlayer;

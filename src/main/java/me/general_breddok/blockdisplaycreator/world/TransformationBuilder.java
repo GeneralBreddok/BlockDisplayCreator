@@ -11,6 +11,7 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 public class TransformationBuilder implements Builder<Transformation> {
+    public static final Transformation EMPTY = new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(), new Quaternionf());
     @NotNull
     private Vector3f translation;
     @NotNull
@@ -19,8 +20,6 @@ public class TransformationBuilder implements Builder<Transformation> {
     private Vector3f scale;
     @NotNull
     private Quaternionf rightRotation;
-
-    public static final Transformation EMPTY = new Transformation(new Vector3f(), new Quaternionf(), new Vector3f(), new Quaternionf());
 
     public TransformationBuilder(@NotNull Transformation transformation) {
         this.translation = transformation.getTranslation();

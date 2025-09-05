@@ -1,15 +1,15 @@
 package me.general_breddok.blockdisplaycreator.nbt.entity.display;
 
-import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
+import me.general_breddok.blockdisplaycreator.common.ColorConverter;
 import me.general_breddok.blockdisplaycreator.entity.EntityCharacteristics;
 import me.general_breddok.blockdisplaycreator.entity.display.DisplayCharacteristics;
 import me.general_breddok.blockdisplaycreator.nbt.adventure.AdventureTagBuilder;
 import me.general_breddok.blockdisplaycreator.nbt.entity.NbtEntityObject;
-import me.general_breddok.blockdisplaycreator.common.ColorConverter;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.MathUtil;
-import net.kyori.adventure.nbt.*;
-import org.bukkit.Bukkit;
+import net.kyori.adventure.nbt.BinaryTag;
+import net.kyori.adventure.nbt.CompoundBinaryTag;
+import net.kyori.adventure.nbt.FloatBinaryTag;
+import net.kyori.adventure.nbt.ListBinaryTag;
 import org.bukkit.Color;
 import org.bukkit.entity.Display;
 import org.bukkit.util.Transformation;
@@ -156,6 +156,11 @@ public class NbtDisplayObject extends NbtEntityObject implements NbtDisplay {
         return transformation;
     }
 
+    @Override
+    public void setTransformation(Transformation transformation) {
+        this.setTransformation(transformation, true);
+    }
+
     private Vector3f getTransformationVector3f(String name, CompoundBinaryTag cpdTransformation) {
         ListBinaryTag vector3fList = cpdTransformation.getList(name);
 
@@ -207,11 +212,6 @@ public class NbtDisplayObject extends NbtEntityObject implements NbtDisplay {
         }
 
         return quaternionf;
-    }
-
-    @Override
-    public void setTransformation(Transformation transformation) {
-        this.setTransformation(transformation, true);
     }
 
     public void setTransformation(Transformation transformation, boolean compound) {

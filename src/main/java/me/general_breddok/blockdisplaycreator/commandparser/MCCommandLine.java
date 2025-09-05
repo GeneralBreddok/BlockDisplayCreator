@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Getter
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PROTECTED)
-public class  MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine> {
+public class MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine> {
     List<CommandArgument> arguments = new ArrayList<>();
     String name;
     @Nullable
@@ -89,7 +89,7 @@ public class  MCCommandLine implements CommandLine, DeepCloneable<MCCommandLine>
         this.name = name;
         this.namespace = namespace;
     }
-    
+
     public MCCommandLine(CommandLine commandLine) {
         this(commandLine.getArguments(), commandLine.getName(), commandLine.getNamespace());
     }

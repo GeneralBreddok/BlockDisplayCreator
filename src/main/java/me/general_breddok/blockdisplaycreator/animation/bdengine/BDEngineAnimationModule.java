@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.file.mcfunction.MCFunction;
 import me.general_breddok.blockdisplaycreator.file.mcfunction.MCFunctionFile;
-import org.bukkit.packs.DataPack;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

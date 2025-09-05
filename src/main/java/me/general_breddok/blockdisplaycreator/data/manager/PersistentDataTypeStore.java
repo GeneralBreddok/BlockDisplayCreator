@@ -1,11 +1,9 @@
 package me.general_breddok.blockdisplaycreator.data.manager;
 
 import com.google.common.reflect.TypeToken;
-import me.general_breddok.blockdisplaycreator.data.yaml.YamlDataClasses;
 import me.general_breddok.blockdisplaycreator.data.exception.IllegalEnumNameException;
 import me.general_breddok.blockdisplaycreator.data.persistent.PersistentDataConverter;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import org.bukkit.Sound;
+import me.general_breddok.blockdisplaycreator.data.yaml.YamlDataClasses;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerializable;
@@ -132,9 +130,9 @@ public class PersistentDataTypeStore implements PersistentDataTypeManager {
      * Registers a new PersistentDataType instance for a given class.
      *
      * @param typeToken The typeToken of the complex type.
-     * @param pdt   The PersistentDataType instance to register.
-     * @param <P>   The type of the primitive type.
-     * @param <C>   The type of the complex type.
+     * @param pdt       The PersistentDataType instance to register.
+     * @param <P>       The type of the primitive type.
+     * @param <C>       The type of the complex type.
      */
     @Override
     public <P, C> void register(TypeToken<C> typeToken, PersistentDataType<P, C> pdt) {
@@ -145,7 +143,7 @@ public class PersistentDataTypeStore implements PersistentDataTypeManager {
      * Checks if a PersistentDataType instance is registered for a given class.
      *
      * @param typeToken The typeToken to check.
-     * @param <C>   The type of the complex type.
+     * @param <C>       The type of the complex type.
      * @return True if a PersistentDataType instance is registered for the given class, false otherwise.
      */
     @Override
@@ -163,8 +161,8 @@ public class PersistentDataTypeStore implements PersistentDataTypeManager {
      * Retrieves a registered PersistentDataType instance for a given class.
      *
      * @param typeToken The typeToken to retrieve the PersistentDataType instance for.
-     * @param <P>   The type of the primitive type.
-     * @param <C>   The type of the complex type.
+     * @param <P>       The type of the primitive type.
+     * @param <C>       The type of the complex type.
      * @return The registered PersistentDataType instance for the given class, or null if no instance is registered.
      */
     @Override

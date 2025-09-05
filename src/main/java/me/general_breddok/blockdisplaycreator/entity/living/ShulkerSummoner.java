@@ -14,20 +14,47 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashSet;
 
+/**
+ * Summoner implementation for spawning and configuring {@link Shulker} entities.
+ * <p>
+ * This class extends {@link LivingEntitySummoner} and adds Shulker-specific properties
+ * such as peek amount, attached face, and color. All properties are applied to the
+ * spawned entity when calling {@link #summon(Location)}.
+ */
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = true)
 @FieldDefaults(level = AccessLevel.PROTECTED)
 public class ShulkerSummoner extends LivingEntitySummoner<Shulker> {
 
+    /**
+     * Amount of Shulker's peek.
+     */
     Float peek;
+
+    /**
+     * The face of the block to which the Shulker is attached.
+     */
     BlockFace attachedFace;
+
+    /**
+     * The color of the Shulker.
+     */
     DyeColor color;
 
+    /**
+     * Default constructor initializing the summoner for {@link Shulker} entities
+     * with default characteristics.
+     */
     public ShulkerSummoner() {
         super(Shulker.class);
     }
 
+    /**
+     * Constructs a ShulkerSummoner using the provided characteristics.
+     *
+     * @param characteristics the characteristics to apply when spawning the Shulker
+     */
     public ShulkerSummoner(ShulkerCharacteristics characteristics) {
         super(Shulker.class, characteristics);
 
@@ -36,6 +63,12 @@ public class ShulkerSummoner extends LivingEntitySummoner<Shulker> {
         color = characteristics.getColor();
     }
 
+    /**
+     * Summons a Shulker at the specified location with all configured properties applied.
+     *
+     * @param location the location to spawn the Shulker
+     * @return the spawned {@link Shulker} entity
+     */
     @Override
     public Shulker summon(@NotNull Location location) {
         Shulker entity = super.summon(location);
@@ -47,6 +80,11 @@ public class ShulkerSummoner extends LivingEntitySummoner<Shulker> {
         return entity;
     }
 
+    /**
+     * Creates a deep clone of this ShulkerSummoner, including all characteristics and properties.
+     *
+     * @return a cloned instance of {@link ShulkerSummoner}
+     */
     @Override
     public ShulkerSummoner clone() {
         ShulkerSummoner cloned = new ShulkerSummoner();
@@ -91,3 +129,4 @@ public class ShulkerSummoner extends LivingEntitySummoner<Shulker> {
         return cloned;
     }
 }
+

@@ -46,30 +46,80 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.nio.file.Path;
 
+/**
+ * Main entry point of the BlockDisplayCreator plugin.
+ */
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public final class BlockDisplayCreator extends JavaPlugin {
+    /**
+     * Singleton instance of the plugin.
+     */
     @Getter
     private static BlockDisplayCreator instance;
 
+    /**
+     * Handles integration with external plugins and libraries.
+     */
     BDCDependentPluginsManager dependentPluginsManager;
 
+    /**
+     * Manages registered custom block services.
+     */
     ServiceManager<String, CustomBlockService> servicesManager;
+    /**
+     * Provides operations with custom blocks.
+     */
     CustomBlockService customBlockService;
 
+    /**
+     * Main configuration file (config.yml).
+     */
     YamlConfigFile yamlConfiguration;
+    /**
+     * Messages configuration file (messages.yml).
+     */
     YamlConfigFile messagesFile;
 
+    /**
+     * Root command (/bdc or /blockdisplaycreator).
+     */
     BlockDisplayCreatorCAPICommand bdcCommand;
+    /**
+     * Simplified specialized command for giving custom blocks (/cb or /custom-block).
+     */
     CustomBlockGiveCAPICommand cbGiveCommand;
 
+    /**
+     * Detects and validates the running Minecraft server version.
+     */
     VersionManager versionManager;
+    /**
+     * Indicates if CommandAPI is supported on the current server version.
+     */
     boolean capi = false;
 
+    /**
+     * Collects anonymous plugin usage statistics.
+     */
     PluginMetrics pluginMetrics;
 
 
-
+    /**
+     * Invoked during the plugin load phase, before the server has fully started.
+     * <p>
+     * Responsibilities:
+     * <ul>
+     *   <li>Initializes the {@link BDCDependentPluginsManager} for handling
+     *       integrations with external plugins and libraries.</li>
+     *   <li>Sets up {@link VersionManager} and determines whether CommandAPI
+     *       can be used based on the server version.</li>
+     *   <li>Prepares CommandAPI if supported, otherwise logs a fallback
+     *       to legacy command handling.</li>
+     *   <li>Registers WorldGuard flags and loads PacketEvents.</li>
+     * </ul>
+     * </p>
+     */
     @Override
     public void onLoad() {
         this.dependentPluginsManager = new BDCDependentPluginsManager(this);
@@ -88,10 +138,27 @@ public final class BlockDisplayCreator extends JavaPlugin {
         this.dependentPluginsManager.registerWorldGuardFlags();
     }
 
-
+    /**
+     * Invoked when the plugin is enabled and ready to operate.
+     * <p>
+     * Responsibilities:
+     * <ul>
+     *   <li>Sets the static plugin instance reference.</li>
+     *   <li>Initializes and registers the {@link CustomBlockService} via
+     *       {@link ServiceManager}.</li>
+     *   <li>Registers commands either via CommandAPI (modern versions)
+     *       or via Bukkit's legacy executor (older versions).</li>
+     *   <li>Registers all data adapters and event listeners.</li>
+     *   <li>Loads and reloads configuration files (config.yml, messages.yml,
+     *       and default custom block - barrel.yml).</li>
+     *   <li>Initializes plugin metrics and performs an update check
+     *       against SpigotMC.</li>
+     * </ul>
+     * </p>
+     */
     @Override
     public void onEnable() {
-        this.instance = this;
+        instance = this;
         this.dependentPluginsManager.initPacketEvents();
 
         this.customBlockService = new BDCCustomBlockService(new BDCCustomBlockConfigStorage(this));
@@ -138,6 +205,14 @@ public final class BlockDisplayCreator extends JavaPlugin {
         checkForUpdates();
     }
 
+    /**
+     * Registers all plugin listeners to the Bukkit {@link PluginManager}.
+     * <p>
+     * Listeners cover player interactions, block placement and destruction,
+     * entity damage, piston mechanics, and compatibility hooks with
+     * other plugins (e.g. SuperiorSkyblock).
+     * </p>
+     */
     private void registerEvents() {
         PluginManager pluginManager = getServer().getPluginManager();
         pluginManager.registerEvents(new PlayerInteractListener(this.servicesManager), this);
@@ -155,7 +230,15 @@ public final class BlockDisplayCreator extends JavaPlugin {
         //pluginManager.registerEvents(new PrepareItemCraftListener(), this);
     }
 
-
+    /**
+     * Registers data adapters for both Persistent Data Container (PDC)
+     * and YAML-based storage.
+     * <p>
+     * These adapters provide custom serialization/deserialization
+     * for advanced data structures such as UUID arrays, command bundles,
+     * block rotation metadata, and more.
+     * </p>
+     */
     private void registerDataAdapters() {
         ConfigurationSerialization.registerClass(SimplePlayableSound.class);
 
@@ -186,6 +269,16 @@ public final class BlockDisplayCreator extends JavaPlugin {
         yamlStore.register(TypeTokens.CUSTOM_BLOCK_DROP_MODE, PersistentDataTypes.CUSTOM_BLOCK_DROP_MODE);
     }
 
+    /**
+     * Reloads all configuration files used by the plugin.
+     * <p>
+     * This includes the primary {@code config.yml}, the
+     * {@code messages.yml}, and all custom block configurations.
+     * It also re-initializes configuration-dependent values in memory.
+     * </p>
+     *
+     * @see #initializeConfigValues()
+     */
     @Override
     public void reloadConfig() {
         this.yamlConfiguration.reload();
@@ -194,17 +287,39 @@ public final class BlockDisplayCreator extends JavaPlugin {
         this.initializeConfigValues();
     }
 
+    /**
+     * Initializes static, strongly typed configuration values.
+     * <p>
+     * These values (boolean, long, and message strings) are exposed
+     * via static fields, allowing global access to immutable
+     * configuration data throughout the plugin.
+     * </p>
+     */
     public void initializeConfigValues() {
         new BooleanConfigValue().initialize(new YamlData<>(this.getYamlConfiguration(), TypeTokens.BOOLEAN));
         new LongConfigValue().initialize(new YamlData<>(this.getYamlConfiguration(), TypeTokens.LONG));
         new StringMessagesValue().initialize(new YamlData<>(this.getMessagesFile(), TypeTokens.STRING));
     }
 
+    /**
+     * Checks whether a newer version of the plugin is available on <a href="https://www.spigotmc.org/resources/blockdisplaycreator.114877/">SpigotMC</a>.
+     * <p>
+     * If a newer release is found, a notification message is sent to
+     * the console.
+     * </p>
+     */
     public void checkForUpdates() {
         BDCUpdateChecker updateChecker = new BDCUpdateChecker(this, 114877);
         updateChecker.updateLastVersion(BDCUpdateChecker::sendNewUpdateMessage);
     }
 
+    /**
+     * Called when the plugin is disabled.
+     * <p>
+     * Performs clean shutdown operations, such as disabling
+     * CommandAPI (if active) and terminating packet event handlers.
+     * </p>
+     */
     @Override
     public void onDisable() {
         if (this.capi) {

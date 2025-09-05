@@ -1,7 +1,5 @@
 package me.general_breddok.blockdisplaycreator.file.exception;
 
-import java.io.File;
-
 public class CustomBlockLoadException extends FileLoadException {
     public CustomBlockLoadException() {
         super();

@@ -7,7 +7,6 @@ import me.general_breddok.blockdisplaycreator.data.manager.ParameterizedClasses;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeManager;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypeStore;
 import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.NumberUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import org.apache.logging.log4j.LogManager;

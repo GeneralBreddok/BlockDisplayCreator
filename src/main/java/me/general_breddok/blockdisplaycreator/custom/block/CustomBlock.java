@@ -2,7 +2,9 @@ package me.general_breddok.blockdisplaycreator.custom.block;
 
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockOption;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.Display;
+import org.bukkit.entity.Interaction;
+import org.bukkit.entity.Shulker;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;

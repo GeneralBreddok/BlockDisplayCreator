@@ -82,7 +82,7 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             ));
         }
 
-        return new BDCAbstractCustomBlock(this.getName(),  BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem());
+        return new BDCAbstractCustomBlock(this.getName(), BDCCustomBlockService.class.getName(), displaySummoner, configuredInteractions, configuredCollisions, item, centralMaterial, sidesCount, permissions, customBlockSoundGroup, customBlockStageSettings, getSaveSystem());
     }
 
     @Override

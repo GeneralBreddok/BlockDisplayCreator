@@ -24,6 +24,7 @@ import java.util.List;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NetworkBDEngineModel implements BDEngineModel {
+    private static final String BDENGINE_API = "https://block-display.com/api/?type=getModel&id=";
     String name;
     String author;
     String category;
@@ -31,8 +32,6 @@ public class NetworkBDEngineModel implements BDEngineModel {
     int modelCount;
     JsonObject commands;
     JsonArray passengers;
-
-    private static final String BDENGINE_API = "https://block-display.com/api/?type=getModel&id=";
 
     public NetworkBDEngineModel(String modelId) throws InvalidResponseException {
 
@@ -62,6 +61,13 @@ public class NetworkBDEngineModel implements BDEngineModel {
         }
     }
 
+    private static void processBadRequest(HttpResponse<String> response) throws BDEngineModelNotFoundException {
+        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
+        String error = jsonObject.get("error").getAsString();
+
+        throw new BDEngineModelNotFoundException(error);
+    }
+
     private void processSuccessResponse(HttpResponse<String> response) {
         JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
 
@@ -77,13 +83,6 @@ public class NetworkBDEngineModel implements BDEngineModel {
             this.commands = jsonCommands.getAsJsonObject();
         }
         this.passengers = jsonObject.get("Passengers").getAsJsonArray();
-    }
-
-    private static void processBadRequest(HttpResponse<String> response) throws BDEngineModelNotFoundException {
-        JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-        String error = jsonObject.get("error").getAsString();
-
-        throw new BDEngineModelNotFoundException(error);
     }
 
     @Override

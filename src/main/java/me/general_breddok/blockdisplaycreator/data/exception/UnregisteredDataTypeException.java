@@ -1,9 +1,5 @@
 package me.general_breddok.blockdisplaycreator.data.exception;
 
-import lombok.Getter;
-import org.jetbrains.annotations.Nullable;
-
-
 public class UnregisteredDataTypeException extends RuntimeException {
     private final Class<?> unregisteredType;
 

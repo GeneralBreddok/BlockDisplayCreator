@@ -1,9 +1,5 @@
 package me.general_breddok.blockdisplaycreator.custom.block;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +28,6 @@ public interface CustomBlockBreakSettings {
          * Items are placed directly into the player's inventory.
          * If the inventory is full, items will drop at the player's location.
          */
-        INVENTORY;
+        INVENTORY
     }
 }

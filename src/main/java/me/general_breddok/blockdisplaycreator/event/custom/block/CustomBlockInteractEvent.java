@@ -13,7 +13,6 @@ import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.bukkit.inventory.EquipmentSlot;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * This class represents a custom event that is fired when a player interacts with a custom block (interaction entity).
@@ -21,25 +20,25 @@ import org.jetbrains.annotations.Nullable;
  */
 
 @Getter
-@FieldDefaults(level =  AccessLevel.PRIVATE, makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CustomBlockInteractEvent extends CustomBlockPlayerEvent implements Cancellable {
     private static final HandlerList handlers = new HandlerList();
-    @Setter
-    @NonFinal
-    boolean cancelled = false;
     Interaction interactionEntity;
     ConfiguredInteraction configuredInteraction;
     EquipmentSlot hand;
+    @Setter
+    @NonFinal
+    boolean cancelled = false;
 
 
     /**
      * Constructs a new CustomBlockInteractEvent.
      *
-     * @param block                The custom block that was interacted with.
-     * @param player               The player who interacted with the custom block.
-     * @param interactionEntity    The interaction entity that was used to interact with the custom block.
+     * @param block                 The custom block that was interacted with.
+     * @param player                The player who interacted with the custom block.
+     * @param interactionEntity     The interaction entity that was used to interact with the custom block.
      * @param configuredInteraction The configured interaction associated with this event.
-     * @param hand                 The hand used for the interaction (main or off).
+     * @param hand                  The hand used for the interaction (main or off).
      */
 
     public CustomBlockInteractEvent(@NotNull CustomBlock block, @NotNull Player player,

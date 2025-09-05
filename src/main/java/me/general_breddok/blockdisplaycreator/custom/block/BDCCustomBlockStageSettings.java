@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
-import me.general_breddok.blockdisplaycreator.custom.CommandBundle;
 
 @Getter
 @EqualsAndHashCode

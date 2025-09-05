@@ -13,9 +13,9 @@ import org.bukkit.inventory.ItemStack;
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AbstractCustomBlockTooltip implements IStringTooltip {
+    final ItemStack item;
     @Getter
     AbstractCustomBlock abstractCustomBlock;
-    final ItemStack item;
 
     public AbstractCustomBlockTooltip(AbstractCustomBlock abstractCustomBlock) {
         this.abstractCustomBlock = abstractCustomBlock;

@@ -1,7 +1,5 @@
 package me.general_breddok.blockdisplaycreator.file.exception;
 
-import java.io.IOException;
-
 public class InvalidFileFormatException extends IllegalArgumentException {
     public InvalidFileFormatException() {
         super();

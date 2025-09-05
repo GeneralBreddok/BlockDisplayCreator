@@ -22,8 +22,8 @@ public class CustomBlockPlaceEvent extends CustomBlockPlayerEvent implements Can
     /**
      * Constructs a new CustomBlockPlaceEvent.
      *
-     * @param player      The player who placed the custom block.
-     * @param block       The custom block that was placed.
+     * @param player The player who placed the custom block.
+     * @param block  The custom block that was placed.
      */
     public CustomBlockPlaceEvent(@NonNull CustomBlock block, @Nullable Player player) {
         super(block, player);

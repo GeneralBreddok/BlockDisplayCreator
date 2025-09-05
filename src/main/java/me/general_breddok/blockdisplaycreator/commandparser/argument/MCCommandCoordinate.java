@@ -1,14 +1,12 @@
 package me.general_breddok.blockdisplaycreator.commandparser.argument;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.commandparser.exception.InvalidCommandArgumentException;
 import me.general_breddok.blockdisplaycreator.rotation.EntityRotation;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.LocationUtil;
 import org.bukkit.Axis;
 import org.bukkit.Location;
@@ -65,7 +63,7 @@ public class MCCommandCoordinate extends MCCommandArgument implements CommandCoo
     }
 
     public double applyOffset(double coordinateAxisValue) {
-        addition = applyOffset(coordinateAxisValue, null, null );
+        addition = applyOffset(coordinateAxisValue, null, null);
 
         return addition;
     }
