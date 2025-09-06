@@ -47,35 +47,6 @@ public class PlayerInteractEntityListener implements Listener {
         this.serviceManager = serviceManager;
     }
 
-    private static boolean checkAccess(CustomBlock customBlock, Player player) {
-        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
-        Location customBlockLocation = customBlock.getLocation();
-
-        if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
-                return false;
-            }
-        }
-
-        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
-                return false;
-            }
-        }
-
-
-        CustomBlockPermissions permissions = customBlock.getPermissions();
-
-        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
-            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
-            return false;
-        }
-
-        return true;
-    }
-
     @EventHandler(ignoreCancelled = true, priority = EventPriority.HIGH)
     public void onPlayerInteractAtEntity(PlayerInteractEntityEvent event) {
         Player player = event.getPlayer();
@@ -152,6 +123,35 @@ public class PlayerInteractEntityListener implements Listener {
 
         PlayerInteractEvent playerInteractEvent = new PlayerInteractEvent(player, Action.RIGHT_CLICK_BLOCK, player.getInventory().getItem(hand), world.getBlockAt(hitPosition.getBlockX(), hitPosition.getBlockY(), hitPosition.getBlockZ()), blockFace, hand);
         EventUtil.call(playerInteractEvent);*/
+    }
+
+    private static boolean checkAccess(CustomBlock customBlock, Player player) {
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
+                return false;
+            }
+        }
+
+
+        CustomBlockPermissions permissions = customBlock.getPermissions();
+
+        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
+            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
+            return false;
+        }
+
+        return true;
     }
 
     public BlockFace determineEntityFace(Interaction entity, Vector hitPos) {

@@ -21,9 +21,10 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ConfiguredCollisionDta implements ConfiguredCollision {
-    final String identifier;
     @NotNull
     Summoner<Shulker> summoner;
+    @NotNull
+    final String identifier;
     @Nullable
     Vector offset;
     double size;
@@ -40,19 +41,6 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
 
     public ConfiguredCollisionDta(Summoner<Shulker> summoner, String identifier) {
         this(summoner, identifier, null, 1, false);
-    }
-
-    public static void setScale(Shulker shulker, double size) {
-        if (size <= 0 || size == 1) {
-            return;
-        }
-
-        Attribute scaleAttribute = VersionCompat.getScaleAttribute();
-
-        if (scaleAttribute == null)
-            return;
-
-        shulker.getAttribute(scaleAttribute).setBaseValue(size);
     }
 
     @Override
@@ -85,6 +73,19 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
         vehicle.addPassenger(shulker);
 
         return shulker;
+    }
+
+    private static void setScale(Shulker shulker, double size) {
+        if (size <= 0 || size == 1) {
+            return;
+        }
+
+        Attribute scaleAttribute = VersionCompat.getScaleAttribute();
+
+        if (scaleAttribute == null)
+            return;
+
+        shulker.getAttribute(scaleAttribute).setBaseValue(size);
     }
 
     @Override

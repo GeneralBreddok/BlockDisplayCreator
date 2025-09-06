@@ -47,7 +47,6 @@ public abstract class CachedFile {
 
     /**
      * Reloads the file with an option to create and load a new file if the file does not exist.
-     * Must be implemented by subclasses.
      *
      * @param loadNew whether to load a new file if the file does not exist
      */

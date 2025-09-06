@@ -16,8 +16,10 @@ import org.jetbrains.annotations.Nullable;
 @EqualsAndHashCode
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ConfiguredInteractionDta implements ConfiguredInteraction {
-    final String identifier;
+    @NotNull
     Summoner<Interaction> summoner;
+    @NotNull
+    final String identifier;
     @Nullable
     Vector offset;
     @Nullable

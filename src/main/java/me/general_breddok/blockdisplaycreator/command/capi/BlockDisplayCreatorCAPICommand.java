@@ -953,17 +953,42 @@ public class BlockDisplayCreatorCAPICommand {
                                                                 ).then(
                                                                         new LiteralArgument("stage-settings")
                                                                                 .then(
-                                                                                        new MultiLiteralArgument("stage", "place", "break")
+                                                                                        new LiteralArgument("place")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("placement-mode")
+                                                                                                                .then(
+                                                                                                                        new StringArgument("placement-mode")
+                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                                        "default",
+                                                                                                                                        "vertical_only",
+                                                                                                                                        "horizontal_only",
+                                                                                                                                        "vertical_with_horizontal",
+                                                                                                                                        "horizontal_with_vertical"
+                                                                                                                                ))
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String placementMode = (String) args.get("placement-mode");
+
+                                                                                                                                    try {
+                                                                                                                                        CustomBlockPlaceSettings.PlacementMode.valueOf(placementMode.toUpperCase());
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid placement mode: " + placementMode);
+                                                                                                                                    }
+
+                                                                                                                                    setCbConfigValue(block, "stage-settings.place.placement-mode", placementMode, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                )
                                                                                                 .then(
                                                                                                         new LiteralArgument("command")
                                                                                                                 .then(
                                                                                                                         new CommandArgument("command-line")
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                     String block = (String) args.get("block");
-                                                                                                                                    String stage = (String) args.get("stage");
                                                                                                                                     String commandLine = (String) args.get("command-line");
 
-                                                                                                                                    setCbConfigValue(block, "stage-settings." + stage + ".command", commandLine, sender);
+                                                                                                                                    setCbConfigValue(block, "stage-settings.place.command", commandLine, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -975,7 +1000,6 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                         "console"
                                                                                                                                 )).executes((sender, args) -> {
                                                                                                                                     String block = (String) args.get("block");
-                                                                                                                                    String stage = (String) args.get("stage");
                                                                                                                                     String commandSource = (String) args.get("command-source");
 
                                                                                                                                     try {
@@ -985,7 +1009,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                         ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
                                                                                                                                     }
 
-                                                                                                                                    setCbConfigValue(block, "stage-settings." + stage + ".command-source", commandSource, sender);
+                                                                                                                                    setCbConfigValue(block, "stage-settings.place.command-source", commandSource, sender);
                                                                                                                                 })
                                                                                                                 )
                                                                                                 ).then(
@@ -998,10 +1022,83 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                 .buildGreedy()
                                                                                                                                 .executes((sender, args) -> {
                                                                                                                                             String block = (String) args.get("block");
-                                                                                                                                            String stage = (String) args.get("stage");
                                                                                                                                             List<Permission> permissions = (List<Permission>) args.get("granted-command-permission-list");
 
-                                                                                                                                            setCbConfigValue(block, "stage-settings." + stage + ".granted-command-permission", permissions, sender);
+                                                                                                                                            setCbConfigValue(block, "stage-settings.place.granted-command-permission", permissions, sender);
+                                                                                                                                        }
+                                                                                                                                )
+                                                                                                                )
+                                                                                                )
+                                                                                ).then(
+                                                                                        new LiteralArgument("break")
+                                                                                                .then(
+                                                                                                        new LiteralArgument("drop-mode")
+                                                                                                                .then(
+                                                                                                                        new StringArgument("drop-mode")
+                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                                        "on_ground",
+                                                                                                                                        "inventory"
+                                                                                                                                ))
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String dropMode = (String) args.get("drop-mode");
+
+                                                                                                                                    try {
+                                                                                                                                        CustomBlockBreakSettings.DropMode.valueOf(dropMode.toUpperCase());
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid drop mode: " + dropMode);
+                                                                                                                                    }
+
+                                                                                                                                    setCbConfigValue(block, "stage-settings.break.drop-mode", dropMode, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                )
+                                                                                                .then(
+                                                                                                        new LiteralArgument("command")
+                                                                                                                .then(
+                                                                                                                        new CommandArgument("command-line")
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String commandLine = (String) args.get("command-line");
+
+                                                                                                                                    setCbConfigValue(block, "stage-settings.break.command", commandLine, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("command-source")
+                                                                                                                .then(
+                                                                                                                        new StringArgument("command-source")
+                                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
+                                                                                                                                        "player",
+                                                                                                                                        "console"
+                                                                                                                                )).executes((sender, args) -> {
+                                                                                                                                    String block = (String) args.get("block");
+                                                                                                                                    String commandSource = (String) args.get("command-source");
+
+                                                                                                                                    try {
+                                                                                                                                        CommandBundle.CommandSource.valueOf(commandSource.toUpperCase());
+                                                                                                                                    } catch (
+                                                                                                                                            IllegalArgumentException e) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid command source: " + commandSource);
+                                                                                                                                    }
+
+                                                                                                                                    setCbConfigValue(block, "stage-settings.break.command-source", commandSource, sender);
+                                                                                                                                })
+                                                                                                                )
+                                                                                                ).then(
+                                                                                                        new LiteralArgument("granted-command-permission")
+                                                                                                                .then(
+                                                                                                                        new ListArgumentBuilder<Permission>("granted-command-permission-list")
+                                                                                                                                .allowDuplicates(false)
+                                                                                                                                .withList(Bukkit.getPluginManager().getPermissions().stream().toList())
+                                                                                                                                .withMapper(Permission::getName)
+                                                                                                                                .buildGreedy()
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                            String block = (String) args.get("block");
+                                                                                                                                            List<Permission> permissions = (List<Permission>) args.get("granted-command-permission-list");
+
+                                                                                                                                            setCbConfigValue(block, "stage-settings.break.granted-command-permission", permissions, sender);
                                                                                                                                         }
                                                                                                                                 )
                                                                                                                 )

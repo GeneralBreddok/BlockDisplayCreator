@@ -47,53 +47,6 @@ public class PlayerInteractListener implements Listener {
         this.serviceManager = serviceManager;
     }
 
-    private static void configureDataFromItem(ItemStack item, Location blockLocation, AbstractCustomBlock abstractCustomBlock) {
-        PersistentData<CommandLine[]> commandListPD = new PersistentData<>(item.getItemMeta(), TypeTokens.COMMAND_ARRAY);
-
-        CustomBlockData customBlockData = new CustomBlockData(blockLocation.getBlock(), BlockDisplayCreator.getInstance());
-        ItemStack cloned = item.clone();
-        cloned.setAmount(1);
-        customBlockData.set(CustomBlockKey.ITEM, PersistentDataTypes.ITEM, cloned);
-
-
-        if (commandListPD.has(CustomBlockKey.DISPLAY_SPAWN_COMMAND)) {
-            CommandLine[] commandLines = commandListPD.get(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
-
-            customBlockData.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY, commandLines);
-
-            GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
-            if (displaySummoner instanceof AutomaticCommandDisplaySummoner automaticCommandDisplaySummoner) {
-                automaticCommandDisplaySummoner.setCommands(Arrays.stream(commandLines).collect(Collectors.toCollection(ArrayList::new)));
-            }
-        }
-    }
-
-    private static boolean checkAccess(Location blockLocation, Player player, AbstractCustomBlock abstractCustomBlock) {
-        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
-
-        if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, WGRegionFlags.PLACE_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
-                return false;
-            }
-        }
-
-        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSBIslandAccessChecker.checkIslandAccess(blockLocation, SSBIslandPrivileges.PLACE_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
-                return false;
-            }
-        }
-
-        CustomBlockPermissions permissions = abstractCustomBlock.getPermissions();
-
-        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.PLACE)) {
-            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
-            return false;
-        }
-        return true;
-    }
-
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         Player player = event.getPlayer();
@@ -220,5 +173,52 @@ public class PlayerInteractListener implements Listener {
         }
 
         return blockFace;
+    }
+
+    private static void configureDataFromItem(ItemStack item, Location blockLocation, AbstractCustomBlock abstractCustomBlock) {
+        PersistentData<CommandLine[]> commandListPD = new PersistentData<>(item.getItemMeta(), TypeTokens.COMMAND_ARRAY);
+
+        CustomBlockData customBlockData = new CustomBlockData(blockLocation.getBlock(), BlockDisplayCreator.getInstance());
+        ItemStack cloned = item.clone();
+        cloned.setAmount(1);
+        customBlockData.set(CustomBlockKey.ITEM, PersistentDataTypes.ITEM, cloned);
+
+
+        if (commandListPD.has(CustomBlockKey.DISPLAY_SPAWN_COMMAND)) {
+            CommandLine[] commandLines = commandListPD.get(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
+
+            customBlockData.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY, commandLines);
+
+            GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
+            if (displaySummoner instanceof AutomaticCommandDisplaySummoner automaticCommandDisplaySummoner) {
+                automaticCommandDisplaySummoner.setCommands(Arrays.stream(commandLines).collect(Collectors.toCollection(ArrayList::new)));
+            }
+        }
+    }
+
+    private static boolean checkAccess(Location blockLocation, Player player, AbstractCustomBlock abstractCustomBlock) {
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, WGRegionFlags.PLACE_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(blockLocation, SSBIslandPrivileges.PLACE_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
+                return false;
+            }
+        }
+
+        CustomBlockPermissions permissions = abstractCustomBlock.getPermissions();
+
+        if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.PLACE)) {
+            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
+            return false;
+        }
+        return true;
     }
 }

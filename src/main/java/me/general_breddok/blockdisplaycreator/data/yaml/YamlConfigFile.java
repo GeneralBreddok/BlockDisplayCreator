@@ -2,6 +2,7 @@ package me.general_breddok.blockdisplaycreator.data.yaml;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
+import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.data.locator.ConfigLocator;
 import me.general_breddok.blockdisplaycreator.file.CachedFile;
 import me.general_breddok.blockdisplaycreator.file.exception.InvalidFileFormatException;
@@ -195,7 +196,7 @@ public class YamlConfigFile extends CachedFile implements ConfigurationSection {
     public void reload(boolean createNewIfNotExist) {
         if (!this.configFile.exists()) {
             if (createNewIfNotExist) {
-                load(this.configFile.toPath(), true);
+                loadFromStream(BlockDisplayCreator.getInstance().getResource("messages.yml"));
             } else {
                 throw new IllegalArgumentException("Configuration file does not exist: " + configFile.getAbsolutePath());
             }

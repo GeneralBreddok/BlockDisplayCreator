@@ -63,95 +63,6 @@ public class BDCCustomBlockService implements CustomBlockService {
         this.storage = storage;
     }
 
-    public static void applyDisplayTranslationRotation(@NotNull GroupSummoner<Display> displaySummoner, Display display) {
-        if (displaySummoner instanceof TranslationVectorAdjustable translationVectorAdjustable) {
-            DirectedVector translation = translationVectorAdjustable.getTranslation();
-            if (translation != null) {
-                EntityRotation displayRotation = new EntityRotation(display);
-                displayRotation.addRotation(translation.getYaw(), translation.getPitch());
-                displayRotation.applyToEntity(display);
-            }
-        }
-    }
-
-    /**
-     * Creates a {@link CustomBlockData} from its location and stores all block data there
-     *
-     * @param customBlock         the custom block to create data for
-     * @param displayVehicleUuids list of UUIDs of display vehicles associated with the custom block
-     * @return a {@link CustomBlockData} instance containing the custom block's data
-     */
-    public static CustomBlockData createCustomBlockData(CustomBlock customBlock, List<UUID> displayVehicleUuids) {
-        CustomBlockData customBlockData = new CustomBlockData(customBlock.getLocation().getBlock(), BlockDisplayCreator.getInstance());
-        customBlockData.set(CustomBlockKey.NAME, PersistentDataType.STRING, customBlock.getName());
-        customBlockData.set(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING, BDCCustomBlockService.class.getName());
-        customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, displayVehicleUuids.toArray(UUID[]::new));
-        customBlockData.set(CustomBlockKey.INTERACTION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getInteractions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
-        customBlockData.set(CustomBlockKey.COLLISION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getCollisions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
-        customBlockData.set(CustomBlockKey.BLOCK_ROTATION, PersistentDataTypes.CUSTOM_BLOCK_ROTATION, customBlock.getRotation());
-        customBlockData.set(CustomBlockKey.CUSTOM_BLOCK_UUID, PersistentDataTypes.UUID, customBlock.getUuid());
-        if (customBlock.getSaveSystem().equals("item")) {
-            GroupSummoner<Display> displaySummoner = customBlock.getDisplaySummoner();
-            if (displaySummoner instanceof AutomaticCommandDisplaySummoner automaticCommandDisplaySummoner) {
-                customBlockData.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY, automaticCommandDisplaySummoner.getCommands().toArray(CommandLine[]::new));
-            }
-        }
-        return customBlockData;
-    }
-
-    /**
-     * Triggers the {@link CustomBlockPlaceEvent} and handles cancellation
-     *
-     * @param customBlock     the custom block that was placed
-     * @param player          the player who placed the block (nullable)
-     * @param customBlockData the custom block data associated with the block's location
-     * @return true if the event was not cancelled, false if it was
-     */
-    private static boolean triggerCustomBlockPlaceEvent(CustomBlock customBlock, Player player, CustomBlockData customBlockData) {
-        CustomBlockPlaceEvent customBlockPlaceEvent = new CustomBlockPlaceEvent(customBlock, player);
-        // If the event is canceled, remove all entities and clear the block data
-        if (!EventUtil.call(customBlockPlaceEvent)) {
-            customBlock.getDisplays().forEach(Entity::remove);
-            customBlock.getInteractions().forEach(Entity::remove);
-            customBlock.getCollisions().forEach(Entity::remove);
-            clearCustomBlockData(customBlockData);
-            customBlock.getLocation().getBlock().setType(Material.AIR);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Triggers the {@link CustomBlockBreakEvent} and handles cancellation
-     *
-     * @param customBlock the custom block that is being broken
-     * @param player      the player who is breaking the block (nullable)
-     * @return true if the event was not cancelled, false if it was
-     */
-    private static boolean triggerCustomBlockBreakEvent(CustomBlock customBlock, Player player) {
-        CustomBlockBreakEvent customBlockBreakEvent = new CustomBlockBreakEvent(customBlock, player);
-        return EventUtil.call(customBlockBreakEvent);
-    }
-
-    /**
-     * Clears all custom block data from the provided {@link CustomBlockData} instance
-     *
-     * @param customBlockData the custom block data to clear
-     */
-    public static void clearCustomBlockData(CustomBlockData customBlockData) {
-        customBlockData.remove(CustomBlockKey.NAME);
-        customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
-        customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
-        customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
-        customBlockData.remove(CustomBlockKey.COLLISION_UUID);
-        customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
-        customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
-        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
-
-        customBlockData.remove(CustomBlockKey.ITEM);
-        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -616,5 +527,94 @@ public class BDCCustomBlockService implements CustomBlockService {
         }
 
         return true;
+    }
+
+    public static void applyDisplayTranslationRotation(@NotNull GroupSummoner<Display> displaySummoner, Display display) {
+        if (displaySummoner instanceof TranslationVectorAdjustable translationVectorAdjustable) {
+            DirectedVector translation = translationVectorAdjustable.getTranslation();
+            if (translation != null) {
+                EntityRotation displayRotation = new EntityRotation(display);
+                displayRotation.addRotation(translation.getYaw(), translation.getPitch());
+                displayRotation.applyToEntity(display);
+            }
+        }
+    }
+
+    /**
+     * Creates a {@link CustomBlockData} from its location and stores all block data there
+     *
+     * @param customBlock         the custom block to create data for
+     * @param displayVehicleUuids list of UUIDs of display vehicles associated with the custom block
+     * @return a {@link CustomBlockData} instance containing the custom block's data
+     */
+    public static CustomBlockData createCustomBlockData(CustomBlock customBlock, List<UUID> displayVehicleUuids) {
+        CustomBlockData customBlockData = new CustomBlockData(customBlock.getLocation().getBlock(), BlockDisplayCreator.getInstance());
+        customBlockData.set(CustomBlockKey.NAME, PersistentDataType.STRING, customBlock.getName());
+        customBlockData.set(CustomBlockKey.SERVICE_CLASS, PersistentDataType.STRING, BDCCustomBlockService.class.getName());
+        customBlockData.set(CustomBlockKey.DISPLAY_UUID, PersistentDataTypes.UUID_ARRAY, displayVehicleUuids.toArray(UUID[]::new));
+        customBlockData.set(CustomBlockKey.INTERACTION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getInteractions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
+        customBlockData.set(CustomBlockKey.COLLISION_UUID, PersistentDataTypes.UUID_ARRAY, customBlock.getCollisions().stream().map(Entity::getUniqueId).toList().toArray(UUID[]::new));
+        customBlockData.set(CustomBlockKey.BLOCK_ROTATION, PersistentDataTypes.CUSTOM_BLOCK_ROTATION, customBlock.getRotation());
+        customBlockData.set(CustomBlockKey.CUSTOM_BLOCK_UUID, PersistentDataTypes.UUID, customBlock.getUuid());
+        if (customBlock.getSaveSystem().equals("item")) {
+            GroupSummoner<Display> displaySummoner = customBlock.getDisplaySummoner();
+            if (displaySummoner instanceof AutomaticCommandDisplaySummoner automaticCommandDisplaySummoner) {
+                customBlockData.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, PersistentDataTypes.COMMAND_ARRAY, automaticCommandDisplaySummoner.getCommands().toArray(CommandLine[]::new));
+            }
+        }
+        return customBlockData;
+    }
+
+    /**
+     * Triggers the {@link CustomBlockPlaceEvent} and handles cancellation
+     *
+     * @param customBlock     the custom block that was placed
+     * @param player          the player who placed the block (nullable)
+     * @param customBlockData the custom block data associated with the block's location
+     * @return true if the event was not cancelled, false if it was
+     */
+    private static boolean triggerCustomBlockPlaceEvent(CustomBlock customBlock, Player player, CustomBlockData customBlockData) {
+        CustomBlockPlaceEvent customBlockPlaceEvent = new CustomBlockPlaceEvent(customBlock, player);
+        // If the event is canceled, remove all entities and clear the block data
+        if (!EventUtil.call(customBlockPlaceEvent)) {
+            customBlock.getDisplays().forEach(Entity::remove);
+            customBlock.getInteractions().forEach(Entity::remove);
+            customBlock.getCollisions().forEach(Entity::remove);
+            clearCustomBlockData(customBlockData);
+            customBlock.getLocation().getBlock().setType(Material.AIR);
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Triggers the {@link CustomBlockBreakEvent} and handles cancellation
+     *
+     * @param customBlock the custom block that is being broken
+     * @param player      the player who is breaking the block (nullable)
+     * @return true if the event was not cancelled, false if it was
+     */
+    private static boolean triggerCustomBlockBreakEvent(CustomBlock customBlock, Player player) {
+        CustomBlockBreakEvent customBlockBreakEvent = new CustomBlockBreakEvent(customBlock, player);
+        return EventUtil.call(customBlockBreakEvent);
+    }
+
+    /**
+     * Clears all custom block data from the provided {@link CustomBlockData} instance
+     *
+     * @param customBlockData the custom block data to clear
+     */
+    public static void clearCustomBlockData(CustomBlockData customBlockData) {
+        customBlockData.remove(CustomBlockKey.NAME);
+        customBlockData.remove(CustomBlockKey.SERVICE_CLASS);
+        customBlockData.remove(CustomBlockKey.DISPLAY_UUID);
+        customBlockData.remove(CustomBlockKey.INTERACTION_UUID);
+        customBlockData.remove(CustomBlockKey.COLLISION_UUID);
+        customBlockData.remove(CustomBlockKey.BLOCK_ROTATION);
+        customBlockData.remove(CustomBlockKey.CUSTOM_BLOCK_UUID);
+        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
+
+        customBlockData.remove(CustomBlockKey.ITEM);
+        customBlockData.remove(CustomBlockKey.DISPLAY_SPAWN_COMMAND);
     }
 }

@@ -36,35 +36,6 @@ public class EntityDamageByEntityListener implements Listener {
         this.serviceManager = serviceManager;
     }
 
-    private static boolean checkAccess(Player player, CustomBlock customBlock) {
-        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
-        Location customBlockLocation = customBlock.getLocation();
-
-        if (dependentPluginManager.isWorldGuardAvailable()) {
-            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
-                return false;
-            }
-        }
-
-        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
-            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
-                return false;
-            }
-        }
-
-        CustomBlockPermissions permissions = customBlock.getPermissions();
-
-        if (permissions != null) {
-            if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
-                return false;
-            }
-        }
-        return true;
-    }
-
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player player))
@@ -115,5 +86,34 @@ public class EntityDamageByEntityListener implements Listener {
             customBlockService.breakBlock(customBlock, player, options);
         } catch (IllegalArgumentException ignore) {
         }
+    }
+
+    private static boolean checkAccess(Player player, CustomBlock customBlock) {
+        BDCDependentPluginsManager dependentPluginManager = BlockDisplayCreator.getInstance().getDependentPluginsManager();
+        Location customBlockLocation = customBlock.getLocation();
+
+        if (dependentPluginManager.isWorldGuardAvailable()) {
+            if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
+                return false;
+            }
+        }
+
+        if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
+            if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.BREAK_CB, player)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
+                return false;
+            }
+        }
+
+        CustomBlockPermissions permissions = customBlock.getPermissions();
+
+        if (permissions != null) {
+            if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
+                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
+                return false;
+            }
+        }
+        return true;
     }
 }
