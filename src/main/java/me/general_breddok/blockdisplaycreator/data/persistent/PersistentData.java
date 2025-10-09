@@ -35,7 +35,7 @@ public class PersistentData<C> extends BukkitData<PersistentDataContainer, C, Na
      * Constructs a PersistentData object with the specified PersistentDataContainer and data type.
      *
      * @param pdc      The PersistentDataContainer to use.
-     * @param dataType The class of the data type to be stored.
+     * @param dataTypeToken The type token of the data type to be stored.
      */
     public PersistentData(PersistentDataContainer pdc, @NotNull TypeToken<C> dataTypeToken) {
         super(pdc, dataTypeToken);
@@ -45,7 +45,7 @@ public class PersistentData<C> extends BukkitData<PersistentDataContainer, C, Na
      * Constructs a PersistentData object with the PersistentDataContainer retrieved from the specified PersistentDataHolder and data type.
      *
      * @param pdh      The PersistentDataHolder.
-     * @param dataType The class of the data type to be stored.
+     * @param dataTypeToken The type token of the data type to be stored.
      */
     public PersistentData(PersistentDataHolder pdh, @NotNull TypeToken<C> dataTypeToken) {
         super(pdh.getPersistentDataContainer(), dataTypeToken);

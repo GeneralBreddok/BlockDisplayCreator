@@ -6,7 +6,7 @@
 
     <groupId>me.Genral_Breddok</groupId>
     <artifactId>BlockDisplayCreator</artifactId>
-    <version>1.5.4.0</version>
+    <version>1.5.4.1</version>
     <packaging>jar</packaging>
 
     <name>BlockDisplayCreator</name>
@@ -156,8 +156,8 @@
         </dependency>
         <dependency>
             <groupId>dev.jorel</groupId>
-            <artifactId>commandapi-bukkit-shade</artifactId>
-            <version>10.1.2</version>
+            <artifactId>commandapi-spigot-shade</artifactId>
+            <version>11.0.0</version>
         </dependency>
         <dependency>
             <groupId>com.mojang</groupId>

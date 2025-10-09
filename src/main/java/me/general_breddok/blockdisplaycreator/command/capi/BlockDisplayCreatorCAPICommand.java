@@ -71,61 +71,6 @@ public class BlockDisplayCreatorCAPICommand {
         this.plugin = plugin;
     }
 
-    private static String normalizeRemaining(String remaining) {
-        if (remaining == null || remaining.isEmpty()) {
-            return "";
-        }
-
-        if (remaining.startsWith("\"")) {
-            remaining = remaining.substring(1);
-        }
-
-        if (remaining.endsWith("\"") && remaining.length() > 1) {
-            remaining = remaining.substring(0, remaining.length() - 1);
-        }
-
-        return remaining;
-    }
-
-    public static List<String> parseQuotedStrings(String input) {
-        List<String> result = new ArrayList<>();
-        StringBuilder current = new StringBuilder();
-
-        boolean inQuotes = false;
-        boolean escapeNext = false;
-
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            if (escapeNext) {
-                current.append(c);
-                escapeNext = false;
-            } else if (c == '\\') {
-                escapeNext = true;
-            } else if (c == '"') {
-                if (inQuotes) {
-                    result.add(current.toString());
-                    current.setLength(0);
-                    inQuotes = false;
-                } else {
-                    inQuotes = true;
-                }
-            } else {
-                if (inQuotes) {
-                    current.append(c);
-                } else if (!Character.isWhitespace(c)) {
-                    throw new IllegalArgumentException("Unexpected character outside quotes at position " + i + ": " + c);
-                }
-            }
-        }
-
-        if (inQuotes) {
-            throw new IllegalArgumentException("Unclosed quote in input.");
-        }
-
-        return result;
-    }
-
     /**
      * Registers the BlockDisplayCreator commands with the CommandAPI.
      * <p>
@@ -1422,5 +1367,60 @@ public class BlockDisplayCreatorCAPICommand {
         ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
         ChatUtil.sendMessage(sender, "&6Killed %d collision entities", collisions.size());
         ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
+    }
+
+    private static String normalizeRemaining(String remaining) {
+        if (remaining == null || remaining.isEmpty()) {
+            return "";
+        }
+
+        if (remaining.startsWith("\"")) {
+            remaining = remaining.substring(1);
+        }
+
+        if (remaining.endsWith("\"") && remaining.length() > 1) {
+            remaining = remaining.substring(0, remaining.length() - 1);
+        }
+
+        return remaining;
+    }
+
+    public static List<String> parseQuotedStrings(String input) {
+        List<String> result = new ArrayList<>();
+        StringBuilder current = new StringBuilder();
+
+        boolean inQuotes = false;
+        boolean escapeNext = false;
+
+        for (int i = 0; i < input.length(); i++) {
+            char c = input.charAt(i);
+
+            if (escapeNext) {
+                current.append(c);
+                escapeNext = false;
+            } else if (c == '\\') {
+                escapeNext = true;
+            } else if (c == '"') {
+                if (inQuotes) {
+                    result.add(current.toString());
+                    current.setLength(0);
+                    inQuotes = false;
+                } else {
+                    inQuotes = true;
+                }
+            } else {
+                if (inQuotes) {
+                    current.append(c);
+                } else if (!Character.isWhitespace(c)) {
+                    throw new IllegalArgumentException("Unexpected character outside quotes at position " + i + ": " + c);
+                }
+            }
+        }
+
+        if (inQuotes) {
+            throw new IllegalArgumentException("Unclosed quote in input.");
+        }
+
+        return result;
     }
 }
