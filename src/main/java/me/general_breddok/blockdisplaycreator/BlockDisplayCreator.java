@@ -1,9 +1,6 @@
 package me.general_breddok.blockdisplaycreator;
 
-import dev.jorel.commandapi.CommandAPI;
-import dev.jorel.commandapi.CommandAPIBukkit;
-import dev.jorel.commandapi.CommandAPIBukkitConfig;
-import dev.jorel.commandapi.CommandAPISpigotConfig;
+import dev.jorel.commandapi.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
@@ -169,8 +166,8 @@ public final class BlockDisplayCreator extends JavaPlugin {
         if (this.capi) {
             CommandAPI.onEnable();
 
-            CommandAPIBukkit.unregister("blockdisplaycreator", true, true);
-            CommandAPIBukkit.unregister("bdc", true, true);
+            CommandAPISpigot.unregister("blockdisplaycreator", true, true);
+            CommandAPISpigot.unregister("bdc", true, true);
 
             this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
             this.bdcCommand.register();
