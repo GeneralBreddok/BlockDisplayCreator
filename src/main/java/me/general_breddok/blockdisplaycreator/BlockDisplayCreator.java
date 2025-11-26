@@ -124,11 +124,11 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
         this.versionManager = new VersionManager(this.getServer());
 
-        if (!this.versionManager.isVersion1_19_4()) {
+        if (this.versionManager.isVersion1_19_4() || this.versionManager.isVersionLater1_21_8()) {
+            ChatUtil.log("&6[BlockDisplayCreator] &eCommandAPI is not supported on Minecraft 1.19.4 and 1.21.8+, using legacy commands.");
+        } else {
             this.capi = true;
             CommandAPI.onLoad(new CommandAPISpigotConfig(this).setNamespace("bdc"));
-        } else {
-            ChatUtil.log("&6[BlockDisplayCreator] &eCommandAPI is not supported on Minecraft 1.19.4 and below, using legacy commands.");
         }
 
         this.dependentPluginsManager.loadPacketEvents();

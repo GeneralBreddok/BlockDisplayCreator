@@ -63,6 +63,16 @@ public class VersionManager {
         return bukkitVersion.split("-")[0];
     }
 
+
+    /**
+     * Checks if the server is running a version later than 1.21.8.
+     *
+     * @return {@code true} if the current version is 1.21.9 or later
+     */
+    public boolean isVersionLater1_21_8() {
+        return this.currentVersion.isAtLeast(MinecraftVersion.V1_21_9);
+    }
+
     /**
      * Checks if the server is running a version earlier than 1.20.5.
      *
