@@ -13,9 +13,13 @@ loadbefore:
 
 commands:
   blockdisplaycreator:
-    description: Main command for BlockDisplayCreator (1.19.4 only)
+    description: Main command for BlockDisplayCreator
     usage: /bdc <custom-block|reload|erase>
     aliases: [bdc]
+
+  cb:
+    description: Command for getting custom blocks
+    usage: /cb <custom-block> [amount] [receiver]
 
 
 

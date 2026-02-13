@@ -16,6 +16,7 @@ import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesVa
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.util.CommandUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.Bukkit;
@@ -34,17 +35,14 @@ import java.util.Collections;
 import java.util.List;
 
 
-/**
- * @deprecated
- */
-@Deprecated(since = "MC1.19.4")
+
 public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
 
-    private final BlockDisplayCreator instance;
+    private final BlockDisplayCreator plugin;
     private final CustomBlockService service;
 
-    public BlockDisplayCreatorSpigotCommand(BlockDisplayCreator instance, CustomBlockService service) {
-        this.instance = instance;
+    public BlockDisplayCreatorSpigotCommand(BlockDisplayCreator plugin, CustomBlockService service) {
+        this.plugin = plugin;
         this.service = service;
     }
 
@@ -138,7 +136,11 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                 ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_NO_PLAYER);
                                 return true;
                             } else {
+                                CommandUtil.applyPlaceholdersForItem(customBlockItem, player);
+                                CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, player);
+
                                 ItemUtil.distributeItem(player, customBlockItem);
+
                                 ChatUtil.sendMessage(player,
                                         StringMessagesValue.COMMAND_CUSTOM_BLOCK_GIVE_PLAYER_RECEIVE
                                                 .replace("%customblock_name%", arg3)
@@ -149,8 +151,9 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                             switch (arg4) {
                                 case "@a" -> {
                                     for (Player recipient : Bukkit.getOnlinePlayers()) {
-                                        applyPlaceholdersForItem(customBlockItem, recipient);
-                                        applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
+                                        CommandUtil.applyPlaceholdersForItem(customBlockItem, recipient);
+                                        CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
+
                                         ItemUtil.distributeItem(recipient, customBlockItem);
                                     }
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to all players", arg3, amount);
@@ -162,9 +165,11 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                         return true;
                                     }
 
-                                    applyPlaceholdersForItem(customBlockItem, player);
-                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, player);
+                                    CommandUtil.applyPlaceholdersForItem(customBlockItem, player);
+                                    CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, player);
+
                                     ItemUtil.distributeItem(player, customBlockItem);
+
                                     ChatUtil.sendMessage(sender, "&bYou have received the &l%s&ox%s&r&b block", arg3, amount);
                                     return true;
                                 }
@@ -176,9 +181,11 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                         return true;
                                     }
 
-                                    applyPlaceholdersForItem(customBlockItem, randomPlayer);
-                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, randomPlayer);
+                                    CommandUtil.applyPlaceholdersForItem(customBlockItem, randomPlayer);
+                                    CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, randomPlayer);
+
                                     ItemUtil.distributeItem(randomPlayer, customBlockItem);
+
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to random player %s", arg3, amount, randomPlayer.getName());
                                     return true;
                                 }
@@ -189,10 +196,12 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                     }
 
                                     Player nearestPlayer = TargetSelectorType.getNearestPlayer(player.getLocation(), player);
-                                    applyPlaceholdersForItem(customBlockItem, nearestPlayer);
-                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, nearestPlayer);
+
+                                    CommandUtil.applyPlaceholdersForItem(customBlockItem, nearestPlayer);
+                                    CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, nearestPlayer);
 
                                     ItemUtil.distributeItem(nearestPlayer, customBlockItem);
+
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to nearest player %s", arg3, amount, nearestPlayer.getName());
                                     return true;
                                 }
@@ -204,9 +213,11 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                                         return true;
                                     }
 
-                                    applyPlaceholdersForItem(customBlockItem, recipient);
-                                    applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
+                                    CommandUtil.applyPlaceholdersForItem(customBlockItem, recipient);
+                                    CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, customBlockItem, recipient);
+
                                     ItemUtil.distributeItem(recipient, customBlockItem);
+
                                     ChatUtil.sendMessage(sender, "&bYou have given the &l%s&ox%s&r&b block to player %s", arg3, amount, recipient.getName());
                                     return true;
                                 }
@@ -490,10 +501,10 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
                 }
 
                 if (arg2 == null) {
-                    instance.reloadConfig();
+                    plugin.reloadConfig();
                     ChatUtil.sendMessage(sender, "&aConfig has been reloaded!");
                 } else {
-                    this.instance.getCustomBlockService().getStorage().reload(arg2);
+                    this.plugin.getCustomBlockService().getStorage().reload(arg2);
                     ChatUtil.sendMessage(sender, "&a%s block has been reloaded!", arg2);
                 }
             }
@@ -741,63 +752,6 @@ public class BlockDisplayCreatorSpigotCommand implements TabExecutor {
         ChatUtil.sendMessage(sender, "&6Killed %d interaction entities", interactions.size());
         ChatUtil.sendMessage(sender, "&6Killed %d collision entities", collisions.size());
         ChatUtil.sendMessage(sender, "&6Cleared %d custom blocks", blocksCount[0]);
-    }
-
-    public void applyPlaceholdersForItem(ItemStack item, Player player) {
-        ItemMeta itemMeta = item.getItemMeta();
-        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
-
-        if (placeholderApi == null) {
-            return;
-        }
-
-        itemMeta.setDisplayName(ChatUtil.setPlaceholders(player, itemMeta.getDisplayName(), placeholderApi));
-        List<String> itemMetaLore = itemMeta.getLore();
-        if (itemMetaLore != null) {
-            List<String> lore = new ArrayList<>();
-            itemMetaLore.forEach(line -> lore.add(ChatUtil.setPlaceholders(player, line, placeholderApi)));
-            itemMeta.setLore(lore);
-        }
-
-
-        item.setItemMeta(itemMeta);
-    }
-
-    public void applyPlaceholdersForCommand(AbstractCustomBlock abstractCustomBlock, ItemStack item, Player player) {
-        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
-        if (placeholderApi == null) {
-            return;
-        }
-
-        GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
-
-        if (displaySummoner instanceof AutomaticCommandDisplaySummoner displayCommandSummoner) {
-            if (!displayCommandSummoner.isUsePlaceholder()) {
-                return;
-            }
-
-
-            CommandLine[] parsed = displayCommandSummoner.getCommands()
-                    .stream()
-                    .map(commandLine ->
-                            {
-                                String lineString = commandLine.toString();
-                                String base64Formatted = new PlayerSkinBase64Placeholder(player).apply(lineString);
-
-                                return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
-                                        player,
-                                        base64Formatted,
-                                        placeholderApi));
-                            }
-                    ).toArray(CommandLine[]::new);
-
-            ItemMeta itemMeta = item.getItemMeta();
-            PersistentData<CommandLine[]> commandListPD = new PersistentData<>(itemMeta, TypeTokens.COMMAND_ARRAY);
-
-            commandListPD.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, parsed);
-
-            item.setItemMeta(itemMeta);
-        }
     }
 }
 

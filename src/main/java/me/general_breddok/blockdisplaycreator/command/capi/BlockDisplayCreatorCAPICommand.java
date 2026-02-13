@@ -29,6 +29,7 @@ import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.LocationPlaceholder;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.util.CommandUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import me.general_breddok.blockdisplaycreator.util.NumberUtil;
 import me.general_breddok.blockdisplaycreator.version.VersionCompat;
@@ -186,8 +187,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                     if (receivers == null) {
                                                                                                         if (sender instanceof Player player) {
 
-                                                                                                            applyPlaceholdersForItem(item, player);
-                                                                                                            applyPlaceholdersForCommand(abstractCustomBlock, item, player);
+                                                                                                            CommandUtil.applyPlaceholdersForItem(item, player);
+                                                                                                            CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, item, player);
 
                                                                                                             ItemUtil.distributeItem(player, item);
                                                                                                             ChatUtil.sendMessage(player,
@@ -200,8 +201,8 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                         }
                                                                                                     } else {
                                                                                                         for (Player receiver : receivers) {
-                                                                                                            applyPlaceholdersForItem(item, receiver);
-                                                                                                            applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
+                                                                                                            CommandUtil.applyPlaceholdersForItem(item, receiver);
+                                                                                                            CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
 
                                                                                                             ItemUtil.distributeItem(receiver, item);
                                                                                                             ChatUtil.sendMessage(receiver,
@@ -1257,62 +1258,6 @@ public class BlockDisplayCreatorCAPICommand {
         }
     }
 
-    public void applyPlaceholdersForItem(ItemStack item, Player player) {
-        ItemMeta itemMeta = item.getItemMeta();
-        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
-
-        if (placeholderApi == null) {
-            return;
-        }
-
-        itemMeta.setDisplayName(ChatUtil.setPlaceholders(player, itemMeta.getDisplayName(), placeholderApi));
-        List<String> itemMetaLore = itemMeta.getLore();
-        if (itemMetaLore != null) {
-            List<String> lore = new ArrayList<>();
-            itemMetaLore.forEach(line -> lore.add(ChatUtil.setPlaceholders(player, line, placeholderApi)));
-            itemMeta.setLore(lore);
-        }
-
-
-        item.setItemMeta(itemMeta);
-    }
-
-    public void applyPlaceholdersForCommand(AbstractCustomBlock abstractCustomBlock, ItemStack item, Player player) {
-        Plugin placeholderApi = BlockDisplayCreator.getInstance().getDependentPluginsManager().getPlaceholderApi();
-        if (placeholderApi == null) {
-            return;
-        }
-
-        GroupSummoner<Display> displaySummoner = abstractCustomBlock.getDisplaySummoner();
-
-        if (displaySummoner instanceof AutomaticCommandDisplaySummoner displayCommandSummoner) {
-            if (!displayCommandSummoner.isUsePlaceholder()) {
-                return;
-            }
-
-
-            CommandLine[] parsed = displayCommandSummoner.getCommands()
-                    .stream()
-                    .map(commandLine ->
-                            {
-                                String lineString = commandLine.toString();
-                                String base64Formatted = new PlayerSkinBase64Placeholder(player).apply(lineString);
-
-                                return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
-                                        player,
-                                        base64Formatted,
-                                        placeholderApi));
-                            }
-                    ).toArray(CommandLine[]::new);
-
-            ItemMeta itemMeta = item.getItemMeta();
-            PersistentData<CommandLine[]> commandListPD = new PersistentData<>(itemMeta, TypeTokens.COMMAND_ARRAY);
-
-            commandListPD.set(CustomBlockKey.DISPLAY_SPAWN_COMMAND, parsed);
-
-            item.setItemMeta(itemMeta);
-        }
-    }
 
     private void eraseCbData(BoundingBox boundingBox, Player sender) {
         WorldSelection worldSelection = new WorldSelection(boundingBox, sender.getWorld());

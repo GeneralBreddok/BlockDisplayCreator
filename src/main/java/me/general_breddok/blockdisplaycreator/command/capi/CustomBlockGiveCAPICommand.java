@@ -11,6 +11,7 @@ import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.custom.block.CustomBlockStorage;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.util.CommandUtil;
 import me.general_breddok.blockdisplaycreator.util.ItemUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -61,8 +62,8 @@ public class CustomBlockGiveCAPICommand {
                     if (receivers == null) {
                         if (sender instanceof Player player) {
 
-                            this.plugin.getBdcCommand().applyPlaceholdersForItem(item, player);
-                            this.plugin.getBdcCommand().applyPlaceholdersForCommand(abstractCustomBlock, item, player);
+                            CommandUtil.applyPlaceholdersForItem(item, player);
+                            CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, item, player);
 
                             ItemUtil.distributeItem(player, item);
                             ChatUtil.sendMessage(player,
@@ -75,8 +76,8 @@ public class CustomBlockGiveCAPICommand {
                         }
                     } else {
                         for (Player receiver : receivers) {
-                            this.plugin.getBdcCommand().applyPlaceholdersForItem(item, receiver);
-                            this.plugin.getBdcCommand().applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
+                            CommandUtil.applyPlaceholdersForItem(item, receiver);
+                            CommandUtil.applyPlaceholdersForCommand(abstractCustomBlock, item, receiver);
 
                             ItemUtil.distributeItem(receiver, item);
                             ChatUtil.sendMessage(receiver,

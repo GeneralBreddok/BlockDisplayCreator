@@ -5,6 +5,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.command.BlockDisplayCreatorSpigotCommand;
+import me.general_breddok.blockdisplaycreator.command.CustomBlockGiveSpigotCommand;
 import me.general_breddok.blockdisplaycreator.command.capi.BlockDisplayCreatorCAPICommand;
 import me.general_breddok.blockdisplaycreator.command.capi.CustomBlockGiveCAPICommand;
 import me.general_breddok.blockdisplaycreator.common.BDCDependentPluginsManager;
@@ -168,6 +169,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
 
             CommandAPISpigot.unregister("blockdisplaycreator", true, true);
             CommandAPISpigot.unregister("bdc", true, true);
+            CommandAPISpigot.unregister("cb", true, true);
 
             this.bdcCommand = new BlockDisplayCreatorCAPICommand(this);
             this.bdcCommand.register();
@@ -176,6 +178,7 @@ public final class BlockDisplayCreator extends JavaPlugin {
             this.cbGiveCommand.register();
         } else {
             getCommand("blockdisplaycreator").setExecutor(new BlockDisplayCreatorSpigotCommand(this, this.customBlockService));
+            getCommand("cb").setExecutor(new CustomBlockGiveSpigotCommand(this.customBlockService));
         }
 
         registerDataAdapters();

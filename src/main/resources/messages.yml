@@ -1,7 +1,7 @@
 #Message displayed when placing a block in a chunk that exceeds the max-entities-per-chunk limit
 max-entities-per-chunk: "&cYou cannot place a custom block in this chunk!"
 
-#Messages displayed when a player performs an action for which he does not have permission specified in the permissions section of the block file
+#Messages displayed when a player performs an action for which he does not have permission specified in the permission section of the block file
 permission-denied:
   place: "&cYou do not have permission to place this block."
   break: "&cYou do not have permission to break this block."

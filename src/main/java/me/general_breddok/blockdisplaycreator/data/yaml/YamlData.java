@@ -34,7 +34,6 @@ import java.util.*;
  */
 public class YamlData<C> extends BukkitData<YamlConfigFile, C, String> {
 
-    private static final Logger log = LogManager.getLogger(YamlData.class);
     /**
      * The persistent data type manager instance.
      */

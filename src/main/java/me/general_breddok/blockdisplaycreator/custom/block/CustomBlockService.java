@@ -19,44 +19,6 @@ import org.jetbrains.annotations.Nullable;
 public interface CustomBlockService {
 
     /**
-     * Creates an item associated with a custom block.
-     *
-     * @param itemStack          the item stack to associate.
-     * @param customBlockService the custom block service.
-     * @param customBlockName    the name of the custom block.
-     */
-    static void createCBItem(ItemStack itemStack, CustomBlockService customBlockService, String customBlockName) {
-        ItemMeta itemMeta = itemStack.getItemMeta();
-
-        CustomBlockKey.holder(itemMeta)
-                .setServiceClass(customBlockService.getClass().getName())
-                .setName(customBlockName);
-
-        itemStack.setItemMeta(itemMeta);
-    }
-
-    /**
-     * Retrieves the appropriate CustomBlockService based on the provided item.
-     * <p>
-     * Uses the {@link PersistentDataHolder} persistent data to identify and retrieve the registered service.
-     *
-     * @param serviceManager the service manager to retrieve services from.
-     * @param holder         the PersistentDataHolder (e.g., ItemMeta) containing persistent data to identify the service.
-     * @return the corresponding CustomBlockService.
-     * @throws UnregisteredServiceException if the service is not registered.
-     */
-    @NotNull
-    static CustomBlockService getService(ServiceManager<String, CustomBlockService> serviceManager, PersistentDataHolder holder) throws UnregisteredServiceException {
-        String serviceClassName = CustomBlockKey.holder(holder).getServiceClass();
-
-        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
-
-        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
-
-        return customBlockService;
-    }
-
-    /**
      * Gets the storage for custom blocks.
      *
      * @return the {@link CustomBlockStorage} instance representing the custom block storage.
@@ -115,4 +77,42 @@ public interface CustomBlockService {
      * @return true if the block was successfully broken, false otherwise.
      */
     boolean breakBlock(@NotNull CustomBlock customBlock, @Nullable Player player, CustomBlockOption... options) throws IllegalArgumentException;
+
+    /**
+     * Retrieves the appropriate CustomBlockService based on the provided item.
+     * <p>
+     * Uses the {@link PersistentDataHolder} persistent data to identify and retrieve the registered service.
+     *
+     * @param serviceManager the service manager to retrieve services from.
+     * @param holder         the PersistentDataHolder (e.g., ItemMeta) containing persistent data to identify the service.
+     * @return the corresponding CustomBlockService.
+     * @throws UnregisteredServiceException if the service is not registered.
+     */
+    @NotNull
+    static CustomBlockService getService(ServiceManager<String, CustomBlockService> serviceManager, PersistentDataHolder holder) throws UnregisteredServiceException {
+        String serviceClassName = CustomBlockKey.holder(holder).getServiceClass();
+
+        serviceClassName = DeprecatedFeatureAdapter.checkMissingServiceClass(serviceClassName);
+
+        CustomBlockService customBlockService = serviceManager.getService(serviceClassName);
+
+        return customBlockService;
+    }
+
+    /**
+     * Creates an item associated with a custom block.
+     *
+     * @param itemStack          the item stack to associate.
+     * @param customBlockService the custom block service.
+     * @param customBlockName    the name of the custom block.
+     */
+    static void createCBItem(ItemStack itemStack, CustomBlockService customBlockService, String customBlockName) {
+        ItemMeta itemMeta = itemStack.getItemMeta();
+
+        CustomBlockKey.holder(itemMeta)
+                .setServiceClass(customBlockService.getClass().getName())
+                .setName(customBlockName);
+
+        itemStack.setItemMeta(itemMeta);
+    }
 }
