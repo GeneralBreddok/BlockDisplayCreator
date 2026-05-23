@@ -24,7 +24,7 @@ import java.util.List;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class NetworkBDEngineModel implements BDEngineModel {
-    private static final String BDENGINE_API = "https://block-display.com/api/?type=getModel&id=";
+    private static final String BDENGINE_API = "https://block-display.com/server-api/?id=";
     String name;
     String author;
     String category;
@@ -71,18 +71,20 @@ public class NetworkBDEngineModel implements BDEngineModel {
     private void processSuccessResponse(HttpResponse<String> response) {
         JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
 
-        this.name = jsonObject.get("name").getAsString();
-        this.author = jsonObject.get("author").getAsString();
-        this.category = jsonObject.get("category").getAsString();
-        this.imgUrl = jsonObject.get("img_url").getAsString();
-        this.modelCount = jsonObject.get("model_count").getAsInt();
-        JsonElement jsonCommands = jsonObject.get("commands");
+        JsonObject content = jsonObject.getAsJsonObject("content");
+
+        this.name = content.get("name").getAsString();
+        this.author = content.get("author").getAsString();
+        this.category = content.get("category").getAsString();
+        this.imgUrl = content.get("img_url").getAsString();
+        this.modelCount = content.get("model_count").getAsInt();
+        JsonElement jsonCommands = content.get("commands");
         if (jsonCommands.isJsonArray()) {
             this.commands = this.jsonArrayToJsonObject(jsonCommands.getAsJsonArray());
         } else {
             this.commands = jsonCommands.getAsJsonObject();
         }
-        this.passengers = jsonObject.get("Passengers").getAsJsonArray();
+        this.passengers = content.get("Passengers").getAsJsonArray();
     }
 
     @Override

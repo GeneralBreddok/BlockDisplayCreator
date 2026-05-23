@@ -64,6 +64,7 @@ public class ConfiguredCollisionDta implements ConfiguredCollision {
 
         shulker.setRemoveWhenFarAway(false);
         shulker.setAI(false);
+        shulker.setSilent(true);
         shulker.setGravity(false);
         shulker.setInvulnerable(true);
         shulker.setPersistent(true);

@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import org.bukkit.Server;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Utility class for detecting and comparing the current Minecraft server version.
  * <p>
@@ -57,10 +60,16 @@ public class VersionManager {
      * Extracts the raw Minecraft version string from a Bukkit version string.
      *
      * @param bukkitVersion the Bukkit version string
-     * @return the extracted Minecraft version (e.g. "1.20.1")
+     * @return the extracted Minecraft version
      */
     private String extractVersion(String bukkitVersion) {
-        return bukkitVersion.split("-")[0];
+        Matcher matcher = Pattern.compile("^\\d+(?:\\.\\d+)+").matcher(bukkitVersion);
+
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("Cannot extract version from: " + bukkitVersion);
+        }
+
+        return matcher.group();
     }
 
 
