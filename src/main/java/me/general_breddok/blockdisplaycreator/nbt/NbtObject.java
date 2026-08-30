@@ -519,6 +519,10 @@ public class NbtObject implements NbtContainer {
         return "";
     }
 
+    public int size() {
+        return compoundBinaryTag.size();
+    }
+
     public Set<String> keySet() {
         return compoundBinaryTag.keySet();
     }

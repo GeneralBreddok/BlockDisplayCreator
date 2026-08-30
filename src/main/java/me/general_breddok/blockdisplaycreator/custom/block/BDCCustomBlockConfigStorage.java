@@ -5,24 +5,32 @@ import lombok.Getter;
 import lombok.experimental.FieldDefaults;
 import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.command.capi.BlockDisplayCreatorCAPICommand;
+import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFileRepository;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockRepository;
+import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockYamlFile;
 import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadException;
 import me.general_breddok.blockdisplaycreator.util.ChatUtil;
+import me.general_breddok.blockdisplaycreator.util.FileUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Stream;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
     List<AbstractCustomBlock> abstractCustomBlocks;
+    @Getter
     CustomBlockRepository customBlockRepository;
     final JavaPlugin plugin;
 
@@ -95,6 +103,18 @@ public class BDCCustomBlockConfigStorage implements CustomBlockStorage {
                 }
             });
         });
+    }
+
+    public void load(@NotNull String name) {
+        if (FileUtil.containsFile(this.customBlockRepository.getPath(), name + ".yml")) {
+            throw new IllegalStateException("A custom block with the name " + name + " already exists.");
+        }
+
+        Path cutsomBlockFilePath = this.customBlockRepository.getPath().resolve(name + ".yml");
+
+        CustomBlockConfigurationFile customBlockFile = new CustomBlockYamlFile(new YamlConfigFile(cutsomBlockFilePath));
+        this.customBlockRepository.addFile(customBlockFile);
+
     }
 
     @Override

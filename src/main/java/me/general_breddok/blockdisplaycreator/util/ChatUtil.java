@@ -10,6 +10,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,6 +60,10 @@ public class ChatUtil {
      */
     public void sendMessage(CommandSender sender, String message) {
         sender.sendMessage(color(message));
+    }
+
+    public void sendPlaceholderMessage(Player player, String message) {
+        sendMessage(player, setPlaceholders(player, message));
     }
 
     /**
@@ -210,17 +215,17 @@ public class ChatUtil {
     }
 
     /**
-     * Applies PlaceholderAPI placeholders to a string if the plugin is available.
+     * Applies PlaceholderAPI placeholders to a string for a given player context.
      *
      * @param player     the player context
      * @param string     the message string
-     * @param papiPlugin the PlaceholderAPI plugin instance (nullable)
-     * @return the string with placeholders applied, or unchanged if not available
+     * @return the string with placeholders replaced, or the original string if player is null
      */
-    public String setPlaceholders(Player player, String string, Plugin papiPlugin) {
-        if (Objects.isNull(papiPlugin)) {
+    public String setPlaceholders(Player player, @NotNull String string) {
+        if (player == null) {
             return string;
         }
+
         return PlaceholderAPI.setPlaceholders(player, string);
     }
 }

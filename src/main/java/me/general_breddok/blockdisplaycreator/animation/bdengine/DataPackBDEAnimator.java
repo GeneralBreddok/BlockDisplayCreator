@@ -10,11 +10,11 @@ import java.nio.file.Path;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class DataPackFunctionAnimator implements FunctionAnimator {
+public class DataPackBDEAnimator implements BDEAnimator {
     MCFunction playFunction;
     MCFunction playLoopFunction;
 
-    public DataPackFunctionAnimator(Path folderPath) {
+    public DataPackBDEAnimator(Path folderPath) {
         this.playFunction = new MCFunctionFile(folderPath.resolve("play.mcfunction"), false);
         this.playLoopFunction = new MCFunctionFile(folderPath.resolve("play_loop.mcfunction"), false);
     }

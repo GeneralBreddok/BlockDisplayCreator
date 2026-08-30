@@ -30,11 +30,11 @@ public class CommandUtil {
             return;
         }
 
-        itemMeta.setDisplayName(ChatUtil.setPlaceholders(player, itemMeta.getDisplayName(), placeholderApi));
+        itemMeta.setDisplayName(ChatUtil.setPlaceholders(player, itemMeta.getDisplayName()));
         List<String> itemMetaLore = itemMeta.getLore();
         if (itemMetaLore != null) {
             List<String> lore = new ArrayList<>();
-            itemMetaLore.forEach(line -> lore.add(ChatUtil.setPlaceholders(player, line, placeholderApi)));
+            itemMetaLore.forEach(line -> lore.add(ChatUtil.setPlaceholders(player, line)));
             itemMeta.setLore(lore);
         }
 
@@ -65,8 +65,7 @@ public class CommandUtil {
 
                                 return (CommandLine) new MCCommandLine(ChatUtil.setPlaceholders(
                                         player,
-                                        base64Formatted,
-                                        placeholderApi));
+                                        base64Formatted));
                             }
                     ).toArray(CommandLine[]::new);
 

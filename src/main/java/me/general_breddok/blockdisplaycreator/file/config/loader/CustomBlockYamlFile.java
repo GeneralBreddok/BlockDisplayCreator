@@ -22,6 +22,7 @@ import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
 import me.general_breddok.blockdisplaycreator.entity.interaction.InteractionSummoner;
 import me.general_breddok.blockdisplaycreator.entity.living.ShulkerSummoner;
 import me.general_breddok.blockdisplaycreator.file.exception.CustomBlockLoadException;
+import me.general_breddok.blockdisplaycreator.nbt.entity.NbtEntity;
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplay;
 import me.general_breddok.blockdisplaycreator.nbt.entity.display.NbtDisplayObject;
 import me.general_breddok.blockdisplaycreator.rotation.DirectedVector;
@@ -30,8 +31,8 @@ import me.general_breddok.blockdisplaycreator.util.ChatUtil;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
 import me.general_breddok.blockdisplaycreator.version.MinecraftVersion;
 import me.general_breddok.blockdisplaycreator.version.VersionManager;
-import me.general_breddok.blockdisplaycreator.web.bdengine.BDEngineModel;
-import me.general_breddok.blockdisplaycreator.web.bdengine.NetworkBDEngineModel;
+import me.general_breddok.blockdisplaycreator.web.bdengine.BDEModel;
+import me.general_breddok.blockdisplaycreator.web.bdengine.NetworkBDEModel;
 import me.general_breddok.blockdisplaycreator.web.exception.InvalidResponseException;
 import me.general_breddok.blockdisplaycreator.web.player.PlayerProfiles;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
@@ -313,7 +314,12 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
 
         if (spawnCommandFormat == SpawnCommandFormat.SUMMON_COMMAND || spawnCommandFormat == SpawnCommandFormat.MODEL_ID) {
-            List<SummonDisplayCommandLine> summonDisplayCommandLines = this.setDisplayParameters(displaySummonCommands.stream().map(SummonDisplayCommandLine.class::cast).collect(OperationUtil.toArrayList()));
+            List<SummonDisplayCommandLine> summonDisplayCommandLines = this.setDisplayParameters(
+                    displaySummonCommands
+                            .stream()
+                            .map(SummonDisplayCommandLine.class::cast)
+                            .collect(OperationUtil.toArrayList())
+            );
             displaySummonCommands.clear();
             displaySummonCommands.addAll(summonDisplayCommandLines);
         }
@@ -335,7 +341,6 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
 
                 try {
                     displaySummonCommands.add(functionCommandLine);
-
                 } catch (CommandParseException e) {
                     throw new CustomBlockLoadException(e,
                             "&cUnable to load block &6%s&r&c, parameter %s: &4%s&r&c is not a &7command!",
@@ -361,9 +366,18 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
             }
         } else if (command instanceof Integer modelId) {
             try {
-                BDEngineModel model = new NetworkBDEngineModel(String.valueOf(modelId));
+                BDEModel model = new NetworkBDEModel(String.valueOf(modelId));
 
-                displaySummonCommands.addAll(model.decodeCommands());
+                List<String> commandsPassengers = model.decodePassengers();
+
+                for (String commandPassengers : commandsPassengers) {
+                    displaySummonCommands.add(
+                            new SummonDisplayCommandLine(
+                                    "/summon block_display ~-0.5 ~-0.5 ~-0.5 {Passengers:[" + commandPassengers + "]}"
+                            )
+                    );
+                }
+                return SpawnCommandFormat.MODEL_ID;
             } catch (InvalidResponseException | NullPointerException e) {
                 throw new CustomBlockLoadException(e,
                         "&cUnable to load block &6%s&r&c, " + e.getMessage(),
@@ -635,12 +649,12 @@ public class CustomBlockYamlFile implements CustomBlockConfigurationFile {
     }
 
     public short getSidesCount() {
-        Short sidesCount;
+        short sidesCount;
 
         try {
-            sidesCount = file.get(ParameterLocators.SIDES_COUNT, (short) 4);
+            sidesCount = file.get(ParameterLocators.SIDES_COUNT, (short) 360);
         } catch (ConfigurationDataTypeMismatchException e) {
-            sidesCount = 4;
+            sidesCount = 360;
         }
 
         if (sidesCount < 1 || sidesCount > 360) {

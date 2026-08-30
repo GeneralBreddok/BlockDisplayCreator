@@ -126,4 +126,6 @@ public interface NbtContainer {
 
     @Override
     String toString();
+
+    int size();
 }

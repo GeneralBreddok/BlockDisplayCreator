@@ -16,11 +16,19 @@ import org.yaml.snakeyaml.external.biz.base64Coder.Base64Coder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.function.Predicate;
 
 @UtilityClass
 public class ItemUtil {
+
+    public final List<String> BLOCK_MATERIAL_NAMES = Arrays.stream(Material.values())
+            .filter(Material::isBlock)
+            .map(material -> material.name().toLowerCase())
+            .toList();
+
     public void distributeItem(@NotNull Player player, @NotNull ItemStack item) {
         ItemStack clone = item.clone();
         int amount = item.getAmount();

@@ -94,14 +94,14 @@ public class BlockBreakListener implements Listener {
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
             if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.REGION_DENIED_BREAK);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
             if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.BREAK_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.ISLAND_DENIED_BREAK);
                 return false;
             }
         }
@@ -110,7 +110,7 @@ public class BlockBreakListener implements Listener {
 
         if (permissions != null) {
             if (!permissions.hasPermissions(player, CustomBlockPermissions.Type.BREAK)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.PERMISSION_DENIED_BREAK);
                 return false;
             }
         }

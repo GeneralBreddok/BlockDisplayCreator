@@ -3,7 +3,7 @@ author: General_Breddok
 version: '${project.version}'
 main: me.general_breddok.blockdisplaycreator.BlockDisplayCreator
 api-version: 1.19
-description: Plugin for creating and fully customizing custom blocks
+description: Plugin for creating and fully customizing custom blocks from Display Entities using bdengine
 website: https://www.spigotmc.org/resources/blockdisplaycreator.114877/
 
 softdepend: [ PlaceholderAPI, WorldGuard, PacketEvents, SuperiorSkyblock2 ]

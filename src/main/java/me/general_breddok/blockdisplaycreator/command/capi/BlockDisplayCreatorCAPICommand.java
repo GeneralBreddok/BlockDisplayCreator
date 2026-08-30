@@ -1,7 +1,6 @@
 package me.general_breddok.blockdisplaycreator.command.capi;
 
 import com.jeff_media.customblockdata.CustomBlockData;
-import dev.jorel.commandapi.CommandAPI;
 import dev.jorel.commandapi.CommandTree;
 import dev.jorel.commandapi.Tooltip;
 import dev.jorel.commandapi.arguments.*;
@@ -13,26 +12,23 @@ import me.general_breddok.blockdisplaycreator.BlockDisplayCreator;
 import me.general_breddok.blockdisplaycreator.command.capi.tooltip.AbstractCustomBlockTooltip;
 import me.general_breddok.blockdisplaycreator.command.capi.tooltip.StringTooltip;
 import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
-import me.general_breddok.blockdisplaycreator.commandparser.MCCommandLine;
 import me.general_breddok.blockdisplaycreator.common.ColorConverter;
 import me.general_breddok.blockdisplaycreator.custom.*;
 import me.general_breddok.blockdisplaycreator.custom.block.*;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockBreakOption;
 import me.general_breddok.blockdisplaycreator.custom.block.option.CustomBlockPlaceOption;
 import me.general_breddok.blockdisplaycreator.data.manager.PersistentDataTypes;
-import me.general_breddok.blockdisplaycreator.data.manager.TypeTokens;
-import me.general_breddok.blockdisplaycreator.data.persistent.PersistentData;
-import me.general_breddok.blockdisplaycreator.entity.GroupSummoner;
+import me.general_breddok.blockdisplaycreator.entity.interaction.InteractionSummoner;
 import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockConfigurationFile;
+import me.general_breddok.blockdisplaycreator.file.config.loader.CustomBlockFileRepository;
 import me.general_breddok.blockdisplaycreator.file.config.value.StringMessagesValue;
 import me.general_breddok.blockdisplaycreator.permission.DefaultPermissions;
 import me.general_breddok.blockdisplaycreator.placeholder.universal.LocationPlaceholder;
-import me.general_breddok.blockdisplaycreator.placeholder.universal.PlayerSkinBase64Placeholder;
-import me.general_breddok.blockdisplaycreator.util.ChatUtil;
-import me.general_breddok.blockdisplaycreator.util.CommandUtil;
-import me.general_breddok.blockdisplaycreator.util.ItemUtil;
-import me.general_breddok.blockdisplaycreator.util.NumberUtil;
+import me.general_breddok.blockdisplaycreator.util.*;
 import me.general_breddok.blockdisplaycreator.version.VersionCompat;
+import me.general_breddok.blockdisplaycreator.web.bdengine.BDEModel;
+import me.general_breddok.blockdisplaycreator.web.bdengine.NetworkBDEModel;
+import me.general_breddok.blockdisplaycreator.web.exception.InvalidResponseException;
 import me.general_breddok.blockdisplaycreator.world.WorldSelection;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -42,12 +38,13 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.permissions.Permission;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.BoundingBox;
 import org.bukkit.util.RayTraceResult;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -285,6 +282,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                                                                             return;
                                                                                                                                         }
 
+
                                                                                                                                         try {
                                                                                                                                             attachedFace = BlockFace.valueOf(attachedFaceStr.toUpperCase());
                                                                                                                                         } catch (
@@ -404,7 +402,74 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                 )
                                                                 )
                                                 )
-                                ).then(
+                                )/*.then(
+                                        new LiteralArgument("create")
+                                                .withPermission(DefaultPermissions.BDC.Command.CREATE_CB)
+                                                .then(
+                                                        new TextArgument("name")
+                                                                .then(
+                                                                        new IntegerArgument("model-id")
+                                                                                .then(
+                                                                                        new StringArgument("material")
+                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(ItemUtil.BLOCK_MATERIAL_NAMES))
+                                                                                                .then(
+                                                                                                        new FloatArgument("interaction-width")
+                                                                                                                .setOptional(true)
+                                                                                                                .then(
+                                                                                                                        new FloatArgument("interaction-height")
+                                                                                                                                .setOptional(true)
+                                                                                                                                .executes((sender, args) -> {
+                                                                                                                                    String name = (String) args.get("name");
+                                                                                                                                    int modelId = (int) args.get("model-id");
+                                                                                                                                    String materialStr = (String) args.get("material");
+                                                                                                                                    float interactionWidth = (float) args.getOrDefault("interaction-width", 1.001f);
+                                                                                                                                    float interactionHeight = (float) args.getOrDefault("interaction-height", 1.001f);
+
+                                                                                                                                    CustomBlockStorage storage = this.plugin.getCustomBlockService().getStorage();
+
+                                                                                                                                    Material material = Material.getMaterial(materialStr.toUpperCase());
+
+                                                                                                                                    ChatUtil.log("1");
+
+                                                                                                                                    if (material == null || !material.isBlock()) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cInvalid material: " + materialStr);
+                                                                                                                                        return;
+                                                                                                                                    }
+
+                                                                                                                                    if (FileUtil.containsFile(BlockDisplayCreator.getInstance().getDataFolder().toPath().resolve("custom-blocks"), name + ".yml")) {
+                                                                                                                                        ChatUtil.sendMessage(sender, "&cA custom block with the name " + name + " already exists.");
+                                                                                                                                        return;
+                                                                                                                                    }
+
+                                                                                                                                    BDEModel model;
+
+                                                                                                                                    ChatUtil.log("2");
+
+                                                                                                                                    try {
+                                                                                                                                        model = new NetworkBDEModel(modelId);
+                                                                                                                                    } catch (InvalidResponseException e) {
+                                                                                                                                        throw new RuntimeException(e);
+                                                                                                                                    }
+
+                                                                                                                                    ChatUtil.log("3");
+
+                                                                                                                                    List<String> summonCommands = model.getSummonCommands();
+
+                                                                                                                                    CustomBlockFileRepository.saveAbstractCustomBlock(BlockDisplayCreator.getInstance().getDataFolder().toPath(), name, summonCommands, material, interactionWidth, interactionHeight);
+
+                                                                                                                                    ChatUtil.log("4");
+
+                                                                                                                                    storage.reload(name);
+
+                                                                                                                                    ChatUtil.log("5");
+                                                                                                                                    ChatUtil.sendMessage(sender, StringMessagesValue.COMMAND_CUSTOM_BLOCK_CREATE_SUCCESS.replace("%customblock_name%", name));
+                                                                                                                                })
+                                                                                                                )
+                                                                                                )
+                                                                                )
+                                                                )
+                                                )
+                                )*/.then(
                                         new LiteralArgument("editfile")
                                                 .withPermission(DefaultPermissions.BDC.Command.EDITFILE_CB)
                                                 .then(
@@ -414,19 +479,13 @@ public class BlockDisplayCreatorCAPICommand {
                                                                         new LiteralArgument("central-material")
                                                                                 .then(
                                                                                         new StringArgument("material")
-                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
-                                                                                                                Arrays.stream(Material.values())
-                                                                                                                        .filter(Material::isBlock)
-                                                                                                                        .map(material -> material.name().toLowerCase())
-                                                                                                                        .toList()
-                                                                                                        )
-                                                                                                ).executes((sender, args) -> {
+                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(ItemUtil.BLOCK_MATERIAL_NAMES                                                                                                        )).executes((sender, args) -> {
                                                                                                     String block = (String) args.get("block");
                                                                                                     String material = (String) args.get("material");
 
                                                                                                     Material actualMaterial = Material.getMaterial(material.toUpperCase());
                                                                                                     if (actualMaterial == null || !actualMaterial.isBlock()) {
-                                                                                                        throw CommandAPI.failWithString("Invalid material: " + material);
+                                                                                                        ChatUtil.sendMessage(sender, "Invalid material: " + material);
                                                                                                     }
 
                                                                                                     setCbConfigValue(block, "central-material", material, sender);
@@ -610,12 +669,7 @@ public class BlockDisplayCreatorCAPICommand {
                                                                                         new LiteralArgument("material")
                                                                                                 .then(
                                                                                                         new StringArgument("item-material")
-                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(
-                                                                                                                        Arrays.stream(Material.values())
-                                                                                                                                .filter(Material::isItem)
-                                                                                                                                .map(material -> material.name().toLowerCase())
-                                                                                                                                .toList()
-                                                                                                                )).executes((sender, args) -> {
+                                                                                                                .replaceSuggestions(ArgumentSuggestions.strings(ItemUtil.BLOCK_MATERIAL_NAMES)).executes((sender, args) -> {
                                                                                                                     String block = (String) args.get("block");
                                                                                                                     String material = (String) args.get("item-material");
 

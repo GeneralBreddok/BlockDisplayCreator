@@ -1,10 +1,12 @@
 package me.general_breddok.blockdisplaycreator.file.config.loader;
 
 import lombok.Getter;
+import me.general_breddok.blockdisplaycreator.commandparser.CommandLine;
 import me.general_breddok.blockdisplaycreator.custom.block.AbstractCustomBlock;
 import me.general_breddok.blockdisplaycreator.data.yaml.YamlConfigFile;
 import me.general_breddok.blockdisplaycreator.file.exception.InvalidFileFormatException;
 import me.general_breddok.blockdisplaycreator.util.OperationUtil;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -75,6 +77,7 @@ public class CustomBlockFileRepository implements CustomBlockRepository {
                 .orElse(null);
     }
 
+    @Override
     public void addFile(CustomBlockConfigurationFile configurationFile) {
         files.add(configurationFile);
     }
@@ -85,7 +88,33 @@ public class CustomBlockFileRepository implements CustomBlockRepository {
                 .anyMatch(file -> name.equals(file.getName()));
     }
 
+    @Override
     public Path getPath() {
-        return Path.of(plugin.getDataFolder().toPath().toString(), REPOSITORY_NAME);
+        return plugin.getDataFolder().toPath().resolve(REPOSITORY_NAME);
+    }
+
+    public static CustomBlockConfigurationFile saveAbstractCustomBlock(Path folder, String name, List<String> summonCommands, Material itemMaterial, float interactionWidth, float interactionHeight) {
+        if (Files.notExists(folder)) {
+            try {
+                Files.createDirectories(folder);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+        if (Files.exists(folder.resolve(name + ".yml"))) {
+            throw new IllegalArgumentException("A file with the name " + name + ".yml already exists in the folder " + folder);
+        }
+
+        YamlConfigFile file = new YamlConfigFile(folder.resolve(name + ".yml"), true);
+
+        file.set("spawn-command", summonCommands);
+        file.set("item.material", itemMaterial.toString());
+        file.set("interactions.interaction1.width", interactionWidth);
+        file.set("interactions.interaction1.height", interactionHeight);
+
+        file.save();
+
+        return new CustomBlockYamlFile(file);
     }
 }

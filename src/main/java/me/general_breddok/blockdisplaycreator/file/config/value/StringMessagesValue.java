@@ -46,6 +46,7 @@ public final class StringMessagesValue implements ConstantConfigValue<String> {
     public static String COMMAND_CUSTOM_BLOCK_BREAK_NO_CUSTOM_BLOCK;
     public static String COMMAND_CUSTOM_BLOCK_BREAK_OPTION_DESCRIPTION_DROP_ITEM;
     public static String COMMAND_CUSTOM_BLOCK_BREAK_OPTION_DESCRIPTION_SILENT_BREAK;
+    public static String COMMAND_CUSTOM_BLOCK_CREATE_SUCCESS;
 
     public static String COMMAND_CUSTOM_BLOCK_EDITFILE_SET;
 
@@ -79,7 +80,7 @@ public final class StringMessagesValue implements ConstantConfigValue<String> {
                 "&cCustom block %customblock_name% not found! Perhaps it was deleted or was not loaded correctly.");
 
         COMMAND_BLOCK_NOT_EXISTS = configuration.get("command.block-not-exists", "&cBlock %customblock_name% does not exist!");
-        COMMAND_RELOAD = configuration.get("command.reload", "&aConfig has been reloaded!");
+        COMMAND_RELOAD = configuration.get("command.reload", "&aBlockDisplayCreator config has been reloaded!");
         COMMAND_RELOAD_BLOCK = configuration.get("command.reload-block", "&aBlock %customblock_name% has been reloaded!");
 
         COMMAND_CUSTOM_BLOCK_GIVE_PLAYER_RECEIVE = configuration.get("command.custom-block.give.player-receive",
@@ -118,6 +119,8 @@ public final class StringMessagesValue implements ConstantConfigValue<String> {
                 "&eDrops the corresponding item when breaking the block");
         COMMAND_CUSTOM_BLOCK_BREAK_OPTION_DESCRIPTION_SILENT_BREAK = configuration.get("command.custom-block.break.option-description.silent-break",
                 "&eSuppresses block breaking sounds");
+        COMMAND_CUSTOM_BLOCK_CREATE_SUCCESS = configuration.get("command.custom-block.create.success",
+                "&aCustom block with the name &b%customblock_name%&a has been created successfully!");
 
         COMMAND_CUSTOM_BLOCK_EDITFILE_SET = configuration.get("command.custom-block.editfile.set", "&aBlock &b%customblock_name%&a parameter &b%parameter%&a was successfully set to \"&b%value%&a\".");
     }

@@ -41,7 +41,7 @@ command:
   block-not-exists: "&cBlock &4%customblock_name% &cdoes not exist!"
 
   # Message displayed after executing the /bdc reload command
-  reload: "&aConfig has been reloaded!"
+  reload: "&aBlockDisplayCreator config has been reloaded!"
   # Message displayed after executing the /bdc reload <block_name> command
   reload-block: "&aBlock %customblock_name% has been reloaded!"
 
@@ -92,6 +92,10 @@ command:
     editfile:
       # Message displayed when a certain block parameter has been set to a certain value.
       set: "&aBlock &b%customblock_name%&a parameter &b%parameter%&a was successfully set to \"&b%value%&a\"."
+
+#    create:
+#        # Message displayed when a custom block is created successfully
+#      success: "&aCustom block with the name &b%customblock_name%&a has been created successfully!"
 
 
 

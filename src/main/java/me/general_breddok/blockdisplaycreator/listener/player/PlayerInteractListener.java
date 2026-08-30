@@ -201,14 +201,14 @@ public class PlayerInteractListener implements Listener {
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
             if (!WGRegionAccessChecker.checkRegionAccess(blockLocation, WGRegionFlags.PLACE_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.REGION_DENIED_PLACE);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
             if (!SSBIslandAccessChecker.checkIslandAccess(blockLocation, SSBIslandPrivileges.PLACE_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.ISLAND_DENIED_PLACE);
                 return false;
             }
         }
@@ -216,7 +216,7 @@ public class PlayerInteractListener implements Listener {
         CustomBlockPermissions permissions = abstractCustomBlock.getPermissions();
 
         if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.PLACE)) {
-            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
+            ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.PERMISSION_DENIED_PLACE);
             return false;
         }
         return true;

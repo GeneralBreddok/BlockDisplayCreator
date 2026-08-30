@@ -193,15 +193,8 @@ public class YamlConfigFile extends CachedFile implements ConfigurationSection {
      * {@inheritDoc}
      */
     @Override
-    public void reload(boolean createNewIfNotExist) {
-        if (!this.configFile.exists()) {
-            if (createNewIfNotExist) {
-                loadFromStream(BlockDisplayCreator.getInstance().getResource("messages.yml"));
-            } else {
-                throw new IllegalArgumentException("Configuration file does not exist: " + configFile.getAbsolutePath());
-            }
-        }
-        loadConfiguration();
+    public void reload(boolean loadNew) {
+        this.load(this.path, loadNew);
     }
 
     /**

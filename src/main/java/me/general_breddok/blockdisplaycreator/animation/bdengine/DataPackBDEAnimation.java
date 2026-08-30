@@ -15,12 +15,17 @@ import java.util.stream.Stream;
 
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
-public class DataPackFunctionAnimation implements FunctionAnimation {
-    List<MCFunction> functions;
+public class DataPackBDEAnimation implements BDEAnimation {
+    List<BDEAnimationKeyframe> keyframes;
 
-    public DataPackFunctionAnimation(Path folderPath) {
+    public DataPackBDEAnimation(Path folderPath) {
         try (Stream<Path> stream = Files.list(folderPath)) {
-            this.functions = stream.map(path -> (MCFunction) new MCFunctionFile(path)).toList();
+            this.keyframes = stream.map(path ->
+                            (BDEAnimationKeyframe) new DataPackBDEAnimationKeyframe(
+                                    new MCFunctionFile(path)
+                            )
+                    )
+                    .toList();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

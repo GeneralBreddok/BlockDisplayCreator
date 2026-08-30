@@ -20,6 +20,7 @@ public interface DefaultPermissions {
             String BREAK_CB = "bdc.command.custom-block.break";
             String PLACE_CB = "bdc.command.custom-block.place";
             String EDITFILE_CB = "bdc.command.custom-block.editfile";
+            String CREATE_CB = "bdc.command.custom-block.create";
         }
     }
 

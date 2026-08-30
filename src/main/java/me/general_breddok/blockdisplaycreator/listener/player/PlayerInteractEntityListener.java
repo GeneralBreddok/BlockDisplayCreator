@@ -131,14 +131,14 @@ public class PlayerInteractEntityListener implements Listener {
 
         if (dependentPluginManager.isWorldGuardAvailable()) {
             if (!WGRegionAccessChecker.checkRegionAccess(customBlockLocation, WGRegionFlags.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.REGION_DENIED_INTERACT);
                 return false;
             }
         }
 
         if (dependentPluginManager.isSuperiorSkyblockAvailable()) {
             if (!SSBIslandAccessChecker.checkIslandAccess(customBlockLocation, SSBIslandPrivileges.INTERACT_CB, player)) {
-                ChatUtil.sendMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
+                ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.ISLAND_DENIED_INTERACT);
                 return false;
             }
         }
@@ -147,7 +147,7 @@ public class PlayerInteractEntityListener implements Listener {
         CustomBlockPermissions permissions = customBlock.getPermissions();
 
         if (permissions != null && !permissions.hasPermissions(player, CustomBlockPermissions.Type.INTERACT)) {
-            ChatUtil.sendMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
+            ChatUtil.sendPlaceholderMessage(player, StringMessagesValue.PERMISSION_DENIED_INTERACT);
             return false;
         }
 
